@@ -49,7 +49,7 @@ import com.hp.hpl.jena.rdf.model.Model;
  * Root resource (exposed at "myresource" path)
  */
 @Path("myresource")
-public class Repository {
+public class RepositoryEndPoint {
 
     /**
      * Method handling HTTP GET requests. The returned object will be sent

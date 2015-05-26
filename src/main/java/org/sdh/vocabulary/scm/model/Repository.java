@@ -29,6 +29,8 @@ package org.sdh.vocabulary.scm.model;
 
 import java.util.ArrayList;
 
+import org.sdh.vocabulary.scm.external.doap.Location;
+import org.sdh.vocabulary.scm.external.foaf.Image;
 import org.sdh.vocabulary.scm.external.foaf.Person;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
@@ -42,17 +44,19 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 public class Repository {
-	Location location;
-	Location codebase;
+	Resource location;
+	Resource codebase;
 	//XSDDateTime
 	Literal createdOn;
 	Literal firstCommit;
 	Literal lastBuildDate;
 	Literal lastCommit;
 	
-	//Strings
+	//Boolean
 	Literal isArchived;
 	Literal isPublic;
+	
+	//String
 	Literal defaultBranchName;
 	Literal description;
 	Literal lastBuildStatus;
@@ -62,28 +66,265 @@ public class Repository {
 	
 	Branch defaultBranch;
 	ArrayList<Branch> hasBranch;
+	ArrayList<Commit> hasCommit;
 	
 	Image depiction; 
     
-    Person	developer;
+    Person developer;
     Person documenter;
     Person mainteiner;
     Person tester;
     
     Project isRepositoryOf;
     
-    Individual getIndividual(OntModel model, String NS){
+    public Repository(){
+    	hasBranch = new ArrayList<Branch>();
+    	hasCommit = new ArrayList<Commit>();
+    }
+     
+    
+    public Resource getLocation() {
+		return location;
+	}
+
+
+	public void setLocation(Resource location) {
+		this.location = location;
+	}
+
+
+	public Resource getCodebase() {
+		return codebase;
+	}
+
+
+	public void setCodebase(Resource codebase) {
+		this.codebase = codebase;
+	}
+
+
+	public Literal getCreatedOn() {
+		return createdOn;
+	}
+
+
+	public void setCreatedOn(Literal createdOn) {
+		this.createdOn = createdOn;
+	}
+
+
+	public Literal getFirstCommit() {
+		return firstCommit;
+	}
+
+
+	public void setFirstCommit(Literal firstCommit) {
+		this.firstCommit = firstCommit;
+	}
+
+
+	public Literal getLastBuildDate() {
+		return lastBuildDate;
+	}
+
+
+	public void setLastBuildDate(Literal lastBuildDate) {
+		this.lastBuildDate = lastBuildDate;
+	}
+
+
+	public Literal getLastCommit() {
+		return lastCommit;
+	}
+
+
+	public void setLastCommit(Literal lastCommit) {
+		this.lastCommit = lastCommit;
+	}
+
+
+	public Literal getIsArchived() {
+		return isArchived;
+	}
+
+
+	public void setIsArchived(Literal isArchived) {
+		this.isArchived = isArchived;
+	}
+
+
+	public Literal getIsPublic() {
+		return isPublic;
+	}
+
+
+	public void setIsPublic(Literal isPublic) {
+		this.isPublic = isPublic;
+	}
+
+
+	public Literal getDefaultBranchName() {
+		return defaultBranchName;
+	}
+
+
+	public void setDefaultBranchName(Literal defaultBranchName) {
+		this.defaultBranchName = defaultBranchName;
+	}
+
+
+	public Literal getDescription() {
+		return description;
+	}
+
+
+	public void setDescription(Literal description) {
+		this.description = description;
+	}
+
+
+	public Literal getLastBuildStatus() {
+		return lastBuildStatus;
+	}
+
+
+	public void setLastBuildStatus(Literal lastBuildStatus) {
+		this.lastBuildStatus = lastBuildStatus;
+	}
+
+
+	public Literal getName() {
+		return name;
+	}
+
+
+	public void setName(Literal name) {
+		this.name = name;
+	}
+
+
+	public Literal getRepositoryId() {
+		return repositoryId;
+	}
+
+
+	public void setRepositoryId(Literal repositoryId) {
+		this.repositoryId = repositoryId;
+	}
+
+
+	public Literal getTags() {
+		return tags;
+	}
+
+
+	public void setTags(Literal tags) {
+		this.tags = tags;
+	}
+
+
+	public Branch getDefaultBranch() {
+		return defaultBranch;
+	}
+
+
+	public void setDefaultBranch(Branch defaultBranch) {
+		this.defaultBranch = defaultBranch;
+	}
+
+
+	public ArrayList<Branch> getHasBranch() {
+		return hasBranch;
+	}
+
+
+	public void setHasBranch(ArrayList<Branch> hasBranch) {
+		this.hasBranch = hasBranch;
+	}
+
+
+	public ArrayList<Commit> getHasCommit() {
+		return hasCommit;
+	}
+
+
+	public void setHasCommit(ArrayList<Commit> hasCommit) {
+		this.hasCommit = hasCommit;
+	}
+
+
+	public Image getDepiction() {
+		return depiction;
+	}
+
+
+	public void setDepiction(Image depiction) {
+		this.depiction = depiction;
+	}
+
+
+	public Person getDeveloper() {
+		return developer;
+	}
+
+
+	public void setDeveloper(Person developer) {
+		this.developer = developer;
+	}
+
+
+	public Person getDocumenter() {
+		return documenter;
+	}
+
+
+	public void setDocumenter(Person documenter) {
+		this.documenter = documenter;
+	}
+
+
+	public Person getMainteiner() {
+		return mainteiner;
+	}
+
+
+	public void setMainteiner(Person mainteiner) {
+		this.mainteiner = mainteiner;
+	}
+
+
+	public Person getTester() {
+		return tester;
+	}
+
+
+	public void setTester(Person tester) {
+		this.tester = tester;
+	}
+
+
+	public Project getIsRepositoryOf() {
+		return isRepositoryOf;
+	}
+
+
+	public void setIsRepositoryOf(Project isRepositoryOf) {
+		this.isRepositoryOf = isRepositoryOf;
+	}
+
+
+	Individual getIndividual(OntModel model, String NS){
     	//OntModel m = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
     	OntClass repositoryClass = model.getOntClass( NS + "Programme" );
     	Individual repositoryInst = repositoryClass.createIndividual();   	
     	
     	//location
        	ObjectProperty locationProperty = model.getObjectProperty( NS + "location" );   
-       	repositoryInst.addProperty(locationProperty, location.getIndividual());
+       	repositoryInst.addProperty(locationProperty, location);
        	
         //codebase
        	ObjectProperty codebaseProperty = model.getObjectProperty( NS + "codebase" );   
-       	repositoryInst.addProperty(codebaseProperty, location.getIndividual());
+       	repositoryInst.addProperty(codebaseProperty, codebase);
     	
     	//createdOn
        	DatatypeProperty createdOnProperty = model.getDatatypeProperty(NS + "createdOn");
@@ -141,6 +382,12 @@ public class Repository {
        	ObjectProperty hasBranchProperty = model.getObjectProperty( NS + "hasBranch" );   
        	for (Branch branch:hasBranch){
        		repositoryInst.addProperty(hasBranchProperty, branch.getIndividual());
+       	}
+       	
+        //(0..*)hasCommit;
+       	ObjectProperty hasCommitProperty = model.getObjectProperty( NS + "hasCommit" );   
+       	for (Commit commit:hasCommit){
+       		repositoryInst.addProperty(hasCommitProperty, commit.getIndividual());
        	}
     	
     	//depiction; 

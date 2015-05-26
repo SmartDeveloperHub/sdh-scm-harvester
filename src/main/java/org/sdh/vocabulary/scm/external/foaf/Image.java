@@ -24,14 +24,13 @@
  *   Bundle      : scmharvester.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.sdh.vocabulary.scm.model;
+package org.sdh.vocabulary.scm.external.foaf;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
-public class Location {
+public class Image {
 	
-	Resource getIndividual(){
+	public Resource getIndividual(){
 		return null;
 	}
-	
 }
