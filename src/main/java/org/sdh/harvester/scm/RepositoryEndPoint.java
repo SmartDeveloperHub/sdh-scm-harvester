@@ -24,7 +24,7 @@
  *   Bundle      : scmharvester.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.sdh.scm.harvester;
+package org.sdh.harvester.scm;
 
 import java.io.InputStream;
 

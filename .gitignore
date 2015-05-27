@@ -53,7 +53,7 @@ $RECYCLE.BIN/
 
 # Linux crap
 *.*~
-
+*.attach_*
 #############
 ## Java
 #############

@@ -41,6 +41,7 @@ import com.hp.hpl.jena.ontology.ObjectProperty;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 public class Repository {
@@ -72,7 +73,7 @@ public class Repository {
     
     Person developer;
     Person documenter;
-    Person mainteiner;
+    Person maintainer;
     Person tester;
     
     Project isRepositoryOf;
@@ -283,13 +284,13 @@ public class Repository {
 	}
 
 
-	public Person getMainteiner() {
-		return mainteiner;
+	public Person getmaintainer() {
+		return maintainer;
 	}
 
 
-	public void setMainteiner(Person mainteiner) {
-		this.mainteiner = mainteiner;
+	public void setmaintainer(Person maintainer) {
+		this.maintainer = maintainer;
 	}
 
 
@@ -313,106 +314,159 @@ public class Repository {
 	}
 
 
-	Individual getIndividual(OntModel model, String NS){
+	public Individual getIndividual(OntModel model, String NS){
+		String doapNS="http://usefulinc.com/ns/doap#";		
+		String scmNS = NS;
+		String foafNS="http://xmlns.com/foaf/0.1/";
+		
+
+		
     	//OntModel m = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
-    	OntClass repositoryClass = model.getOntClass( NS + "Programme" );
+    	OntClass repositoryClass = model.getOntClass(doapNS+"Repository" );
     	Individual repositoryInst = repositoryClass.createIndividual();   	
     	
     	//location
-       	ObjectProperty locationProperty = model.getObjectProperty( NS + "location" );   
-       	repositoryInst.addProperty(locationProperty, location);
+    	if (location!=null){
+    		ObjectProperty locationProperty = model.getObjectProperty( doapNS + "location" );   
+    		repositoryInst.addProperty(locationProperty, location);
+    	}
        	
         //codebase
-       	ObjectProperty codebaseProperty = model.getObjectProperty( NS + "codebase" );   
-       	repositoryInst.addProperty(codebaseProperty, codebase);
+    	if (codebase!=null){
+	       	ObjectProperty codebaseProperty = model.getObjectProperty( NS + "codebase" );   
+	       	repositoryInst.addProperty(codebaseProperty, codebase);
+    	}
     	
     	//createdOn
-       	DatatypeProperty createdOnProperty = model.getDatatypeProperty(NS + "createdOn");
-       	repositoryInst.addLiteral(createdOnProperty, createdOn);
+    	if (createdOn!=null){
+	       	DatatypeProperty createdOnProperty = model.getDatatypeProperty(NS + "createdOn");
+	       	repositoryInst.addLiteral(createdOnProperty, createdOn);
+    	}
        	
         //firstCommit
-       	DatatypeProperty firstCommitProperty = model.getDatatypeProperty(NS + "firstCommit");
-       	repositoryInst.addLiteral(firstCommitProperty, firstCommit);
+    	if (firstCommit!=null){
+	       	DatatypeProperty firstCommitProperty = model.getDatatypeProperty(NS + "firstCommit");
+	       	repositoryInst.addLiteral(firstCommitProperty, firstCommit);
+    	}
     	
         //lastBuildDate
-       	DatatypeProperty lastBuildDateProperty = model.getDatatypeProperty(NS + "lastBuildDate");
-       	repositoryInst.addLiteral(lastBuildDateProperty, lastBuildDate);
+    	if (lastBuildDate!=null){
+	       	DatatypeProperty lastBuildDateProperty = model.getDatatypeProperty(NS + "lastBuildDate");
+	       	repositoryInst.addLiteral(lastBuildDateProperty, lastBuildDate);
+    	}
        	
         //lastCommit
-       	DatatypeProperty lastCommitProperty = model.getDatatypeProperty(NS + "lastCommit");
-       	repositoryInst.addLiteral(lastCommitProperty, lastCommit);
+    	if (lastCommit!=null){
+	       	DatatypeProperty lastCommitProperty = model.getDatatypeProperty(NS + "lastCommit");
+	       	repositoryInst.addLiteral(lastCommitProperty, lastCommit);
+    	}
     	       	
        	//isArchived;
-       	DatatypeProperty isArchivedProperty = model.getDatatypeProperty(NS + "isArchived");
-       	repositoryInst.addLiteral(isArchivedProperty, isArchived);
+       	if (isArchived!=null){
+	       	DatatypeProperty isArchivedProperty = model.getDatatypeProperty(NS + "isArchived");
+	       	repositoryInst.addLiteral(isArchivedProperty, isArchived);
+       	}
     	
        	//isPublic;
-       	DatatypeProperty isPublicProperty = model.getDatatypeProperty(NS + "isPublic");
-       	repositoryInst.addLiteral(isPublicProperty, isPublic);
+       	if (isPublic!=null){
+	       	DatatypeProperty isPublicProperty = model.getDatatypeProperty(NS + "isPublic");
+	       	repositoryInst.addLiteral(isPublicProperty, isPublic);
+       	}
        	
     	//defaultBranchName;
-       	DatatypeProperty defaultBranchNameProperty = model.getDatatypeProperty(NS + "defaultBranchName");
-       	repositoryInst.addLiteral(defaultBranchNameProperty, defaultBranchName);
+       	if (defaultBranchName!=null){
+	       	DatatypeProperty defaultBranchNameProperty = model.getDatatypeProperty(NS + "defaultBranchName");
+	       	repositoryInst.addLiteral(defaultBranchNameProperty, defaultBranchName);
+       	}
        	
     	//description;
-       	DatatypeProperty descriptionNameProperty = model.getDatatypeProperty(NS + "description");
-       	repositoryInst.addLiteral(descriptionNameProperty, description);
+       	if (description!=null){
+	       	DatatypeProperty descriptionNameProperty = model.getDatatypeProperty(doapNS + "description");
+	       	repositoryInst.addLiteral(descriptionNameProperty, description);
+       	}
        	
        	//lastBuildStatus;
-    	DatatypeProperty lastBuildStatusProperty = model.getDatatypeProperty(NS + "lastBuildStatus");
-       	repositoryInst.addLiteral(lastBuildStatusProperty, lastBuildStatus);
+       	if (lastBuildStatus!=null){
+	    	DatatypeProperty lastBuildStatusProperty = model.getDatatypeProperty(NS + "lastBuildStatus");
+	       	repositoryInst.addLiteral(lastBuildStatusProperty, lastBuildStatus);
+       	}
        	
     	//name;
-       	DatatypeProperty nameProperty = model.getDatatypeProperty(NS + "name");
-       	repositoryInst.addLiteral(nameProperty, name);
+       	if (name!=null){
+	       	DatatypeProperty nameProperty = model.getDatatypeProperty(doapNS + "name");
+	       	repositoryInst.addLiteral(nameProperty, name);
+       	}
        	
         //repositoryId;
-       	DatatypeProperty repositoryIdProperty = model.getDatatypeProperty(NS + "repositoryId");
-       	repositoryInst.addLiteral(repositoryIdProperty, repositoryId);
+       	if (repositoryId!=null){
+       		DatatypeProperty repositoryIdProperty = model.getDatatypeProperty(NS + "repositoryId");
+       		repositoryInst.addLiteral(repositoryIdProperty, repositoryId);
+       	}
        	
         //tags;
-       	DatatypeProperty tagsProperty = model.getDatatypeProperty(NS + "tags");
-       	repositoryInst.addLiteral(tagsProperty, tags);
-       	
+       	if (tags!=null){
+       		DatatypeProperty tagsProperty = model.getDatatypeProperty(NS + "tags");
+       		repositoryInst.addLiteral(tagsProperty, tags);
+       	}
+
        	//defaultBranch;
-       	ObjectProperty defaultBranchProperty = model.getObjectProperty( NS + "defaultBranch" );   
-       	repositoryInst.addProperty(defaultBranchProperty, defaultBranch.getIndividual());
-       	
-    	//(0..*)hasBranch;
-       	ObjectProperty hasBranchProperty = model.getObjectProperty( NS + "hasBranch" );   
-       	for (Branch branch:hasBranch){
-       		repositoryInst.addProperty(hasBranchProperty, branch.getIndividual());
+       	if (defaultBranch!=null){
+       		ObjectProperty defaultBranchProperty = model.getObjectProperty( NS + "defaultBranch" );   
+       		repositoryInst.addProperty(defaultBranchProperty, defaultBranch.getIndividual());
        	}
-       	
-        //(0..*)hasCommit;
-       	ObjectProperty hasCommitProperty = model.getObjectProperty( NS + "hasCommit" );   
-       	for (Commit commit:hasCommit){
-       		repositoryInst.addProperty(hasCommitProperty, commit.getIndividual());
+
+       	//(0..*)hasBranch;
+       	if (hasBranch!=null){
+       		ObjectProperty hasBranchProperty = model.getObjectProperty( NS + "hasBranch" );   
+       		for (Branch branch:hasBranch){
+       			repositoryInst.addProperty(hasBranchProperty, branch.getIndividual());
+       		}
        	}
-    	
-    	//depiction; 
-       	ObjectProperty depictionProperty = model.getObjectProperty( NS + "depiction" );   
-       	repositoryInst.addProperty(depictionProperty, depiction.getIndividual());
-        
+
+       	//(0..*)hasCommit;
+       	if (hasCommit!=null){
+       		ObjectProperty hasCommitProperty = model.getObjectProperty( NS + "hasCommit" );   
+       		for (Commit commit:hasCommit){
+       			repositoryInst.addProperty(hasCommitProperty, commit.getIndividual());
+       		}
+       	}
+
+       	//depiction; 
+       	if (depiction!=null){
+       		ObjectProperty depictionProperty = model.getObjectProperty( foafNS + "depiction" );   
+       		repositoryInst.addProperty(depictionProperty, depiction.getIndividual());
+       	}
+
        	//developer;
-       	ObjectProperty developerProperty = model.getObjectProperty( NS + "developer" );   
-       	repositoryInst.addProperty(developerProperty, developer.getIndividual());
-       	
+       	if (developer!=null){
+       		ObjectProperty developerProperty = model.getObjectProperty( foafNS + "developer" );   
+       		repositoryInst.addProperty(developerProperty, developer.getIndividual());
+       	}
+
        	//documenter;
-       	ObjectProperty documenterProperty = model.getObjectProperty( NS + "documenter" );   
-       	repositoryInst.addProperty(documenterProperty, documenter.getIndividual());
-       	
-        //mainteiner;
-       	ObjectProperty mainteinerProperty = model.getObjectProperty( NS + "mainteiner" );   
-       	repositoryInst.addProperty(mainteinerProperty, mainteiner.getIndividual());
-       	
-        //tester;
-        ObjectProperty testerProperty = model.getObjectProperty( NS + "tester" );   
-       	repositoryInst.addProperty(testerProperty, tester.getIndividual());
-        
-        //isRepositoryOf;
-        ObjectProperty isRepositoryOfProperty = model.getObjectProperty( NS + "isRepositoryOf" );   
-       	repositoryInst.addProperty(isRepositoryOfProperty, isRepositoryOf.getIndividual());
+       	if (documenter!=null){
+       		ObjectProperty documenterProperty = model.getObjectProperty( foafNS + "documenter" );   
+       		repositoryInst.addProperty(documenterProperty, documenter.getIndividual());
+       	}
+
+
+       	//maintainer;
+       	if (maintainer!=null){
+       		ObjectProperty maintainerProperty = model.getObjectProperty( foafNS + "maintainer" );   
+       		repositoryInst.addProperty(maintainerProperty, maintainer.getIndividual());
+       	}
+
+       	//tester;
+       	if (tester!=null){
+       		ObjectProperty testerProperty = model.getObjectProperty( foafNS + "tester" );   
+       		repositoryInst.addProperty(testerProperty, tester.getIndividual());
+       	}
+
+       	//isRepositoryOf;
+       	if (isRepositoryOf!=null){
+       		ObjectProperty isRepositoryOfProperty = model.getObjectProperty( NS + "isRepositoryOf" );   
+       		repositoryInst.addProperty(isRepositoryOfProperty, isRepositoryOf.getIndividual());
+       	}
         
 		return repositoryInst;    	
     }
