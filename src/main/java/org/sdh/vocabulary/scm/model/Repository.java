@@ -29,6 +29,7 @@ package org.sdh.vocabulary.scm.model;
 
 import java.util.ArrayList;
 
+import org.sdh.vocabulary.scm.Namespace;
 import org.sdh.vocabulary.scm.external.doap.Location;
 import org.sdh.vocabulary.scm.external.foaf.Image;
 import org.sdh.vocabulary.scm.external.foaf.Person;
@@ -40,11 +41,14 @@ import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.ObjectProperty;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-public class Repository {
+public class Repository extends RDFResource {
 	Resource location;
 	Resource codebase;
 	//XSDDateTime
@@ -67,7 +71,6 @@ public class Repository {
 	
 	Branch defaultBranch;
 	ArrayList<Branch> hasBranch;
-	ArrayList<Commit> hasCommit;
 	
 	Image depiction; 
     
@@ -78,9 +81,10 @@ public class Repository {
     
     Project isRepositoryOf;
     
-    public Repository(){
+    public Repository(OntModel schemaModel, OntModel instanceModel){
+    	super(schemaModel, instanceModel);
+    	defaultBranch = new Branch(schemaModel, instanceModel);
     	hasBranch = new ArrayList<Branch>();
-    	hasCommit = new ArrayList<Commit>();
     }
      
     
@@ -243,17 +247,6 @@ public class Repository {
 		this.hasBranch = hasBranch;
 	}
 
-
-	public ArrayList<Commit> getHasCommit() {
-		return hasCommit;
-	}
-
-
-	public void setHasCommit(ArrayList<Commit> hasCommit) {
-		this.hasCommit = hasCommit;
-	}
-
-
 	public Image getDepiction() {
 		return depiction;
 	}
@@ -314,161 +307,152 @@ public class Repository {
 	}
 
 
-	public Individual getIndividual(OntModel model, String NS){
-		String doapNS="http://usefulinc.com/ns/doap#";		
-		String scmNS = NS;
-		String foafNS="http://xmlns.com/foaf/0.1/";
+	public OntModel getIndividualModel(){
+				
+//		OntModel doap = schemaModel.getImportedModel("http://www.smartdeveloperhub.org/vocabulary/external/doap/doap.rdf");
+//		OntModel platform = schemaModel.getImportedModel("http://www.smartdeveloperhub.org/vocabulary/platform");
 		
-
-		
-    	//OntModel m = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
-    	OntClass repositoryClass = model.getOntClass(doapNS+"Repository" );
-    	Individual repositoryInst = repositoryClass.createIndividual();   	
+    	
+    	OntClass repositoryClass = schemaModel.getOntClass(Namespace.doapNS+"Repository" );
+    	//Individual repositoryInst = repositoryClass.createIndividual(Namespace.scmNS+"repo01");
+    	Individual indv = instanceModel.createIndividual(Namespace.scmNS+"repo01", repositoryClass);
     	
     	//location
     	if (location!=null){
-    		ObjectProperty locationProperty = model.getObjectProperty( doapNS + "location" );   
-    		repositoryInst.addProperty(locationProperty, location);
+    		ObjectProperty locationProperty = schemaModel.getObjectProperty( Namespace.doapNS + "location" );   
+    		indv.addProperty(locationProperty, location);
     	}
        	
         //codebase
     	if (codebase!=null){
-	       	ObjectProperty codebaseProperty = model.getObjectProperty( NS + "codebase" );   
-	       	repositoryInst.addProperty(codebaseProperty, codebase);
+	       	ObjectProperty codebaseProperty = schemaModel.getObjectProperty( Namespace.scmNS + "codebase" );   
+	       	indv.addProperty(codebaseProperty, codebase);
     	}
     	
     	//createdOn
     	if (createdOn!=null){
-	       	DatatypeProperty createdOnProperty = model.getDatatypeProperty(NS + "createdOn");
-	       	repositoryInst.addLiteral(createdOnProperty, createdOn);
+	       	DatatypeProperty createdOnProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "createdOn");
+	       	indv.addLiteral(createdOnProperty, createdOn);
     	}
        	
         //firstCommit
     	if (firstCommit!=null){
-	       	DatatypeProperty firstCommitProperty = model.getDatatypeProperty(NS + "firstCommit");
-	       	repositoryInst.addLiteral(firstCommitProperty, firstCommit);
+	       	DatatypeProperty firstCommitProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "firstCommit");
+	       	indv.addLiteral(firstCommitProperty, firstCommit);
     	}
     	
         //lastBuildDate
     	if (lastBuildDate!=null){
-	       	DatatypeProperty lastBuildDateProperty = model.getDatatypeProperty(NS + "lastBuildDate");
-	       	repositoryInst.addLiteral(lastBuildDateProperty, lastBuildDate);
+	       	DatatypeProperty lastBuildDateProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "lastBuildDate");
+	       	indv.addLiteral(lastBuildDateProperty, lastBuildDate);
     	}
        	
         //lastCommit
     	if (lastCommit!=null){
-	       	DatatypeProperty lastCommitProperty = model.getDatatypeProperty(NS + "lastCommit");
-	       	repositoryInst.addLiteral(lastCommitProperty, lastCommit);
+	       	DatatypeProperty lastCommitProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "lastCommit");
+	       	indv.addLiteral(lastCommitProperty, lastCommit);
     	}
     	       	
        	//isArchived;
        	if (isArchived!=null){
-	       	DatatypeProperty isArchivedProperty = model.getDatatypeProperty(NS + "isArchived");
-	       	repositoryInst.addLiteral(isArchivedProperty, isArchived);
+	       	DatatypeProperty isArchivedProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "isArchived");
+	       	indv.addLiteral(isArchivedProperty, isArchived);
        	}
     	
        	//isPublic;
        	if (isPublic!=null){
-	       	DatatypeProperty isPublicProperty = model.getDatatypeProperty(NS + "isPublic");
-	       	repositoryInst.addLiteral(isPublicProperty, isPublic);
+	       	DatatypeProperty isPublicProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "isPublic");
+	       	indv.addLiteral(isPublicProperty, isPublic);
        	}
        	
     	//defaultBranchName;
        	if (defaultBranchName!=null){
-	       	DatatypeProperty defaultBranchNameProperty = model.getDatatypeProperty(NS + "defaultBranchName");
-	       	repositoryInst.addLiteral(defaultBranchNameProperty, defaultBranchName);
+	       	DatatypeProperty defaultBranchNameProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "defaultBranchName");
+	       	indv.addLiteral(defaultBranchNameProperty, defaultBranchName);
        	}
        	
     	//description;
        	if (description!=null){
-	       	DatatypeProperty descriptionNameProperty = model.getDatatypeProperty(doapNS + "description");
-	       	repositoryInst.addLiteral(descriptionNameProperty, description);
+	       	Property descriptionNameProperty = schemaModel.getProperty(Namespace.doapNS + "description");
+	       	indv.addLiteral(descriptionNameProperty, description);
        	}
        	
        	//lastBuildStatus;
        	if (lastBuildStatus!=null){
-	    	DatatypeProperty lastBuildStatusProperty = model.getDatatypeProperty(NS + "lastBuildStatus");
-	       	repositoryInst.addLiteral(lastBuildStatusProperty, lastBuildStatus);
+	    	DatatypeProperty lastBuildStatusProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "lastBuildStatus");
+	       	indv.addLiteral(lastBuildStatusProperty, lastBuildStatus);
        	}
        	
     	//name;
        	if (name!=null){
-	       	DatatypeProperty nameProperty = model.getDatatypeProperty(doapNS + "name");
-	       	repositoryInst.addLiteral(nameProperty, name);
+	       	DatatypeProperty nameProperty = schemaModel.getDatatypeProperty(Namespace.doapNS + "name");
+	       	indv.addLiteral(nameProperty, name);
        	}
        	
         //repositoryId;
        	if (repositoryId!=null){
-       		DatatypeProperty repositoryIdProperty = model.getDatatypeProperty(NS + "repositoryId");
-       		repositoryInst.addLiteral(repositoryIdProperty, repositoryId);
+       		DatatypeProperty repositoryIdProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "repositoryId");
+       		indv.addLiteral(repositoryIdProperty, repositoryId);
        	}
        	
         //tags;
        	if (tags!=null){
-       		DatatypeProperty tagsProperty = model.getDatatypeProperty(NS + "tags");
-       		repositoryInst.addLiteral(tagsProperty, tags);
+       		DatatypeProperty tagsProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "tags");
+       		indv.addLiteral(tagsProperty, tags);
        	}
 
        	//defaultBranch;
        	if (defaultBranch!=null){
-       		ObjectProperty defaultBranchProperty = model.getObjectProperty( NS + "defaultBranch" );   
-       		repositoryInst.addProperty(defaultBranchProperty, defaultBranch.getIndividual());
+       		ObjectProperty defaultBranchProperty = schemaModel.getObjectProperty( Namespace.scmNS + "defaultBranch" );   
+       		indv.addProperty(defaultBranchProperty, defaultBranch.getIndividual());
        	}
 
        	//(0..*)hasBranch;
        	if (hasBranch!=null){
-       		ObjectProperty hasBranchProperty = model.getObjectProperty( NS + "hasBranch" );   
+       		ObjectProperty hasBranchProperty = schemaModel.getObjectProperty( Namespace.scmNS + "hasBranch" );   
        		for (Branch branch:hasBranch){
-       			repositoryInst.addProperty(hasBranchProperty, branch.getIndividual());
-       		}
-       	}
-
-       	//(0..*)hasCommit;
-       	if (hasCommit!=null){
-       		ObjectProperty hasCommitProperty = model.getObjectProperty( NS + "hasCommit" );   
-       		for (Commit commit:hasCommit){
-       			repositoryInst.addProperty(hasCommitProperty, commit.getIndividual());
+       			indv.addProperty(hasBranchProperty, branch.getIndividual());
        		}
        	}
 
        	//depiction; 
        	if (depiction!=null){
-       		ObjectProperty depictionProperty = model.getObjectProperty( foafNS + "depiction" );   
-       		repositoryInst.addProperty(depictionProperty, depiction.getIndividual());
+       		ObjectProperty depictionProperty = schemaModel.getObjectProperty( Namespace.foafNS + "depiction" );   
+       		indv.addProperty(depictionProperty, depiction.getIndividual());
        	}
 
        	//developer;
        	if (developer!=null){
-       		ObjectProperty developerProperty = model.getObjectProperty( foafNS + "developer" );   
-       		repositoryInst.addProperty(developerProperty, developer.getIndividual());
+       		Property developerProperty = schemaModel.getProperty( Namespace.doapNS + "developer" );   
+       		indv.addProperty(developerProperty, developer.getIndividual());
        	}
 
        	//documenter;
        	if (documenter!=null){
-       		ObjectProperty documenterProperty = model.getObjectProperty( foafNS + "documenter" );   
-       		repositoryInst.addProperty(documenterProperty, documenter.getIndividual());
+       		Property documenterProperty = schemaModel.getProperty( Namespace.doapNS + "documenter" );   
+       		indv.addProperty(documenterProperty, documenter.getIndividual());
        	}
 
 
        	//maintainer;
        	if (maintainer!=null){
-       		ObjectProperty maintainerProperty = model.getObjectProperty( foafNS + "maintainer" );   
-       		repositoryInst.addProperty(maintainerProperty, maintainer.getIndividual());
+       		Property maintainerProperty = schemaModel.getProperty( Namespace.doapNS + "maintainer" );   
+       		indv.addProperty(maintainerProperty, maintainer.getIndividual());
        	}
 
        	//tester;
        	if (tester!=null){
-       		ObjectProperty testerProperty = model.getObjectProperty( foafNS + "tester" );   
-       		repositoryInst.addProperty(testerProperty, tester.getIndividual());
+       		Property testerProperty = schemaModel.getProperty( Namespace.doapNS + "tester" );   
+       		indv.addProperty(testerProperty, tester.getIndividual());
        	}
 
        	//isRepositoryOf;
        	if (isRepositoryOf!=null){
-       		ObjectProperty isRepositoryOfProperty = model.getObjectProperty( NS + "isRepositoryOf" );   
-       		repositoryInst.addProperty(isRepositoryOfProperty, isRepositoryOf.getIndividual());
+       		ObjectProperty isRepositoryOfProperty = schemaModel.getObjectProperty( Namespace.scmNS + "isRepositoryOf" );   
+       		indv.addProperty(isRepositoryOfProperty, isRepositoryOf.getIndividual());
        	}
-        
-		return repositoryInst;    	
+       	       	        
+		return instanceModel;    	
     }
         
     

@@ -26,11 +26,79 @@
  */
 package org.sdh.vocabulary.scm.model;
 
-import com.hp.hpl.jena.ontology.Individual;
+import org.sdh.vocabulary.scm.Namespace;
+import org.sdh.vocabulary.scm.external.foaf.Person;
 
-public class Commit {
+import com.hp.hpl.jena.ontology.DatatypeProperty;
+import com.hp.hpl.jena.ontology.Individual;
+import com.hp.hpl.jena.ontology.ObjectProperty;
+import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Property;
+
+public class Commit extends RDFResource {
+
+	Action subClassOf;
+	Literal createdOn;
+	Person performedBy;
+	
+	public Commit(OntModel schemaModel, OntModel instanceModel) {
+		super(schemaModel, instanceModel);
+		// TODO Auto-generated constructor stub
+	}
+
+	
+	public Action getSubClassOf() {
+		return subClassOf;
+	}
+
+
+	public void setSubClassOf(Action subClassOf) {
+		this.subClassOf = subClassOf;
+	}
+
+
+	public Literal getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Literal createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Person getPerformedBy() {
+		return performedBy;
+	}
+
+	public void setPerformedBy(Person performedBy) {
+		this.performedBy = performedBy;
+	}
 
 	Individual getIndividual(){
-		return null;
+		OntClass commitClass = schemaModel.getOntClass(Namespace.scmNS+"Commit" );
+		Individual indv = instanceModel.createIndividual(commitClass);
+		
+		//createdOn
+    	if (createdOn!=null){
+	       	DatatypeProperty createdOnProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "createdOn");
+	       	indv.addLiteral(createdOnProperty, createdOn);
+    	}	
+    	
+    	//performedBy;
+       	if (performedBy!=null){
+       		ObjectProperty performedByProperty = schemaModel.getObjectProperty( Namespace.scmNS + "performedBy" );   
+       		indv.addProperty(performedByProperty, performedBy.getIndividual());
+       	}
+       	
+       	//subClassOf
+       	if (subClassOf!=null){
+       		Property subClassOfProperty = schemaModel.getProperty(Namespace.rdfsNS + "subClassOf");
+	       	indv.addProperty(subClassOfProperty, subClassOf.getIndividual());
+    	}
+    	
+    	return indv;
 	}
+
 }
+

@@ -26,31 +26,41 @@
  */
 package org.sdh.harvester.scm;
 
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.sdh.vocabulary.scm.ScmOntology;
 import org.sdh.vocabulary.scm.external.foaf.Image;
 import org.sdh.vocabulary.scm.external.foaf.Person;
+import org.sdh.vocabulary.scm.model.Action;
 import org.sdh.vocabulary.scm.model.Branch;
 import org.sdh.vocabulary.scm.model.Commit;
 import org.sdh.vocabulary.scm.model.Repository;
 
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.util.PrintUtil;
 
 public class Harvester {
+
+	static final Logger logger = LogManager.getLogger(Harvester.class);
 	
-	private void testRepository(OntModel ontModel, String NS){
-		Repository repo = new Repository();
-		
-		Resource location = ontModel.createResource(NS+"location");
-		repo.setLocation(location);
-		
-		Resource codebase = ontModel.createResource(NS+"codebase");
-		repo.setCodebase(codebase);
+	private void testRepository(OntModel ontModel,OntModel instModel, String NS) throws UnsupportedEncodingException{
+		Repository repo = new Repository(ontModel, instModel);
+				
+		repo.setLocation(ontModel.createResource(NS+"location"));
+				
+		repo.setCodebase(ontModel.createResource(NS+"codebase"));
 		
 		Literal createdOn = ontModel.createLiteral("2015-05-20T21:00:00Z",true);
 		repo.setCreatedOn(createdOn);
@@ -63,74 +73,97 @@ public class Harvester {
 		
 		Literal lastCommit = ontModel.createLiteral("2015-05-20T21:00:00Z",true);
 		repo.setLastCommit(lastCommit);
+				
+		repo.setIsArchived(ontModel.createLiteral("false",true));
+				
+		repo.setIsPublic(ontModel.createLiteral("boolean",true));
+				
+		repo.setDefaultBranchName(ontModel.createLiteral("Master",true));
+				
+		repo.setDescription(ontModel.createLiteral("Development repo",true));
 		
-		Literal isArchived = ontModel.createLiteral("false",true);
-		repo.setIsArchived(isArchived);
+		repo.setLastBuildStatus(ontModel.createLiteral("Sucesful",true));
 		
-		Literal isPublic = ontModel.createLiteral("boolean",true);
-		repo.setIsPublic(isPublic);
-		
-		Literal defaultBranchName = ontModel.createLiteral("Master",true);
-		repo.setDefaultBranchName(defaultBranchName);
-		
-		Literal description = ontModel.createLiteral("This is very nice repo",true);
-		repo.setDescription(description);
-		
-		Literal lastBuildStatus=  ontModel.createLiteral("Sucesful",true);
-		repo.setLastBuildStatus(lastBuildStatus);
-		
-		Literal name  = ontModel.createLiteral("Main product repo",true);
-		repo.setName(name);
-		
-	    Literal repositoryId  = ontModel.createLiteral("repo001",true);
-	    repo.setRepositoryId(repositoryId);
+		repo.setName(ontModel.createLiteral("Main product repo",true));
+	
+	    repo.setRepositoryId(ontModel.createLiteral("repo001",true));
 	    
-	    Literal tags = ontModel.createLiteral("repo, development, business",true);;
-	    repo.setTags(tags);
+	    repo.setTags(ontModel.createLiteral("repo, development, business",true));
 	    
-//	    //Missing instance Configuration 
-//		Branch defaultBranch = new Branch();		
-//		repo.setDefaultBranch(defaultBranch);
-//		
-//		ArrayList<Branch> hasBranch = new ArrayList<Branch>();
-//		//Missing add branches
-//		repo.setHasBranch(hasBranch);
-//		
-//		ArrayList<Commit> hasCommit = new ArrayList<Commit>();
-//		//Missing add commits
-//		
-//		repo.setHasCommit(hasCommit);
-//		
+	    //Branch
+		Branch branch01 = new Branch(ontModel, instModel);				
+		branch01.setName(ontModel.createLiteral("Master Branch",true));		
+		branch01.setCreatedOn(createdOn);
+		
+		Action action01 = new Action(ontModel, instModel);
+		branch01.setIsTargetOf(action01);		
+				
+		Commit commit01 = new Commit(ontModel, instModel);
+		Person person01 = new Person(ontModel, instModel);
+		person01.setMbox(ontModel.createLiteral("andresgs77@hotmail.com",true));
+		person01.setName(ontModel.createLiteral("andres garcia",true));
+		person01.setSignUpDate(ontModel.createLiteral("2015-05-20T21:00:00Z",true));
+		person01.setFirstCommit(ontModel.createLiteral("2015-05-20T21:00:00Z",true));
+		person01.setLastCommit(ontModel.createLiteral("2015-05-20T21:00:00Z",true));
+		
+		commit01.setCreatedOn(createdOn);
+		commit01.setPerformedBy(person01);
+		commit01.setSubClassOf(action01);
+		
+		ArrayList<Commit> hasCommit = new ArrayList<Commit>();
+		hasCommit.add(commit01);
+		
+		branch01.setHasCommit(hasCommit);
+		
+		repo.setDefaultBranch(branch01);
+		
+		//repo.hasBranch
+		ArrayList<Branch> hasBranch = new ArrayList<Branch>();
+		hasBranch.add(branch01);
+		repo.setHasBranch(hasBranch);
+		
+	
 //		Image depiction = new Image();
 //		repo.setDepiction(depiction);
 //	    
-//	    Person developer = new Person();
-//	    repo.setDeveloper(developer);
-//	    
-//	    Person documenter = new Person();
-//	    repo.setDocumenter(documenter);
-//	    
-//	    Person maintainer = new Person();
-//	    repo.setmaintainer(maintainer);
-//	    
-//	    Person tester = new Person();
-//	    repo.setTester(tester);
+	    Person developer = new Person(ontModel,instModel);
+	    repo.setDeveloper(developer);
+
 	    
 	    		
-	    Individual ontRep = repo.getIndividual(ontModel, NS);
-	    System.out.println(ontRep.toString());
+	    OntModel outputModel = repo.getIndividualModel();
+
+	    ByteArrayOutputStream output= new ByteArrayOutputStream();
+	    outputModel.writeAll(output, "TTL");
+	    
+	    System.out.println(output.toString());
+	    //instModel.writeAll(System.out, "TTL");
 	    
 	    
 	}
-
-	public static void main (String[] argv){
+	
+	public void startProcessing() throws UnsupportedEncodingException{
+		//PropertiesConfigurator is used to configure logger from properties file
+		ClassLoader classLoader = getClass().getClassLoader();
+		PropertyConfigurator.configure(classLoader.getResource("log4j.properties").getFile());
+		logger.debug("Log4j appender configuration is successful !!");
+		
+		// Set up a simple configuration that logs on the console.
+        //BasicConfigurator.configure();
+		
 		ScmOntology onto = new ScmOntology();
 		onto.loadOntology();
 		OntModel ontModel=onto.getJenaModel();
-		Harvester harvester = new Harvester();
-		
 		String NS = "http://www.smartdeveloperhub.org/vocabulary/sdh/v1/scm#";
 		NS = "http://www.smartdeveloperhub.org/vocabulary/scm#";
-		harvester.testRepository(ontModel,NS);
+		
+    	OntModel instanceModel = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
+		testRepository(ontModel,instanceModel, NS);
+	}
+
+	public static void main (String[] argv) throws UnsupportedEncodingException{
+				
+		Harvester harvester = new Harvester();
+		harvester.startProcessing();
 	}
 }
