@@ -26,11 +26,64 @@
  */
 package org.sdh.vocabulary.scm.external.foaf;
 
+import org.sdh.vocabulary.scm.Namespace;
+import org.sdh.vocabulary.scm.model.RDFResource;
+
+import com.hp.hpl.jena.ontology.Individual;
+import com.hp.hpl.jena.ontology.ObjectProperty;
+import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-public class Image {
+public class Image extends RDFResource{
 	
+	public Image(OntModel schemaModel, OntModel instanceModel) {
+		super(schemaModel, instanceModel);
+		// TODO Auto-generated constructor stub
+	}
+
+    String userId;    
+	Resource isDefinedBy;
+	
+	
+	
+	public String getUserId() {
+		return userId;
+	}
+
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+
+	public Resource getIsDefinedBy() {
+		return isDefinedBy;
+	}
+
+
+	public void setIsDefinedBy(Resource isDefinedBy) {
+		this.isDefinedBy = isDefinedBy;
+	}
+	
+	public void setIsDefinedBy(String isDefinedBy){
+		this.isDefinedBy = schemaModel.createResource(isDefinedBy);
+	}
+
+
 	public Resource getIndividual(){
-		return null;
+		OntClass imageClass = schemaModel.getOntClass(Namespace.foafNS+"Image" );
+		Individual indv = null;
+		if (userId !=null)
+			if (!userId.isEmpty())
+				indv = instanceModel.createIndividual("http://localhost:9090/scmharvester/webapi/user/"+userId+"/image", imageClass);
+		
+		if (isDefinedBy!=null){
+    		Property isDefinedByProperty = schemaModel.getProperty( Namespace.rdfsNS + "isDefinedBy" );   
+    		indv.addProperty(isDefinedByProperty, isDefinedBy);
+    	}
+		return indv;
+		
 	}
 }

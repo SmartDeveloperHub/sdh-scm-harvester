@@ -52,6 +52,7 @@ public class Branch extends RDFResource{
 	Literal createdOn;
 	Literal name;
 	ArrayList<Commit>  hasCommit;
+	String repo;
 	Action  isTargetOf;
 
 	public Branch(OntModel schemaModel, OntModel instanceModel) {
@@ -97,12 +98,19 @@ public class Branch extends RDFResource{
 
 	public void setIsTargetOf(Action isTargetOf) {
 		this.isTargetOf = isTargetOf;
+	}	
+
+	public String getRepo() {
+		return repo;
 	}
 
+	public void setRepo(String repo) {
+		this.repo = repo;
+	}
 
-	Individual getIndividual(){
+	public Individual getIndividual(){
 		OntClass branchClass = schemaModel.getOntClass(Namespace.scmNS+"Branch" );
-		Individual indv = instanceModel.createIndividual(branchClass);
+		Individual indv = instanceModel.createIndividual("http://localhost:9090/scmharvester/webapi/repository/"+repo+"/branch/"+name, branchClass);
 		
 		//createdOn
     	if (createdOn!=null){
@@ -125,8 +133,10 @@ public class Branch extends RDFResource{
        	}
 
     	//isTargetOf Action
-    	ObjectProperty isTargetOfProperty = schemaModel.getObjectProperty( Namespace.scmNS + "isTargetOf" );   
-    	indv.addProperty(isTargetOfProperty, isTargetOf.getIndividual());
+    	if (isTargetOf!=null){
+    		ObjectProperty isTargetOfProperty = schemaModel.getObjectProperty( Namespace.scmNS + "isTargetOf" );   
+    		indv.addProperty(isTargetOfProperty, isTargetOf.getIndividual());
+    	}
     	
 		return indv;
 	}

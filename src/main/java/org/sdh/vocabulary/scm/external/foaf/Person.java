@@ -31,6 +31,7 @@ import org.sdh.vocabulary.scm.model.RDFResource;
 
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
+import com.hp.hpl.jena.ontology.ObjectProperty;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Literal;
@@ -52,10 +53,10 @@ public class Person extends RDFResource{
 	Literal lastCommit;
 	Literal signUpDate;
 	
-	Literal mbox;
+	Literal mbox;	
 	
 	//acount -> OnlineAccount
-	//image -> Image
+	Image img	;
 	
 	public Literal getName() {
 		return name;
@@ -112,10 +113,18 @@ public class Person extends RDFResource{
 	public void setMbox(Literal mbox) {
 		this.mbox = mbox;
 	}
-	
+		
+	public Image getImg() {
+		return img;
+	}
+
+	public void setImg(Image img) {
+		this.img = img;
+	}
+
 	public Individual getIndividual(){
 		OntClass personClass = schemaModel.getOntClass(Namespace.foafNS+"Person");
-		Individual indv = instanceModel.createIndividual(personClass);
+		Individual indv = instanceModel.createIndividual("http://localhost:9090/scmharvester/webapi/user/"+userId, personClass);
 		
 		//firstCommit
     	if (firstCommit!=null){
@@ -143,8 +152,14 @@ public class Person extends RDFResource{
        	
      	//userId;
        	if (userId!=null){
-	       	DatatypeProperty userIdProperty = schemaModel.getDatatypeProperty(Namespace.foafNS + "userId");
+	       	DatatypeProperty userIdProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "userId");
 	       	indv.addLiteral(userIdProperty, userId);
+       	}
+       	
+       	//Image
+       	if (img!=null){
+       		ObjectProperty imgProperty = schemaModel.getObjectProperty( Namespace.foafNS + "img" );
+       		indv.addProperty(imgProperty, img.getIndividual());
        	}
     	
 		return indv;

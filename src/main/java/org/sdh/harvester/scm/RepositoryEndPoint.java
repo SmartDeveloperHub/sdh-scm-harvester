@@ -27,6 +27,7 @@
 package org.sdh.harvester.scm;
 
 import java.io.InputStream;
+import java.util.Date;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -42,15 +43,20 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
 import com.hp.hpl.jena.rdf.model.Model;
 //import com.sdh.scm.ontology.ScmOntology;
 
 /**
- * Root resource (exposed at "myresource" path)
+ * Root resource (exposed at "repository" path)
  */
-@Path("myresource")
+@Path("repository")
 public class RepositoryEndPoint {
 
+	RepositoryHandler repoHandler; 
     /**
      * Method handling HTTP GET requests. The returned object will be sent
      * to the client as "text/plain" media type.
@@ -59,41 +65,22 @@ public class RepositoryEndPoint {
      */
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public String getIt() {
+    public String getIt() {    	
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
     	WebTarget webTarget = client.target("http://192.168.0.10:5000/api/");    	
-    	WebTarget resourceWebTarget = webTarget.path("users");
+    	WebTarget resourceWebTarget = webTarget.path("projects");
     	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
     	Response response = invocationBuilder.get();
+    	
     	System.out.println("response status:"+response.getStatus());
     	
+    	repoHandler = new RepositoryHandler();
+    	String rdf=repoHandler.processJsonDocument(response.readEntity(InputStream.class), "TTL");
     	
-////    	ScmOntology onto = new ScmOntology();
-//		onto.loadOntology();
-//		Model ontoModel=onto.getJenaModel();
-		
-    	//responseContent =response.readEntity(String.class);
-    	try(
-    		JsonReader jsonReader = Json.createReader(response.readEntity(InputStream.class))
-    		)
-    	{    		 
-		  JsonArray array = jsonReader.readArray();
-		  
-		  for (JsonObject user : array.getValuesAs(JsonObject.class)){		  
-			  System.out.print("username:" + user.getString("username"));
-			  System.out.print("name" + user.getString("name"));
-			  System.out.print("email" + user.getString("email"));
-			  System.out.print("avatar_url" + user.getString("avatar_url"));
-			  System.out.print("website_url" + user.getString("website_url"));
-			  System.out.print("created_at" + user.getJsonString("created_at"));
-			  //System.out.print(user.getString("created_at"));
-		 
-			  System.out.println("-----------");
-		  }
-    	}
-    	    	
+    	//responseContent =response.readEntity(String.class);    	   
     	//System.out.println(responseContent);
-        return responseContent;
+        return rdf;
     }
+		
 }

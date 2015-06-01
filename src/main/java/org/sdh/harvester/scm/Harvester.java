@@ -128,11 +128,9 @@ public class Harvester {
 //	    
 	    Person developer = new Person(ontModel,instModel);
 	    repo.setDeveloper(developer);
-
 	    
 	    		
 	    OntModel outputModel = repo.getIndividualModel();
-
 	    ByteArrayOutputStream output= new ByteArrayOutputStream();
 	    outputModel.writeAll(output, "TTL");
 	    
