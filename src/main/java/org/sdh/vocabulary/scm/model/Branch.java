@@ -26,8 +26,11 @@
  */
 package org.sdh.vocabulary.scm.model;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 
+import org.joda.time.DateTime;
 import org.sdh.vocabulary.scm.Namespace;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
@@ -69,7 +72,11 @@ public class Branch extends RDFResource{
 	public void setCreatedOn(Literal createdOn) {
 		this.createdOn = createdOn;
 	}
-
+	
+	public void setCreatedOn(Date createdOn){
+		DateTime dateTime = new DateTime(createdOn);
+		this.createdOn = schemaModel.createLiteral(dateTime.toString());
+	}
 
 	public Literal getName() {
 		return name;
@@ -78,6 +85,10 @@ public class Branch extends RDFResource{
 
 	public void setName(Literal name) {
 		this.name = name;
+	}
+	
+	public void setName(String name){
+		this.name = schemaModel.createLiteral(name);
 	}
 
 
@@ -108,9 +119,14 @@ public class Branch extends RDFResource{
 		this.repo = repo;
 	}
 
-	public Individual getIndividual(){
+	public OntModel getIndividualModel(){
+	   return getIndividual().getOntModel();
+	}
+	
+	public Individual getIndividual(){	   
+		
 		OntClass branchClass = schemaModel.getOntClass(Namespace.scmNS+"Branch" );
-		Individual indv = instanceModel.createIndividual("http://localhost:9090/scmharvester/webapi/repository/"+repo+"/branch/"+name, branchClass);
+		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repository/"+repo+"/branch/"+name, branchClass);
 		
 		//createdOn
     	if (createdOn!=null){
@@ -139,5 +155,13 @@ public class Branch extends RDFResource{
     	}
     	
 		return indv;
+		
 	}
+	
+//	public String getRdfModel(String rdfFormat){
+//    	OntModel outputModel = instanceModel;
+//	    ByteArrayOutputStream output= new ByteArrayOutputStream();
+//	    outputModel.writeAll(output, rdfFormat);
+//	    return output.toString();
+//    }
 }

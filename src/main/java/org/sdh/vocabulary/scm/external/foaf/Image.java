@@ -77,7 +77,7 @@ public class Image extends RDFResource{
 		Individual indv = null;
 		if (userId !=null)
 			if (!userId.isEmpty())
-				indv = instanceModel.createIndividual("http://localhost:9090/scmharvester/webapi/user/"+userId+"/image", imageClass);
+				indv = instanceModel.createIndividual(Namespace.scmIndividualNS+userId+"/image", imageClass);
 		
 		if (isDefinedBy!=null){
     		Property isDefinedByProperty = schemaModel.getProperty( Namespace.rdfsNS + "isDefinedBy" );   

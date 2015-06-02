@@ -35,6 +35,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -53,7 +54,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 /**
  * Root resource (exposed at "repository" path)
  */
-@Path("repository")
+@Path("repositories")
 public class RepositoryEndPoint {
 
 	RepositoryHandler repoHandler; 
@@ -65,7 +66,7 @@ public class RepositoryEndPoint {
      */
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public String getIt() {    	
+    public String getRepositories() {    	
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
     	WebTarget webTarget = client.target("http://192.168.0.10:5000/api/");    	
@@ -76,7 +77,28 @@ public class RepositoryEndPoint {
     	System.out.println("response status:"+response.getStatus());
     	
     	repoHandler = new RepositoryHandler();
-    	String rdf=repoHandler.processJsonDocument(response.readEntity(InputStream.class), "TTL");
+    	String rdf=repoHandler.processRepositories(response.readEntity(InputStream.class), "TTL");
+    	
+    	//responseContent =response.readEntity(String.class);    	   
+    	//System.out.println(responseContent);
+        return rdf;
+    }
+    
+    @GET @Path("/{repoId}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getRepository(@PathParam("repoId") String repoId) {    	
+    	String responseContent="";
+    	Client client = ClientBuilder.newClient();
+    	WebTarget webTarget = client.target("http://192.168.0.10:5000/api/");    	
+    	WebTarget resourceWebTarget = webTarget.path("projects").path(repoId);
+    	
+    	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
+    	Response response = invocationBuilder.get();
+    	
+    	System.out.println("response status:"+response.getStatus());
+    	
+    	repoHandler = new RepositoryHandler();
+    	String rdf=repoHandler.processRepository(response.readEntity(InputStream.class), "TTL");
     	
     	//responseContent =response.readEntity(String.class);    	   
     	//System.out.println(responseContent);

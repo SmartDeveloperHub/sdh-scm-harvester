@@ -368,14 +368,9 @@ public class Repository extends RDFResource {
 
 
 	public OntModel getIndividualModel(){
-				
-//		OntModel doap = schemaModel.getImportedModel("http://www.smartdeveloperhub.org/vocabulary/external/doap/doap.rdf");
-//		OntModel platform = schemaModel.getImportedModel("http://www.smartdeveloperhub.org/vocabulary/platform");
-		
-    	
-    	OntClass repositoryClass = schemaModel.getOntClass(Namespace.doapNS+"Repository" );
-    	//Individual repositoryInst = repositoryClass.createIndividual(Namespace.scmNS+"repo01");
-    	Individual indv = instanceModel.createIndividual(Namespace.scmNS+repositoryId.getString(), repositoryClass);
+				   	
+    	OntClass repositoryClass = schemaModel.getOntClass(Namespace.doapNS+"Repository" );    	
+    	Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repositoryId.getString(), repositoryClass);
     	
     	//location
     	if (location!=null){
@@ -520,10 +515,10 @@ public class Repository extends RDFResource {
 		return instanceModel;    	
     }
         
-    public String getRdfModel(String rdfFormat){
-    	OntModel outputModel = instanceModel;
-	    ByteArrayOutputStream output= new ByteArrayOutputStream();
-	    outputModel.writeAll(output, rdfFormat);
-	    return output.toString();
-    }
+//    public String getRdfModel(String rdfFormat){
+//    	OntModel outputModel = instanceModel;
+//	    ByteArrayOutputStream output= new ByteArrayOutputStream();
+//	    outputModel.writeAll(output, rdfFormat);
+//	    return output.toString();
+//    }
 }

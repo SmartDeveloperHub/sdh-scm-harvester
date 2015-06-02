@@ -124,7 +124,7 @@ public class Person extends RDFResource{
 
 	public Individual getIndividual(){
 		OntClass personClass = schemaModel.getOntClass(Namespace.foafNS+"Person");
-		Individual indv = instanceModel.createIndividual("http://localhost:9090/scmharvester/webapi/user/"+userId, personClass);
+		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"user/"+userId, personClass);
 		
 		//firstCommit
     	if (firstCommit!=null){
