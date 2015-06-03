@@ -459,14 +459,14 @@ public class Repository extends RDFResource {
        	//defaultBranch;
        	if (defaultBranch!=null){
        		ObjectProperty defaultBranchProperty = schemaModel.getObjectProperty( Namespace.scmNS + "defaultBranch" );   
-       		indv.addProperty(defaultBranchProperty, defaultBranch.getIndividual());
+       		indv.addProperty(defaultBranchProperty, defaultBranch.getResource());
        	}
 
        	//(0..*)hasBranch;
        	if (hasBranch!=null){
        		ObjectProperty hasBranchProperty = schemaModel.getObjectProperty( Namespace.scmNS + "hasBranch" );   
        		for (Branch branch:hasBranch){
-       			indv.addProperty(hasBranchProperty, branch.getIndividual());
+       			indv.addProperty(hasBranchProperty, branch.getResource());
        		}
        	}
 
@@ -479,31 +479,31 @@ public class Repository extends RDFResource {
        	//developer;
        	if (developer!=null){
        		Property developerProperty = schemaModel.getProperty( Namespace.doapNS + "developer" );   
-       		indv.addProperty(developerProperty, developer.getIndividual());
+       		indv.addProperty(developerProperty, developer.getResource());
        	}
        	
        	//owner;
        	if (owner!=null){
        		ObjectProperty ownerProperty = schemaModel.getObjectProperty( Namespace.scmNS + "owner" );   
-       		indv.addProperty(ownerProperty, owner.getIndividual());
+       		indv.addProperty(ownerProperty, owner.getResource());
        	}
 
        	//documenter;
        	if (documenter!=null){
        		Property documenterProperty = schemaModel.getProperty( Namespace.doapNS + "documenter" );   
-       		indv.addProperty(documenterProperty, documenter.getIndividual());
+       		indv.addProperty(documenterProperty, documenter.getResource());
        	}
 
        	//maintainer;
        	if (maintainer!=null){
        		Property maintainerProperty = schemaModel.getProperty( Namespace.doapNS + "maintainer" );   
-       		indv.addProperty(maintainerProperty, maintainer.getIndividual());
+       		indv.addProperty(maintainerProperty, maintainer.getResource());
        	}
 
        	//tester;
        	if (tester!=null){
        		Property testerProperty = schemaModel.getProperty( Namespace.doapNS + "tester" );   
-       		indv.addProperty(testerProperty, tester.getIndividual());
+       		indv.addProperty(testerProperty, tester.getResource());
        	}
 
        	//isRepositoryOf;

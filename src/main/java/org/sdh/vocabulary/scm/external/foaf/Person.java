@@ -26,6 +26,9 @@
  */
 package org.sdh.vocabulary.scm.external.foaf;
 
+import java.util.Date;
+
+import org.joda.time.DateTime;
 import org.sdh.vocabulary.scm.Namespace;
 import org.sdh.vocabulary.scm.model.RDFResource;
 
@@ -35,13 +38,14 @@ import com.hp.hpl.jena.ontology.ObjectProperty;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 public class Person extends RDFResource{
 	
 	
-	public Person(OntModel instanceModel, OntModel schemaModel) {
-		super(instanceModel, schemaModel);
+	public Person(OntModel schemaModel, OntModel instanceModel) {
+		super(schemaModel, instanceModel);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -51,12 +55,15 @@ public class Person extends RDFResource{
 	Literal userId;
 	Literal firstCommit;
 	Literal lastCommit;
-	Literal signUpDate;
+	Literal signUpDate;	
 	
-	Literal mbox;	
+	Resource mbox;
+	Resource account;
 	
 	//acount -> OnlineAccount
 	Image img	;
+	Resource homepage;
+	
 	
 	public Literal getName() {
 		return name;
@@ -73,6 +80,10 @@ public class Person extends RDFResource{
 	public void setName(Literal name) {
 		this.name = name;
 	}
+	
+	public void setName(String name){
+		this.name = schemaModel.createLiteral(name);
+	}
 
 	public Literal getUserId() {
 		return userId;
@@ -81,6 +92,10 @@ public class Person extends RDFResource{
 	public void setUserId(Literal userId) {
 		this.userId = userId;
 	}
+	
+	public void setUserId(String userId) {
+		this.userId = schemaModel.createLiteral(userId);
+	}	
 
 	public Literal getFirstCommit() {
 		return firstCommit;
@@ -90,12 +105,22 @@ public class Person extends RDFResource{
 		this.firstCommit = firstCommit;
 	}
 
+	public void setFirstCommit(Date firstCommit) {
+		DateTime dateTime = new DateTime(firstCommit);
+		this.firstCommit = schemaModel.createLiteral(dateTime.toString());
+	}
+	
 	public Literal getLastCommit() {
 		return lastCommit;
 	}
 
 	public void setLastCommit(Literal lastCommit) {
 		this.lastCommit = lastCommit;
+	}
+	
+	public void setLastCommit(Date lastCommit) {
+		DateTime dateTime = new DateTime(lastCommit);
+		this.lastCommit = schemaModel.createLiteral(dateTime.toString());
 	}
 
 	public Literal getSignUpDate() {
@@ -105,13 +130,23 @@ public class Person extends RDFResource{
 	public void setSignUpDate(Literal signUpDate) {
 		this.signUpDate = signUpDate;
 	}
+	
+	public void setSignUpDate(Date createdAtDate) {
+		DateTime dateTime = new DateTime(createdAtDate);
+		this.signUpDate = schemaModel.createLiteral(dateTime.toString());
+		
+	}
 
-	public Literal getMbox() {
+	public Resource getMbox() {
 		return mbox;
 	}
 
-	public void setMbox(Literal mbox) {
+	public void setMbox(Resource mbox) {
 		this.mbox = mbox;
+	}
+	
+	public void setMbox(String mbox){
+		this.mbox=schemaModel.createResource(mbox);
 	}
 		
 	public Image getImg() {
@@ -121,10 +156,35 @@ public class Person extends RDFResource{
 	public void setImg(Image img) {
 		this.img = img;
 	}
+	
+	public Resource getHomepage() {
+		return homepage;
+	}
+
+	public void setHomepage(Resource homepage) {
+		this.homepage = homepage;
+	}
+	
+	public void setHomepage(String homepage){
+		this.homepage=schemaModel.createResource(homepage);
+	}
+	
+	public Resource getAccount() {
+		return account;
+	}
+
+	public void setAccount(Resource account) {
+		this.account = account;
+	}
+	
+	public OntModel getIndividualModel(){
+		   return getIndividual().getOntModel();
+		}
 
 	public Individual getIndividual(){
+System.out.println("user.getIndividual");
 		OntClass personClass = schemaModel.getOntClass(Namespace.foafNS+"Person");
-		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"user/"+userId, personClass);
+		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"users/"+userId, personClass);
 		
 		//firstCommit
     	if (firstCommit!=null){
@@ -140,29 +200,43 @@ public class Person extends RDFResource{
     	
         //signUpDate
     	if (signUpDate!=null){
-	       	DatatypeProperty signUpDateProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "signUpDate");
+	       	Property signUpDateProperty = schemaModel.getProperty(Namespace.scmNS + "signUpDate");
 	       	indv.addLiteral(signUpDateProperty, signUpDate);
     	}
     	
     	//name;
        	if (name!=null){
-	       	DatatypeProperty nameProperty = schemaModel.getDatatypeProperty(Namespace.foafNS + "name");
+	        Property nameProperty = schemaModel.getProperty(Namespace.foafNS + "name");	       
 	       	indv.addLiteral(nameProperty, name);
        	}
        	
      	//userId;
        	if (userId!=null){
-	       	DatatypeProperty userIdProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "userId");
+	       	Property userIdProperty = schemaModel.getProperty(Namespace.scmNS + "userId");
 	       	indv.addLiteral(userIdProperty, userId);
        	}
        	
        	//Image
        	if (img!=null){
-       		ObjectProperty imgProperty = schemaModel.getObjectProperty( Namespace.foafNS + "img" );
+       		Property imgProperty = schemaModel.getProperty( Namespace.foafNS + "img" );
        		indv.addProperty(imgProperty, img.getIndividual());
+       	}
+       	
+       	if (homepage!=null){
+       		Property homePageProperty = schemaModel.getProperty( Namespace.foafNS + "homepage" );
+       		indv.addProperty(homePageProperty, homepage);
+       	}
+       	
+       	if(account!=null){
+       		ObjectProperty accountProperty = schemaModel.getObjectProperty( Namespace.foafNS + "account" );
+       		indv.addProperty(accountProperty, account);
        	}
     	
 		return indv;
+	}
+
+	public Resource getResource(){
+		return schemaModel.createResource(Namespace.scmIndividualNS+"users/"+userId);
 	}
 
 	

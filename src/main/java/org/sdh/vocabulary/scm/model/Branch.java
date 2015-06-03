@@ -32,6 +32,7 @@ import java.util.Date;
 
 import org.joda.time.DateTime;
 import org.sdh.vocabulary.scm.Namespace;
+import org.sdh.vocabulary.scm.ScmOntology;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.graph.Node;
@@ -40,9 +41,11 @@ import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.ObjectProperty;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.AnonId;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFVisitor;
@@ -123,10 +126,12 @@ public class Branch extends RDFResource{
 	   return getIndividual().getOntModel();
 	}
 	
+
+	
 	public Individual getIndividual(){	   
-		
+		System.out.println("branch.getIndividual");
 		OntClass branchClass = schemaModel.getOntClass(Namespace.scmNS+"Branch" );
-		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repository/"+repo+"/branch/"+name, branchClass);
+		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repo+"/branches/"+name, branchClass);
 		
 		//createdOn
     	if (createdOn!=null){
@@ -157,6 +162,11 @@ public class Branch extends RDFResource{
 		return indv;
 		
 	}
+	
+	public Resource getResource(){
+		return schemaModel.createResource(Namespace.scmIndividualNS+"repositories/"+repo+"/branches/"+name);
+	}
+
 	
 //	public String getRdfModel(String rdfFormat){
 //    	OntModel outputModel = instanceModel;

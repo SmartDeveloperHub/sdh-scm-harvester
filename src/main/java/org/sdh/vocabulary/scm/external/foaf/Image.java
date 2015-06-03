@@ -44,6 +44,7 @@ public class Image extends RDFResource{
 	}
 
     String userId;    
+    String repoId;
 	Resource isDefinedBy;
 	
 	
@@ -71,18 +72,35 @@ public class Image extends RDFResource{
 		this.isDefinedBy = schemaModel.createResource(isDefinedBy);
 	}
 
+	
+
+	public String getRepoId() {
+		return repoId;
+	}
+
+
+	public void setRepoId(String repoId) {
+		this.repoId = repoId;
+	}
+
 
 	public Resource getIndividual(){
 		OntClass imageClass = schemaModel.getOntClass(Namespace.foafNS+"Image" );
 		Individual indv = null;
-		if (userId !=null)
-			if (!userId.isEmpty())
-				indv = instanceModel.createIndividual(Namespace.scmIndividualNS+userId+"/image", imageClass);
+		if (userId !=null){
+			if (!userId.isEmpty())			
+				indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"users/"+userId+"/image", imageClass);
+		}
+		else if (repoId !=null)
+			if (!repoId.isEmpty())
+				indv = instanceModel.createIndividual(Namespace.scmIndividualNS+repoId+"/image", imageClass);
 		
-		if (isDefinedBy!=null){
-    		Property isDefinedByProperty = schemaModel.getProperty( Namespace.rdfsNS + "isDefinedBy" );   
-    		indv.addProperty(isDefinedByProperty, isDefinedBy);
-    	}
+		if (indv!=null)
+			if (isDefinedBy!=null){
+	    		Property isDefinedByProperty = schemaModel.getProperty( Namespace.rdfsNS + "isDefinedBy" );   
+	    		indv.addProperty(isDefinedByProperty, isDefinedBy);
+	    	}
+		
 		return indv;
 		
 	}
