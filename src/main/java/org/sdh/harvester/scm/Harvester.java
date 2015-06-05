@@ -126,8 +126,8 @@ public class Harvester {
 //		Image depiction = new Image();
 //		repo.setDepiction(depiction);
 //	    
-	    Person developer = new Person(ontModel,instModel);
-	    repo.setDeveloper(developer);
+//	    Person developer = new Person(ontModel,instModel);
+//	    repo.setDeveloper(developer);
 	    
 	    		
 	    OntModel outputModel = repo.getIndividualModel();

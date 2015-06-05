@@ -149,15 +149,20 @@ public class Branch extends RDFResource{
     	if (hasCommit!=null){
        		ObjectProperty hasCommitProperty = schemaModel.getObjectProperty( Namespace.scmNS + "hasCommit" );   
        		for (Commit commit:hasCommit){
-       			indv.addProperty(hasCommitProperty, commit.getIndividual());
+       			indv.addProperty(hasCommitProperty, commit.getResource());
+       		}
+       	}
+    	
+    	//isTargetOf Action
+       	if (hasCommit!=null){
+       		ObjectProperty isTargetOfProperty = schemaModel.getObjectProperty( Namespace.scmNS + "isTargetOf" );   
+       		for (Commit commit:hasCommit){
+       			indv.addProperty(isTargetOfProperty, commit.getResource());
        		}
        	}
 
-    	//isTargetOf Action
-    	if (isTargetOf!=null){
-    		ObjectProperty isTargetOfProperty = schemaModel.getObjectProperty( Namespace.scmNS + "isTargetOf" );   
-    		indv.addProperty(isTargetOfProperty, isTargetOf.getIndividual());
-    	}
+
+
     	
 		return indv;
 		

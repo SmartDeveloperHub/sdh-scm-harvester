@@ -26,6 +26,9 @@
  */
 package org.sdh.vocabulary.scm.model;
 
+import java.util.Date;
+
+import org.joda.time.DateTime;
 import org.sdh.vocabulary.scm.Namespace;
 import org.sdh.vocabulary.scm.external.foaf.Person;
 
@@ -36,6 +39,7 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 public class Commit extends RDFResource {
 
@@ -43,12 +47,55 @@ public class Commit extends RDFResource {
 	Literal createdOn;
 	Person performedBy;
 	
+	//necessary for creating uri
+	String id;
+	Integer repoId;
+	String branchId;
+	
+	
 	public Commit(OntModel schemaModel, OntModel instanceModel) {
 		super(schemaModel, instanceModel);
 		// TODO Auto-generated constructor stub
 	}
 
 	
+	
+	public String getId() {
+		return id;
+	}
+
+
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+
+
+	public Integer getRepoId() {
+		return repoId;
+	}
+
+
+
+	public void setRepoId(Integer repoId) {
+		this.repoId = repoId;
+	}
+
+
+
+	public String getBranchId() {
+		return branchId;
+	}
+
+
+
+	public void setBranchId(String branchId) {
+		this.branchId = branchId;
+	}
+
+
+
 	public Action getSubClassOf() {
 		return subClassOf;
 	}
@@ -66,6 +113,12 @@ public class Commit extends RDFResource {
 	public void setCreatedOn(Literal createdOn) {
 		this.createdOn = createdOn;
 	}
+	
+	public void setCreatedOn(Date createdAtDate) {
+		DateTime dateTime = new DateTime(createdAtDate);
+		this.createdOn = schemaModel.createLiteral(dateTime.toString());		
+	}
+	
 
 	public Person getPerformedBy() {
 		return performedBy;
@@ -74,10 +127,18 @@ public class Commit extends RDFResource {
 	public void setPerformedBy(Person performedBy) {
 		this.performedBy = performedBy;
 	}
+	
+	
 
-	Individual getIndividual(){
-		OntClass commitClass = schemaModel.getOntClass(Namespace.scmNS+"Commit" );
-		Individual indv = instanceModel.createIndividual(commitClass);
+	public Individual getIndividual(){
+		System.out.println("commit.getIndividual");
+		OntClass commitClass = schemaModel.getOntClass(Namespace.scmNS+"Commit");
+		OntClass actionClass = schemaModel.getOntClass(Namespace.scmNS+"Action");
+		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repoId+"/branches/"+branchId+"/commits/"+id, commitClass);
+
+		//every commit is an action
+		Property typeProperty = schemaModel.getProperty(Namespace.rdfNS+"type");
+		indv.addProperty(typeProperty, actionClass);
 		
 		//createdOn
     	if (createdOn!=null){
@@ -91,14 +152,24 @@ public class Commit extends RDFResource {
        		indv.addProperty(performedByProperty, performedBy.getIndividual());
        	}
        	
-       	//subClassOf
-       	if (subClassOf!=null){
-       		Property subClassOfProperty = schemaModel.getProperty(Namespace.rdfsNS + "subClassOf");
-	       	indv.addProperty(subClassOfProperty, subClassOf.getIndividual());
-    	}
     	
     	return indv;
 	}
+
+
+	public Resource getResource() {
+		// TODO Auto-generated method stub
+		return schemaModel.createResource(Namespace.scmIndividualNS+"repositories/"+repoId+"/branches/"+branchId+"/commits/"+id);
+	}
+
+
+	public OntModel getIndividualModel(){
+		   return getIndividual().getOntModel();
+		}
+
+
+
+		
 
 }
 

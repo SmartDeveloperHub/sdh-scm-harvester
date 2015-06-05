@@ -90,15 +90,21 @@ public class RepositoryEndPoint {
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
     	WebTarget webTarget = client.target("http://192.168.0.10:5000/api/");    	
-    	WebTarget resourceWebTarget = webTarget.path("projects").path(repoId);
-    	
+    	WebTarget resourceWebTarget = webTarget.path("projects").path(repoId);    	
     	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
     	Response response = invocationBuilder.get();
     	
     	System.out.println("response status:"+response.getStatus());
     	
+    	//get the repository branches    	    	    
+    	resourceWebTarget = resourceWebTarget.path("branches");
+    	invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
+    	Response branchesResponse = invocationBuilder.get();
+    	
     	repoHandler = new RepositoryHandler();
-    	String rdf=repoHandler.processRepository(response.readEntity(InputStream.class), "TTL");
+    	String rdf=repoHandler.processRepository(response.readEntity(InputStream.class), 
+    											branchesResponse.readEntity(InputStream.class), 
+    											"TTL");
     	
     	//responseContent =response.readEntity(String.class);    	   
     	//System.out.println(responseContent);

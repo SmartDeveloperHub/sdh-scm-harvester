@@ -77,7 +77,9 @@ public class Repository extends RDFResource {
 	
 	Image depiction; 
     
-    Person developer;
+    //Person developer;
+    ArrayList<Person> developers;
+    
     Person documenter;
     Person maintainer;
     Person tester;
@@ -89,6 +91,7 @@ public class Repository extends RDFResource {
     	super(schemaModel, instanceModel);
     	//defaultBranch = new Branch(schemaModel, instanceModel);
     	hasBranch = new ArrayList<Branch>();
+    	developers = new ArrayList<Person>();
     }
      
     
@@ -309,15 +312,15 @@ public class Repository extends RDFResource {
 		this.depiction = depiction;
 	}
 
-
-	public Person getDeveloper() {
-		return developer;
+	public ArrayList<Person> getDevelopers() {
+		return developers;
 	}
 
 
-	public void setDeveloper(Person developer) {
-		this.developer = developer;
+	public void setDevelopers(ArrayList<Person> developers) {
+		this.developers = developers;
 	}
+
 
 	public Person getOwner() {
 		return owner;
@@ -477,9 +480,11 @@ public class Repository extends RDFResource {
        	}
 
        	//developer;
-       	if (developer!=null){
-       		Property developerProperty = schemaModel.getProperty( Namespace.doapNS + "developer" );   
-       		indv.addProperty(developerProperty, developer.getResource());
+       	if (developers!=null){
+       		Property developerProperty = schemaModel.getProperty( Namespace.doapNS + "developer" ); 
+       		for (Person developer:developers){       			
+       			indv.addProperty(developerProperty, developer.getResource());
+       		}
        	}
        	
        	//owner;
