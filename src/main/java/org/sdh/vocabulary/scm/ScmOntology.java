@@ -68,29 +68,23 @@ public class ScmOntology {
 		
 		
 //      Finally this option worked 	
-		OntDocumentManager docMgr = new OntDocumentManager();
-		docMgr.setMetadataSearchPath(AlternativeURI.docMgrConfigurationFile, false);
-		docMgr.setProcessImports(true);	
-		OntModelSpec modelSpec = new OntModelSpec(OntModelSpec.OWL_MEM);		
-		modelSpec.setDocumentManager(docMgr);
-		ontModel= ModelFactory.createOntologyModel(modelSpec);
+//		OntDocumentManager docMgr = new OntDocumentManager();
+//		docMgr.setMetadataSearchPath(AlternativeURI.docMgrConfigurationFile, false);
+//		docMgr.setProcessImports(true);	
+//		OntModelSpec modelSpec = new OntModelSpec(OntModelSpec.OWL_MEM);		
+//		modelSpec.setDocumentManager(docMgr);
+//		ontModel= ModelFactory.createOntologyModel(modelSpec);
 		
 		//this option worked!
-//		ontModel= ModelFactory.createOntologyModel();
-//		OntDocumentManager docMgr = ontModel.getDocumentManager();
-//		docMgr.addAltEntry("http://www.smartdeveloperhub.org/vocabulary/external/doap/doap.rdf", 
-//				"file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/external/doap/doap.rdf");
-//		
-//		docMgr.addAltEntry("http://www.smartdeveloperhub.org/vocabulary/external/dcmi/dcterms.rdf", 
-//				"file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/external/dcmi/dcterms.rdf");
-//		
-//		docMgr.addAltEntry("http://www.smartdeveloperhub.org/vocabulary/external/dcmi/dctype.rdf", 
-//				"file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/external/dcmi/dctype.rdf");
-//		
-//		docMgr.addAltEntry("http://www.smartdeveloperhub.org/vocabulary/platform", 
-//				"file:/home/hagarcia/workspace/scm-ontology(NoCode)/platform.ttl");
+		ontModel= ModelFactory.createOntologyModel();
+		OntDocumentManager docMgr = ontModel.getDocumentManager();
+		docMgr.addAltEntry(AlternativeURI.srcDoapURI, AlternativeURI.trgDoapURI);
 		
-					
+		docMgr.addAltEntry(AlternativeURI.srcDctermsURI, AlternativeURI.trgDctermsURI);
+		
+		docMgr.addAltEntry(AlternativeURI.srcDctypeURI, AlternativeURI.trgDctypeURI);
+		
+		docMgr.addAltEntry(AlternativeURI.srcPlatformURI,  AlternativeURI.trgPlatformURI);							
 		
 		// read the RDF/XML file
 		ontModel.read(in, null, "TTL" );
@@ -102,9 +96,9 @@ public class ScmOntology {
 //				                          setLevel(Level.DEBUG).
 //				                          buildOutputStream();
 //						
-		OntModel doap = ontModel.getImportedModel("http://www.smartdeveloperhub.org/vocabulary/external/doap/doap.rdf");		//
+//		OntModel doap = ontModel.getImportedModel("http://www.smartdeveloperhub.org/vocabulary/external/doap/doap.rdf");		//
 //		doap.write(loggerOS,"TTL");
-		doap.write(System.out,"TTL");				
+//		doap.write(System.out,"TTL");				
 //		System.out.println("*****"+ontModel.hasLoadedImport("http://www.smartdeveloperhub.org/vocabulary/external/doap/doap.rdf"));
 //       
 //		OntModel platform = ontModel.getImportedModel("http://www.smartdeveloperhub.org/vocabulary/platform");		//	    

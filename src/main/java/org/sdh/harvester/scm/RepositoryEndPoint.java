@@ -33,6 +33,7 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -41,12 +42,15 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.server.ResourceConfig;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.sdh.vocabulary.scm.GlobalVariablesInitializer;
 
 import com.hp.hpl.jena.rdf.model.Model;
 //import com.sdh.scm.ontology.ScmOntology;
@@ -55,7 +59,12 @@ import com.hp.hpl.jena.rdf.model.Model;
  * Root resource (exposed at "repository" path)
  */
 @Path("repositories")
-public class RepositoryEndPoint {
+public class RepositoryEndPoint extends EndPoint{
+	
+	 public RepositoryEndPoint(@Context ServletContext servletContext) {
+		super(servletContext);
+		// TODO Auto-generated constructor stub
+	}
 
 	RepositoryHandler repoHandler; 
     /**

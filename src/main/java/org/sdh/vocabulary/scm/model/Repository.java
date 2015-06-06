@@ -475,7 +475,7 @@ public class Repository extends RDFResource {
 
        	//depiction; 
        	if (depiction!=null){
-       		ObjectProperty depictionProperty = schemaModel.getObjectProperty( Namespace.foafNS + "depiction" );   
+       		Property depictionProperty = schemaModel.getProperty( Namespace.foafNS + "depiction" );   
        		indv.addProperty(depictionProperty, depiction.getIndividual());
        	}
 

@@ -96,8 +96,8 @@ public class Image extends RDFResource{
 				indv = instanceModel.createIndividual(Namespace.scmIndividualNS+repoId+"/image", imageClass);
 		
 		if (indv!=null)
-			if (isDefinedBy!=null){
-	    		Property isDefinedByProperty = schemaModel.getProperty( Namespace.rdfsNS + "isDefinedBy" );   
+			if (isDefinedBy!=null){	    		
+				Property isDefinedByProperty = schemaModel.getProperty( Namespace.rdfsNS + "isDefinedBy" ); 
 	    		indv.addProperty(isDefinedByProperty, isDefinedBy);
 	    	}
 		
