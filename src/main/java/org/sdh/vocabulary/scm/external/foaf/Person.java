@@ -29,7 +29,7 @@ package org.sdh.vocabulary.scm.external.foaf;
 import java.util.Date;
 
 import org.joda.time.DateTime;
-import org.sdh.vocabulary.scm.Namespace;
+import org.sdh.harvester.constants.Namespace;
 import org.sdh.vocabulary.scm.model.RDFResource;
 
 import com.hp.hpl.jena.ontology.DatatypeProperty;

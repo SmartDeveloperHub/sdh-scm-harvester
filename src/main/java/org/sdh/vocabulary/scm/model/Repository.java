@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.joda.time.DateTime;
-import org.sdh.vocabulary.scm.Namespace;
+import org.sdh.harvester.constants.Namespace;
 import org.sdh.vocabulary.scm.external.doap.Location;
 import org.sdh.vocabulary.scm.external.foaf.Image;
 import org.sdh.vocabulary.scm.external.foaf.Person;
@@ -519,6 +519,11 @@ public class Repository extends RDFResource {
        	       	        
 		return instanceModel;    	
     }
+
+
+	public Resource getResource() {
+		return instanceModel.createResource(Namespace.scmIndividualNS+"repositories/"+repositoryId.getString());
+	}
         
 //    public String getRdfModel(String rdfFormat){
 //    	OntModel outputModel = instanceModel;

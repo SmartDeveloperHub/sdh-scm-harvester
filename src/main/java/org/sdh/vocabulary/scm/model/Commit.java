@@ -29,7 +29,7 @@ package org.sdh.vocabulary.scm.model;
 import java.util.Date;
 
 import org.joda.time.DateTime;
-import org.sdh.vocabulary.scm.Namespace;
+import org.sdh.harvester.constants.Namespace;
 import org.sdh.vocabulary.scm.external.foaf.Person;
 
 import com.hp.hpl.jena.ontology.DatatypeProperty;
@@ -159,7 +159,7 @@ public class Commit extends RDFResource {
 
 	public Resource getResource() {
 		// TODO Auto-generated method stub
-		return schemaModel.createResource(Namespace.scmIndividualNS+"repositories/"+repoId+"/branches/"+branchId+"/commits/"+id);
+		return instanceModel.createResource(Namespace.scmIndividualNS+"repositories/"+repoId+"/branches/"+branchId+"/commits/"+id);
 	}
 
 

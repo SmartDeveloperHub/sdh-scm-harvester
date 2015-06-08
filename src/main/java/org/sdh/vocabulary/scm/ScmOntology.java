@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
+import org.sdh.harvester.constants.AlternativeURI;
 import org.sdh.harvester.scm.Harvester;
 
 import com.hp.hpl.jena.ontology.OntDocumentManager;
@@ -51,10 +52,13 @@ public class ScmOntology {
 	
 	public ScmOntology(){
 		//inputFileName = "ontology/sdh-scm-ontology.owl";
-		inputFileName = "/home/hagarcia/workspace/scm-ontology(NoCode)/scm.ttl";
+		//inputFileName = "/home/hagarcia/workspace/scm-ontology(NoCode)/scm.ttl";
+		
 	}
 
 	public void loadOntology(){
+		
+		inputFileName=AlternativeURI.scmOntologyFile;
 		
 		ClassLoader classLoader = getClass().getClassLoader();
 		

@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.joda.time.DateTime;
-import org.sdh.vocabulary.scm.Namespace;
+import org.sdh.harvester.constants.Namespace;
 import org.sdh.vocabulary.scm.ScmOntology;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
@@ -160,16 +160,13 @@ public class Branch extends RDFResource{
        			indv.addProperty(isTargetOfProperty, commit.getResource());
        		}
        	}
-
-
-
-    	
+   
 		return indv;
 		
 	}
 	
 	public Resource getResource(){
-		return schemaModel.createResource(Namespace.scmIndividualNS+"repositories/"+repo+"/branches/"+name);
+		return instanceModel.createResource(Namespace.scmIndividualNS+"repositories/"+repo+"/branches/"+name);
 	}
 
 	

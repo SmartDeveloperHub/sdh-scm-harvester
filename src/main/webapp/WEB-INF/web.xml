@@ -44,18 +44,37 @@
         <url-pattern>/webapi/*</url-pattern>
     </servlet-mapping>
     <context-param>
+    	<param-name>gitlab-enhancer-endpoint</param-name>
+    	<param-value>http://192.168.0.10:5000/api/</param-value>
+    </context-param>
+    <!--  namespace for scm individuals. Note it must be deferenceable -->
+    <context-param>
+    	<param-name>scm-ontology-endpoint</param-name>
+    	<param-value>http://localhost:9090/scmharvester/webapi/</param-value>
+    </context-param>    
+    <context-param>
     	<param-name>scm-individual-namespace</param-name>
     	<param-value>http://localhost:9090/scmharvester/webapi/</param-value>
     </context-param>
  	<context-param>
  	<!-- this is the o.s. path to the scm ttl, notice it does not start with file: -->
     	<param-name>scm.ttl</param-name>
-    	<param-value>/home/hagarcia/workspace/scm-ontology(NoCode)/scm.ttl</param-value>
+    	<param-value>/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/v1/scm.ttl</param-value>
     </context-param>
+    <context-param>
+    <!-- reference to the ontology to import -->
+    	<param-name>platform-reference</param-name>
+    	<param-value>http://www.smartdeveloperhub.org/vocabulary/v1/platform</param-value>
+    </context-param>  
     <context-param>
     <!-- this is a entry in the catalog file, notice it starts with file: -->
     	<param-name>platform.ttl</param-name>
-    	<param-value>file:/home/hagarcia/workspace/scm-ontology(NoCode)/platform.ttl</param-value>
+    	<param-value>file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/v1/platform.ttl</param-value>
+    </context-param>  
+    <context-param>
+    <!-- reference to the ontology to import -->
+    	<param-name>doap-reference</param-name>
+    	<param-value>http://www.smartdeveloperhub.org/vocabulary/external/doap/doap.rdf</param-value>
     </context-param>  
     <context-param>
     <!-- this is a entry in the catalog file, notice it starts with file: -->
@@ -63,9 +82,19 @@
     	<param-value>file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/external/doap/doap.rdf</param-value>
     </context-param>
     <context-param>
+    <!-- reference to the ontology to import -->
+    	<param-name>dcterms-reference</param-name>
+    	<param-value>http://www.smartdeveloperhub.org/vocabulary/external/dcmi/dcterms.rdf</param-value>
+    </context-param>  
+    <context-param>
     <!-- this is a entry in the catalog file, notice it starts with file: -->
     	<param-name>dcterms.rdf</param-name>
     	<param-value>file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/external/dcmi/dcterms.rdf</param-value>
+    </context-param>
+    <context-param>
+    <!-- reference to the ontology to import -->
+    	<param-name>dctype-reference</param-name>
+    	<param-value>http://www.smartdeveloperhub.org/vocabulary/external/dcmi/dctype.rdf</param-value>
     </context-param>
     <context-param>
     <!-- this is a entry in the catalog file, notice it starts with file: -->

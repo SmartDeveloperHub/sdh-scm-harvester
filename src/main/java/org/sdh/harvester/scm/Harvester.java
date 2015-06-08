@@ -54,7 +54,8 @@ import com.hp.hpl.jena.util.PrintUtil;
 public class Harvester {
 
 	static final Logger logger = LogManager.getLogger(Harvester.class);
-	
+
+
 	private void testRepository(OntModel ontModel,OntModel instModel, String NS) throws UnsupportedEncodingException{
 		Repository repo = new Repository(ontModel, instModel);
 				

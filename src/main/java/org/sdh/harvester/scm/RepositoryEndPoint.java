@@ -50,7 +50,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.sdh.vocabulary.scm.GlobalVariablesInitializer;
+import org.sdh.harvester.constants.GlobalVariablesInitializer;
+import org.sdh.harvester.scm.handler.RepositoryHandler;
 
 import com.hp.hpl.jena.rdf.model.Model;
 //import com.sdh.scm.ontology.ScmOntology;
@@ -74,7 +75,7 @@ public class RepositoryEndPoint extends EndPoint{
      * @return String that will be returned as a text/plain response.
      */
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
     public String getRepositories() {    	
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
@@ -94,7 +95,7 @@ public class RepositoryEndPoint extends EndPoint{
     }
     
     @GET @Path("/{repoId}")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
     public String getRepository(@PathParam("repoId") String repoId) {    	
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
