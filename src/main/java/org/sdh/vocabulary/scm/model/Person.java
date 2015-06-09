@@ -24,13 +24,13 @@
  *   Bundle      : scmharvester.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.sdh.vocabulary.scm.external.foaf;
+package org.sdh.vocabulary.scm.model;
 
 import java.util.Date;
 
 import org.joda.time.DateTime;
 import org.sdh.harvester.constants.Namespace;
-import org.sdh.vocabulary.scm.model.RDFResource;
+import org.sdh.vocabulary.scm.external.foaf.Image;
 
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
@@ -183,7 +183,7 @@ public class Person extends RDFResource{
 
 	public Individual getIndividual(){
 System.out.println("user.getIndividual");
-		OntClass personClass = schemaModel.getOntClass(Namespace.foafNS+"Person");
+		OntClass personClass = schemaModel.getOntClass(Namespace.scmNS+"Person");
 		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"users/"+userId, personClass);
 		
 		//firstCommit

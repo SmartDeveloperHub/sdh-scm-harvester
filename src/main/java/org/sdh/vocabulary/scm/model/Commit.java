@@ -30,7 +30,6 @@ import java.util.Date;
 
 import org.joda.time.DateTime;
 import org.sdh.harvester.constants.Namespace;
-import org.sdh.vocabulary.scm.external.foaf.Person;
 
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;

@@ -35,7 +35,6 @@ import org.joda.time.DateTime;
 import org.sdh.harvester.constants.Namespace;
 import org.sdh.vocabulary.scm.external.doap.Location;
 import org.sdh.vocabulary.scm.external.foaf.Image;
-import org.sdh.vocabulary.scm.external.foaf.Person;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
 import com.hp.hpl.jena.datatypes.xsd.impl.XSDDateTimeType;
@@ -372,7 +371,7 @@ public class Repository extends RDFResource {
 
 	public OntModel getIndividualModel(){
 				   	
-    	OntClass repositoryClass = schemaModel.getOntClass(Namespace.doapNS+"Repository" );    	
+    	OntClass repositoryClass = schemaModel.getOntClass(Namespace.scmNS+"Repository" );    	
     	Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repositoryId.getString(), repositoryClass);
     	
     	//location

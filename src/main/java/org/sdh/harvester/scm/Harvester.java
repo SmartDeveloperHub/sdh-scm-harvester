@@ -36,10 +36,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sdh.vocabulary.scm.ScmOntology;
 import org.sdh.vocabulary.scm.external.foaf.Image;
-import org.sdh.vocabulary.scm.external.foaf.Person;
 import org.sdh.vocabulary.scm.model.Action;
 import org.sdh.vocabulary.scm.model.Branch;
 import org.sdh.vocabulary.scm.model.Commit;
+import org.sdh.vocabulary.scm.model.Person;
 import org.sdh.vocabulary.scm.model.Repository;
 
 import com.hp.hpl.jena.ontology.Individual;
