@@ -101,5 +101,6 @@
     	<param-name>dctype.rdf</param-name>
     	<param-value>file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/external/dcmi/dctype.rdf</param-value>
     </context-param>      
+        
 </web-app>
 
