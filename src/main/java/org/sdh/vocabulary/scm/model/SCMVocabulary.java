@@ -29,6 +29,8 @@ package org.sdh.vocabulary.scm.model;
 import org.sdh.harvester.constants.AlternativeURI;
 import org.sdh.harvester.constants.Namespace;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.ObjectProperty;
@@ -36,6 +38,7 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 public class SCMVocabulary extends RDFResource {
 	
@@ -75,8 +78,10 @@ public class SCMVocabulary extends RDFResource {
 		vocabularyIndividual.addProperty(typeProperty, vocabularyClass);
 		
 		//source: this property points to the ontology uri
-		DatatypeProperty  source = schemaModel.getDatatypeProperty(Namespace.platformNS + "source");
-		vocabularyIndividual.addProperty(source,AlternativeURI.scmOntologyEndpoint+"ontology/scm");
+		DatatypeProperty  source = schemaModel.getDatatypeProperty(Namespace.platformNS + "source");		
+		instanceModel.addLiteral(vocabularyIndividual, source, ResourceFactory.createTypedLiteral(AlternativeURI.scmOntologyEndpoint+"ontology/scm", XSDDatatype.XSDanyURI) );
+		//vocabularyIndividual.addProperty(source,AlternativeURI.scmOntologyEndpoint+"ontology/scm");
+		
 		
 		return vocabularyIndividual;
 		

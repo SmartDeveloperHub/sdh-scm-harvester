@@ -32,10 +32,12 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.joda.time.DateTime;
+import org.sdh.harvester.constants.AlternativeURI;
 import org.sdh.harvester.constants.Namespace;
 import org.sdh.vocabulary.scm.external.doap.Location;
 import org.sdh.vocabulary.scm.external.foaf.Image;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
 import com.hp.hpl.jena.datatypes.xsd.impl.XSDDateTimeType;
 import com.hp.hpl.jena.ontology.DatatypeProperty;
@@ -49,6 +51,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 public class Repository extends RDFResource {
 	Resource location;
@@ -70,6 +73,8 @@ public class Repository extends RDFResource {
 	Literal name;
     Literal repositoryId;
     Literal tags;
+    
+    String id; 
 	
 	Branch defaultBranch;
 	ArrayList<Branch> hasBranch;
@@ -132,7 +137,7 @@ public class Repository extends RDFResource {
 	
 	public void setCreatedOn(Date createdOn){
 		DateTime dateTime = new DateTime(createdOn);
-		this.createdOn = schemaModel.createLiteral(dateTime.toString());
+		this.firstCommit = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
 	}
 
 
@@ -147,7 +152,7 @@ public class Repository extends RDFResource {
 	
 	public void setFirstCommit(Date firstCommit) {
 		DateTime dateTime = new DateTime(firstCommit);
-		this.firstCommit = schemaModel.createLiteral(dateTime.toString());
+		this.firstCommit = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime); 				
 	}
 
 
@@ -162,7 +167,7 @@ public class Repository extends RDFResource {
 	
 	public void setLastBuildDate(Date lastBuildDate){
 		DateTime dateTime = new DateTime(lastBuildDate);
-		this.lastBuildDate = schemaModel.createLiteral(dateTime.toString());
+		this.firstCommit = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
 	}
 
 
@@ -177,7 +182,7 @@ public class Repository extends RDFResource {
 	
 	public void setLastCommit(Date lastCommit){
 		DateTime dateTime = new DateTime(lastCommit);
-		this.lastCommit = schemaModel.createLiteral(dateTime.toString());
+		this.firstCommit = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
 	}
 
 
@@ -191,7 +196,8 @@ public class Repository extends RDFResource {
 	}
 
 	public void setIsArchived(Boolean isArchived) {
-		this.isArchived = schemaModel.createLiteral(isArchived.toString());
+		this.isArchived =  ResourceFactory.createTypedLiteral(String.valueOf(isArchived), XSDDatatype.XSDboolean) ;
+				//schemaModel.createLiteral(isArchived.toString());
 	}
 
 	public Literal getIsPublic() {
@@ -204,7 +210,8 @@ public class Repository extends RDFResource {
 	}
 
 	public void setIsPublic(Boolean isPublic){
-		this.isPublic = schemaModel.createLiteral(isPublic.toString());
+		this.isPublic = ResourceFactory.createTypedLiteral(String.valueOf(isPublic), XSDDatatype.XSDboolean) ;
+				//schemaModel.createLiteral(isPublic.toString());
 	}
 
 	public Literal getDefaultBranchName() {
@@ -216,8 +223,8 @@ public class Repository extends RDFResource {
 		this.defaultBranchName = defaultBranchName;
 	}
 
-	public void setDefaultBranchName(String defaultBranchName) {
-		this.defaultBranchName = schemaModel.createLiteral(defaultBranchName,true);
+	public void setDefaultBranchName(String defaultBranchName) {		
+		this.defaultBranchName = ResourceFactory.createTypedLiteral(defaultBranchName, XSDDatatype.XSDstring);
 	}
 	
 	public Literal getDescription() {
@@ -230,7 +237,8 @@ public class Repository extends RDFResource {
 	}
 	
 	public void setDescription(String description) {
-		this.description = schemaModel.createLiteral(description,true);
+		this.description = ResourceFactory.createTypedLiteral(description, XSDDatatype.XSDstring); 
+				//schemaModel.createLiteral(description,true);
 	}
 
 	public Literal getLastBuildStatus() {
@@ -254,8 +262,9 @@ public class Repository extends RDFResource {
 		this.name =  name;
 	}
 	
-	public void setName(String name) {
-		this.name = schemaModel.createLiteral(name,true);
+	public void setName(String name) {		
+		this.name = ResourceFactory.createTypedLiteral(name, XSDDatatype.XSDstring);  
+				//schemaModel.createLiteral(name,true);
 	}
 
 	public Literal getRepositoryId() {
@@ -267,7 +276,9 @@ public class Repository extends RDFResource {
 	}
 
 	public void setRepositoryId(String repositoryId) {
-		this.repositoryId = schemaModel.createLiteral(repositoryId,true);
+		this.id = repositoryId;
+		this.repositoryId = ResourceFactory.createTypedLiteral(repositoryId, XSDDatatype.XSDstring); 
+		//schemaModel.createLiteral(repositoryId,true);
 	}
 	
 	public Literal getTags() {
@@ -280,7 +291,8 @@ public class Repository extends RDFResource {
 	}
 
 	public void setTags(String tags) {
-		this.tags = schemaModel.createLiteral(tags,true);
+		this.tags = ResourceFactory.createTypedLiteral(tags, XSDDatatype.XSDstring); 
+		//schemaModel.createLiteral(tags,true);
 	}
 	
 	public Branch getDefaultBranch() {
@@ -372,7 +384,7 @@ public class Repository extends RDFResource {
 	public OntModel getIndividualModel(){
 				   	
     	OntClass repositoryClass = schemaModel.getOntClass(Namespace.scmNS+"Repository" );    	
-    	Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repositoryId.getString(), repositoryClass);
+    	Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+id, repositoryClass);
     	
     	//location
     	if (location!=null){
@@ -414,18 +426,21 @@ public class Repository extends RDFResource {
        	if (isArchived!=null){
 	       	DatatypeProperty isArchivedProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "isArchived");
 	       	indv.addLiteral(isArchivedProperty, isArchived);
+	       	//instanceModel.addLiteral(indv, isArchivedProperty, ResourceFactory.createTypedLiteral(String.valueOf(isArchived), XSDDatatype.XSDboolean) );
        	}
     	
        	//isPublic;
-       	if (isPublic!=null){
+       	if (isPublic!=null){       		
 	       	DatatypeProperty isPublicProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "isPublic");
-	       	indv.addLiteral(isPublicProperty, isPublic);
+	       	indv.addLiteral(isPublicProperty, isPublic);	       	
+//	       	instanceModel.addLiteral(indv, isPublicProperty, ResourceFactory.createTypedLiteral(String.valueOf(isPublic), XSDDatatype.XSDboolean) );
        	}
        	
     	//defaultBranchName;
        	if (defaultBranchName!=null){
 	       	DatatypeProperty defaultBranchNameProperty = schemaModel.getDatatypeProperty(Namespace.scmNS + "defaultBranchName");
 	       	indv.addLiteral(defaultBranchNameProperty, defaultBranchName);
+	       	//instanceModel.addLiteral(indv, defaultBranchNameProperty, defaultBranchName );	       	
        	}
        	
     	//description;
@@ -521,7 +536,7 @@ public class Repository extends RDFResource {
 
 
 	public Resource getResource() {
-		return instanceModel.createResource(Namespace.scmIndividualNS+"repositories/"+repositoryId.getString());
+		return instanceModel.createResource(Namespace.scmIndividualNS+"repositories/"+id);
 	}
         
 //    public String getRdfModel(String rdfFormat){

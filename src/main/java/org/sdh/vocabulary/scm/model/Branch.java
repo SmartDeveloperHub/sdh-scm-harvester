@@ -35,6 +35,7 @@ import org.sdh.harvester.constants.Namespace;
 import org.sdh.vocabulary.scm.ScmOntology;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
@@ -50,6 +51,7 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFVisitor;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
@@ -57,6 +59,7 @@ public class Branch extends RDFResource{
 
 	Literal createdOn;
 	Literal name;
+	String id;
 	ArrayList<Commit>  hasCommit;
 	String repo;
 	Action  isTargetOf;
@@ -78,7 +81,7 @@ public class Branch extends RDFResource{
 	
 	public void setCreatedOn(Date createdOn){
 		DateTime dateTime = new DateTime(createdOn);
-		this.createdOn = schemaModel.createLiteral(dateTime.toString());
+		this.createdOn = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
 	}
 
 	public Literal getName() {
@@ -91,7 +94,8 @@ public class Branch extends RDFResource{
 	}
 	
 	public void setName(String name){
-		this.name = schemaModel.createLiteral(name);
+		this.id=name;
+		this.name = ResourceFactory.createTypedLiteral(name, XSDDatatype.XSDstring);
 	}
 
 
@@ -131,7 +135,7 @@ public class Branch extends RDFResource{
 	public Individual getIndividual(){	   
 		System.out.println("branch.getIndividual");
 		OntClass branchClass = schemaModel.getOntClass(Namespace.scmNS+"Branch" );
-		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repo+"/branches/"+name, branchClass);
+		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repo+"/branches/"+id, branchClass);
 		
 		//createdOn
     	if (createdOn!=null){
@@ -166,7 +170,7 @@ public class Branch extends RDFResource{
 	}
 	
 	public Resource getResource(){
-		return instanceModel.createResource(Namespace.scmIndividualNS+"repositories/"+repo+"/branches/"+name);
+		return instanceModel.createResource(Namespace.scmIndividualNS+"repositories/"+repo+"/branches/"+id);
 	}
 
 	

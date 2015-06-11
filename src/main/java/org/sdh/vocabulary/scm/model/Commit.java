@@ -31,6 +31,7 @@ import java.util.Date;
 import org.joda.time.DateTime;
 import org.sdh.harvester.constants.Namespace;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.ObjectProperty;
@@ -39,6 +40,7 @@ import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 public class Commit extends RDFResource {
 
@@ -115,7 +117,7 @@ public class Commit extends RDFResource {
 	
 	public void setCreatedOn(Date createdAtDate) {
 		DateTime dateTime = new DateTime(createdAtDate);
-		this.createdOn = schemaModel.createLiteral(dateTime.toString());		
+		this.createdOn = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);		
 	}
 	
 

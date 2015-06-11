@@ -32,6 +32,7 @@ import org.joda.time.DateTime;
 import org.sdh.harvester.constants.Namespace;
 import org.sdh.vocabulary.scm.external.foaf.Image;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.ObjectProperty;
@@ -40,6 +41,7 @@ import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 public class Person extends RDFResource{
 	
@@ -53,6 +55,7 @@ public class Person extends RDFResource{
 	
 	Literal name;
 	Literal userId;
+	String id;
 	Literal firstCommit;
 	Literal lastCommit;
 	Literal signUpDate;	
@@ -82,7 +85,7 @@ public class Person extends RDFResource{
 	}
 	
 	public void setName(String name){
-		this.name = schemaModel.createLiteral(name);
+		this.name = ResourceFactory.createTypedLiteral(name, XSDDatatype.XSDstring);
 	}
 
 	public Literal getUserId() {
@@ -94,7 +97,8 @@ public class Person extends RDFResource{
 	}
 	
 	public void setUserId(String userId) {
-		this.userId = schemaModel.createLiteral(userId);
+		this.id = userId;
+		this.userId = ResourceFactory.createTypedLiteral(userId, XSDDatatype.XSDstring);;
 	}	
 
 	public Literal getFirstCommit() {
@@ -107,7 +111,7 @@ public class Person extends RDFResource{
 
 	public void setFirstCommit(Date firstCommit) {
 		DateTime dateTime = new DateTime(firstCommit);
-		this.firstCommit = schemaModel.createLiteral(dateTime.toString());
+		this.firstCommit = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
 	}
 	
 	public Literal getLastCommit() {
@@ -120,7 +124,7 @@ public class Person extends RDFResource{
 	
 	public void setLastCommit(Date lastCommit) {
 		DateTime dateTime = new DateTime(lastCommit);
-		this.lastCommit = schemaModel.createLiteral(dateTime.toString());
+		this.lastCommit = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
 	}
 
 	public Literal getSignUpDate() {
@@ -133,7 +137,7 @@ public class Person extends RDFResource{
 	
 	public void setSignUpDate(Date createdAtDate) {
 		DateTime dateTime = new DateTime(createdAtDate);
-		this.signUpDate = schemaModel.createLiteral(dateTime.toString());
+		this.signUpDate = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
 		
 	}
 
@@ -184,7 +188,7 @@ public class Person extends RDFResource{
 	public Individual getIndividual(){
 System.out.println("user.getIndividual");
 		OntClass personClass = schemaModel.getOntClass(Namespace.scmNS+"Person");
-		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"users/"+userId, personClass);
+		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"users/"+id, personClass);
 		
 		//firstCommit
     	if (firstCommit!=null){
@@ -227,6 +231,11 @@ System.out.println("user.getIndividual");
        		indv.addProperty(homePageProperty, homepage);
        	}
        	
+       	if (mbox!=null){
+       		Property boxProperty = schemaModel.getProperty( Namespace.foafNS + "mbox" );
+       		indv.addProperty(boxProperty, mbox);
+       	}
+       	
        	if(account!=null){
        		ObjectProperty accountProperty = schemaModel.getObjectProperty( Namespace.foafNS + "account" );
        		indv.addProperty(accountProperty, account);
@@ -236,7 +245,7 @@ System.out.println("user.getIndividual");
 	}
 
 	public Resource getResource(){
-		return schemaModel.createResource(Namespace.scmIndividualNS+"users/"+userId);
+		return schemaModel.createResource(Namespace.scmIndividualNS+"users/"+id);
 	}
 
 	

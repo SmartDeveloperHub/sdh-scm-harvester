@@ -26,6 +26,8 @@
  */
 package org.sdh.harvester.scm;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.InputStream;
 import java.util.Iterator;
 
@@ -55,56 +57,38 @@ import com.hp.hpl.jena.reasoner.ValidityReport;
 
 public class HarvesterEndPointTest {
 	
-	@Test
-	public void getHarvester() throws NamingException{				
+	//@Test
+	public void testHarvesterIndividual() throws NamingException{				
+		OntModel instanceModel = getHarvester();
+    	
+    	SCMOntology scmOnto = new SCMOntology();
+    	
+    	assertTrue(scmOnto.ValidateInstances(instanceModel));    	    	
+	}
+	
+	public OntModel getHarvester(){
 		System.out.println("init test");
     	Client client = ClientBuilder.newClient();
     	WebTarget webTarget = client.target("http://localhost:9090/scmharvester/webapi");    	
     	WebTarget resourceWebTarget = webTarget.path("harvester").path("scm").path("gitlab");
     	Invocation.Builder invocationBuilder = resourceWebTarget.request("text/turtle");
+    	
     	System.out.println("get harvester");
     	Response response = invocationBuilder.get();        	
     	InputStream harvesterIs = response.readEntity(InputStream.class);
     	System.out.println("done!");
     	
     	System.out.println("Loading instance data");
+    	
+//    	java.util.Scanner s = new java.util.Scanner(harvesterIs).useDelimiter("\\A");
+//    	String content = s.hasNext()? s.next(): "";
+//    	System.out.print(content);
     	OntModel instanceModel= ModelFactory.createOntologyModel();
     	instanceModel.read(harvesterIs, null, "TTL" );
     	System.out.println("Done!");
     	
-    	
-    	//load ontology schema
-    	resourceWebTarget = webTarget.path("ontology");
-    	invocationBuilder = resourceWebTarget.request("text/turtle");
-    	response = invocationBuilder.get();    	
-    	InputStream scmOntologyIs = response.readEntity(InputStream.class);
-    	
-    	System.out.println("Loading ontology");
-    	OntModel schemaModel= ModelFactory.createOntologyModel();
-    	schemaModel.read(scmOntologyIs, null, "TTL" );
-    	System.out.println("done!");
-    	
-//    	System.out.println("Merging instance and ontology");
-//    	Model populatedModel=ModelFactory.createUnion(schemaModel, schemaModel);
-//    	System.out.println("Done!");
-    	
-    	System.out.println("Reasoning");
-    	Reasoner reasoner = ReasonerRegistry.getOWLMiniReasoner();
-    	reasoner = reasoner.bindSchema(schemaModel);
-    	InfModel inf = ModelFactory.createInfModel(reasoner, instanceModel);
-    	System.out.println("Done!");
-    	
-    	System.out.println("Validating");
-		ValidityReport validity = inf.validate();
-    	if (validity.isValid()) {
-    	    System.out.println("OK");
-    	} else {
-    	    System.out.println("Conflicts");
-    	    for (Iterator i = validity.getReports(); i.hasNext(); ) {
-    	        System.out.println(" - " + i.next());
-    	    }
-    	}
-    	
+    	return instanceModel;
 	}
+	
 
 }

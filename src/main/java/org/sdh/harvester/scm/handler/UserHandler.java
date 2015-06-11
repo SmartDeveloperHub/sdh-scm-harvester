@@ -270,15 +270,15 @@ public class UserHandler {
 					  createdAtDate = new DateTime(createdAt).toDate();					  
 			  }
     	  
-    	  if (userObj.containsKey("lastCommit"))
-			  if (!userObj.isNull("lastCommit")){
-				  lastCommit = userObj.getJsonNumber("lastCommit").longValue();				  
+    	  if (userObj.containsKey("last_commit_at"))
+			  if (!userObj.isNull("last_commit_at")){
+				  lastCommit = userObj.getJsonNumber("last_commit_at").longValue();				  
 					  lastCommitDate = new DateTime(lastCommit).toDate();			
 			  }
     	  
-    	  if (userObj.containsKey("firstCommit"))
-			  if (!userObj.isNull("firstCommit")){
-				  firstCommit = userObj.getJsonNumber("firstCommit").longValue();
+    	  if (userObj.containsKey("first_commit_at"))
+			  if (!userObj.isNull("first_commit_at")){
+				  firstCommit = userObj.getJsonNumber("first_commit_at").longValue();
 						  firstCommitDate = new DateTime(firstCommit).toDate();		
 			  }
     	  
