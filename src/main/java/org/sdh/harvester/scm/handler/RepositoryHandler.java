@@ -329,7 +329,7 @@ public class RepositoryHandler {
 			repo.setName(name);
 	
 		if (id!=null)
-	      repo.setRepositoryId(schemaModel.createLiteral(String.valueOf(id)));
+	      repo.setRepositoryId(String.valueOf(id));
 	    
 	    //repo.setTags(schemaModel.createLiteral("repo, development, business",true));
 		
