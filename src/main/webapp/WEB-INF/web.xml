@@ -50,11 +50,11 @@
     <!--  namespace for scm individuals. Note it must be deferenceable -->
     <context-param>
     	<param-name>scm-ontology-endpoint</param-name>
-    	<param-value>http://localhost:9090/scmharvester/webapi/</param-value>
+    	<param-value>http://localhost:8080/scmharvester/webapi/</param-value>
     </context-param>    
     <context-param>
     	<param-name>scm-individual-namespace</param-name>
-    	<param-value>http://localhost:9090/scmharvester/webapi/</param-value>
+    	<param-value>http://localhost:8080/scmharvester/webapi/</param-value>
     </context-param>
  	<context-param>
  	<!-- this is the o.s. path to the scm ttl, notice it does not start with file: -->

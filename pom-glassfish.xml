@@ -62,80 +62,65 @@
     <build>
         <finalName>scmharvester</finalName>
         <plugins>
-		    <plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-war-plugin</artifactId>
-		        <version>2.6</version>
-		        <configuration>
-		            <failOnMissingWebXml>true</failOnMissingWebXml>
-		        </configuration>
-		    </plugin>
-	        <plugin>
-	            <groupId>org.apache.tomcat.maven</groupId>
-	            <artifactId>tomcat7-maven-plugin</artifactId>
-	            <version>2.2</version>
-	            <configuration>
-	                <server>TomcatServer</server>
-	                <path>/scmharvester</path>
-	            </configuration>
-	        </plugin>
-<!--               <plugin> -->
-<!--                 <groupId>org.glassfish.maven.plugin</groupId> -->
-<!--                 <artifactId>maven-glassfish-plugin</artifactId> -->
-<!--                 <version>2.1</version>                               -->
-<!--                 <configuration> -->
-<!-- 				<glassfishDirectory>/home/hagarcia/apps/glassfish4/glassfish</glassfishDirectory> -->
-<!-- 					<user>admin</user>	 -->
-<!-- 					<passwordFile>/home/hagarcia/apps/glassfish4/glassfish/domains/domain1/config/admin-keyfile</passwordFile>		 -->
-<!-- 					<domain> -->
-<!-- 						<name>domain1</name> -->
-<!-- 						<httpPort>8080</httpPort> -->
-<!-- 						<adminPort>4848</adminPort> -->
-<!-- 					</domain>										 -->
-<!-- 					<components> -->
-<!-- 						<component> -->
-<!-- 							<name>${project.artifactId}</name> -->
-<!-- 							<artifact>target/${project.build.finalName}.war</artifact>							 -->
-<!-- 						</component> -->
-<!-- 					</components> -->
-<!-- 					<debug>true</debug> -->
-<!-- 					<terse>false</terse> -->
-<!-- 					<echo>true</echo> -->
-<!-- 				</configuration> -->
-<!--             </plugin> -->
-
-
+              <plugin>
+                <groupId>org.glassfish.maven.plugin</groupId>
+                <artifactId>maven-glassfish-plugin</artifactId>
+                <version>2.1</version>                              
+                <configuration>
+				<glassfishDirectory>/home/hagarcia/apps/glassfish4/glassfish</glassfishDirectory>
+					<user>admin</user>	
+					<passwordFile>/home/hagarcia/apps/glassfish4/glassfish/domains/domain1/config/admin-keyfile</passwordFile>		
+					<domain>
+						<name>domain1</name>
+						<httpPort>8080</httpPort>
+						<adminPort>4848</adminPort>
+					</domain>										
+					<components>
+						<component>
+							<name>${project.artifactId}</name>
+							<artifact>target/${project.build.finalName}.war</artifact>							
+						</component>
+					</components>
+					<debug>true</debug>
+					<terse>false</terse>
+					<echo>true</echo>
+				</configuration>
+            </plugin>
         </plugins>
     </build>
 
-    <dependencies>      
-	    <dependency>
-		    <groupId>org.glassfish.jersey.containers</groupId>
-		    <!-- if your container implements Servlet API older than 3.0, use "jersey-container-servlet-core"  -->
-		    <artifactId>jersey-container-servlet-core</artifactId>
-		    <version>2.18</version>
-		</dependency>
-		<!-- Required only when you are using JAX-RS Client -->
-		<dependency>
-		    <groupId>org.glassfish.jersey.core</groupId>
-		    <artifactId>jersey-server</artifactId>
-		    <version>2.18</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.glassfish.jersey.core</groupId>
-		    <artifactId>jersey-client</artifactId>
-		    <version>2.18</version>
-		</dependency>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.glassfish.jersey</groupId>
+                <artifactId>jersey-bom</artifactId>
+                <version>${jersey.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>           
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+            <version>2.17</version>
+           <scope>provided</scope>
+            <!-- use the following artifactId if you don't need servlet 2.x compatibility -->
+            <!-- artifactId>jersey-container-servlet</artifactId -->
+        </dependency>
+        <!-- uncomment this to get JSON support
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-moxy</artifactId>
+        </dependency>
+        -->
         <dependency>
 	    	<groupId>javax.json</groupId>
 	    	<artifactId>javax.json-api</artifactId>
 	    	<version>1.0</version>
 		</dependency>  
-		<dependency>
-    		<groupId>org.glassfish</groupId>
-    		<artifactId>javax.json</artifactId>
-    		<version>1.0.4</version>
-		</dependency>
 		  <dependency>
 			    <groupId>org.apache.jena</groupId>
 			    <artifactId>apache-jena-libs</artifactId>
@@ -179,8 +164,8 @@
 				<version>2.5</version>
 			</dependency>
     </dependencies>
-<!--     <properties> -->
-<!--         <jersey.version>2.17</jersey.version> -->
-<!--         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> -->
-<!--     </properties> -->
+    <properties>
+        <jersey.version>2.17</jersey.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 </project>
