@@ -150,7 +150,7 @@ public class Commit extends RDFResource {
     	//performedBy;
        	if (performedBy!=null){
        		ObjectProperty performedByProperty = schemaModel.getObjectProperty( Namespace.scmNS + "performedBy" );   
-       		indv.addProperty(performedByProperty, performedBy.getIndividual());
+       		indv.addProperty(performedByProperty, performedBy.getResource());
        	}
        	
     	
