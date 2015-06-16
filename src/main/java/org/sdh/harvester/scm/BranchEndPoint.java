@@ -66,7 +66,7 @@ public class BranchEndPoint extends EndPoint{
 	@GET
     @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
     public String getBranches(@PathParam("repositoryId") String repoId) {
-    	System.out.println("getBranch");
+    	System.out.println("getBranches");
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
     	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
@@ -78,7 +78,7 @@ public class BranchEndPoint extends EndPoint{
     	
     	BranchHandler handler = new BranchHandler();
     	handler.setRepositoryId(repoId);
-    	//handler.setName(branchName);
+    	//handler.setId(branchName);
     	
     	String rdf=handler.processBranches(response.readEntity(InputStream.class), "TTL");
     	
@@ -90,7 +90,7 @@ public class BranchEndPoint extends EndPoint{
     @GET @Path("/{branchname}")
     @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
     public String getBranch(@PathParam("repositoryId") String repoId, @PathParam("branchname") String branchName ) {
-    	System.out.println("getBranch");
+    	System.out.println("getBranch:"+branchName);
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
     	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
@@ -102,7 +102,7 @@ public class BranchEndPoint extends EndPoint{
     	
     	BranchHandler handler = new BranchHandler();
     	handler.setRepositoryId(repoId);
-    	handler.setName(branchName);
+    	handler.setId(branchName);
     	
     	//get the branch commits
     	resourceWebTarget = webTarget.path("projects").path(repoId).path("branches").path(branchName).path("commits"); //replace for next line when commits per branch are available

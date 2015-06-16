@@ -89,7 +89,7 @@ public class Harvester {
 	
 	    repo.setRepositoryId(ontModel.createLiteral("repo001",true));
 	    
-	    repo.setTags(ontModel.createLiteral("repo, development, business",true));
+	    //repo.setTags(ontModel.createLiteral("repo, development, business",true));
 	    
 	    //Branch
 		Branch branch01 = new Branch(ontModel, instModel);				

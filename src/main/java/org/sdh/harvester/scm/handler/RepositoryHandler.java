@@ -78,6 +78,7 @@ public class RepositoryHandler {
 	Boolean publicRepo ;
 	String description ;
 	String defaultBranch ;
+	String defaultBranchName;
 	long lastActivityAt ;
 	Date lastActivityAtDate ;
 	String name ;
@@ -88,8 +89,11 @@ public class RepositoryHandler {
 	JsonObject owner;
 	ArrayList<Integer> developerIds;	
 	ArrayList<String> branchIds;
+	ArrayList<String> tags;
 	
 	String rdfRepresentation;
+	
+	
 	
 	
 	
@@ -212,6 +216,9 @@ public class RepositoryHandler {
 		  if (repository.containsKey("default_branch"))
 			  if (!repository.isNull("default_branch"))
 				  defaultBranch = repository.getString("default_branch");
+		  if (repository.containsKey("default_branch-name"))
+			  if (!repository.isNull("default_branch-name"))
+				  defaultBranchName = repository.getString("default_branch-name");
 		  
 		  if (repository.containsKey("last_activity_at"))
 			  if (!repository.isNull("last_activity_at")){
@@ -233,11 +240,22 @@ public class RepositoryHandler {
 			  if (!repository.isNull("owner")){
 				  owner = repository.getJsonObject("owner");
 			  }
-		  
+			  		  
 		  if (repository.containsKey("avatar_url"))
 			  if (!repository.isNull("avatar_url"))
 				  avatarUrl = repository.getString("avatar_url");
 		  			
+		  tags = new ArrayList<String>();
+ 		  if (repository.containsKey("tags"))
+			  if (!repository.isNull("tags")){
+				  JsonArray tagsArray = repository.getJsonArray("tags");				  
+				  for (JsonString tag : tagsArray.getValuesAs(JsonString.class)){
+					  if (!tag.getString().isEmpty())				  
+						  tags.add(tag.getString());
+				  }
+			  }
+		
+		  
 		  System.out.println("-----------");
 		  developerIds = new ArrayList<Integer>();
 		  if (repository.containsKey("contributors"))
@@ -317,8 +335,8 @@ public class RepositoryHandler {
 		if (publicRepo !=null)			
 			repo.setIsPublic(publicRepo);
 				
-		if (defaultBranch != null)
-		    repo.setDefaultBranchName(defaultBranch);
+		if (defaultBranchName != null)
+		    repo.setDefaultBranchName(defaultBranchName);
 				
 		if (description!=null)
 			repo.setDescription(description);		
@@ -338,28 +356,20 @@ public class RepositoryHandler {
 			repoImage.setRepoId(String.valueOf(id));
 			repo.setDepiction(repoImage);
 		}
+		if (tags!=null){
+			repo.setTags(tags);
+		}
 					
 		if (defaultBranch != null){			
-			branch.setName(defaultBranch);
+			branch.setId(defaultBranch);
 			branch.setRepo(String.valueOf(id));
 			repo.setDefaultBranch(branch);
 		}
 		
-		if (owner!=null){			
-			userHandler.initEmbededHandler(schemaModel, instModel);
-			userHandler.processJsonObject(owner,noIndividual);				
-//			user.setName(schemaModel.createLiteral(userHandler.getName()));
-//			user.setUserId(schemaModel.createLiteral(String.valueOf(userHandler.getId())));
-//			//user.setMbox(schemaModel.createLiteral(userHandler.getAccount()));		
-//			userImage.setIsDefinedBy(userHandler.getAvatarUrl());
-//			userImage.setUserId(String.valueOf(userHandler.getId()));
-//			user.setImg(userImage);
-			repo.setOwner(userHandler.user);
-		}
 		
+		ArrayList<Person> developers=new ArrayList<Person>();
 		if (developerIds!=null)
-			if (!developerIds.isEmpty()){
-				ArrayList<Person> developers=new ArrayList<Person>();			
+			if (!developerIds.isEmpty()){							
 				for (Integer developerId:developerIds){		
 					userHandler.initEmbededHandler(schemaModel, instModel);
 					userHandler.setId(developerId);				
@@ -369,12 +379,38 @@ public class RepositoryHandler {
 				repo.setDevelopers(developers);
 			}
 		
+		//if the owner is a group (type!=user) then assign the first developer as owner
+		if (owner!=null){	
+			Integer userId = null;
+			String userType="";
+			if (owner.containsKey("id"))				
+				  if (!owner.isNull("id"))
+				  	userId = owner.getJsonNumber("id").intValue();
+			if (owner.containsKey("type"))				
+				  if (!owner.isNull("type"))
+				  	userType = owner.getJsonString("type").getString();
+			
+			if (userType.equalsIgnoreCase("user")){
+				if (userId!=null){
+					userHandler.initEmbededHandler(schemaModel, instModel);
+					userHandler.setId(userId);
+					userHandler.createUserIndividual(noIndividual);	
+					}			
+			}else
+			{	
+				if(!developers.isEmpty())
+					userHandler.setUser(developers.get(0));
+		
+			}
+			repo.setOwner(userHandler.user);
+		}
+		
 		if (branchIds!=null)
 			if (!branchIds.isEmpty()){
 				ArrayList<Branch> branches=new ArrayList<Branch>();			
 				for (String branchId:branchIds){		
 					branchHandler.initEmbededHandler(schemaModel, instModel);
-					branchHandler.setName(branchId);
+					branchHandler.setId(branchId);
 					branchHandler.setRepositoryId(String.valueOf(id));
 					branchHandler.createBranchIndividual(noIndividual);
 					branches.add(branchHandler.getBranch());				

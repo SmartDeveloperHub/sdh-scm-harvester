@@ -56,7 +56,8 @@ public class BranchHandler {
 	
 
 	String repositoryId;
-	String name;	
+	String name;
+	String id;
 	long createdAt ;
 	Date createdAtDate ;
 	
@@ -75,6 +76,11 @@ public class BranchHandler {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+		
+	
+	public void setId(String id) {
+		this.id = id;
 	}
 	
 	public Branch getBranch() {
@@ -132,7 +138,7 @@ public class BranchHandler {
 	public String processBranches(InputStream entityInputStream, String rdfFormat){
 		rdfRepresentation = "";
 		try( 
-				JsonReader jsonReader = Json.createReader(entityInputStream)
+			JsonReader jsonReader = Json.createReader(entityInputStream)
 	    	)
 	    	{ 			
 			  initOntologyModels();
@@ -178,7 +184,7 @@ public class BranchHandler {
 					for (String commitId:commitIds){		
 						commitHandler.initEmbededHandler(schemaModel, instModel);
 						commitHandler.setId(commitId);
-						commitHandler.setBranchId(name);
+						commitHandler.setBranchId(id);
 						commitHandler.setRepositoryId(Integer.valueOf(repositoryId));
 						commitHandler.createCommitIndividual(noIndividualCommit);
 						commits.add(commitHandler.getCommit());				
@@ -193,6 +199,9 @@ public class BranchHandler {
 		createBranchIndividual(false);
 	}
 	public void createBranchIndividual(boolean noIndividual) {
+		if (id!=null)
+			branch.setId(id);
+		
 		if (name != null)
 			branch.setName(name);
 		

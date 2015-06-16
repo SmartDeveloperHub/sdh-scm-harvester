@@ -94,8 +94,11 @@ public class Branch extends RDFResource{
 	}
 	
 	public void setName(String name){
-		this.id=name;
 		this.name = ResourceFactory.createTypedLiteral(name, XSDDatatype.XSDstring);
+	}
+
+	public void setId(String id){
+		this.id=id;		
 	}
 
 
@@ -133,7 +136,7 @@ public class Branch extends RDFResource{
 
 	
 	public Individual getIndividual(){	   
-		System.out.println("branch.getIndividual");
+		System.out.println("branch.getIndividual id :"+id);
 		OntClass branchClass = schemaModel.getOntClass(Namespace.scmNS+"Branch" );
 		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repo+"/branches/"+id, branchClass);
 		
