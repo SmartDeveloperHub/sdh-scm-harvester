@@ -50,6 +50,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.sdh.harvester.constants.GitlabEnhancerConstants;
 import org.sdh.harvester.constants.GlobalVariablesInitializer;
 import org.sdh.harvester.scm.handler.RepositoryHandler;
 
@@ -79,7 +80,7 @@ public class RepositoryEndPoint extends EndPoint{
     public String getRepositories() {    	
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
-    	WebTarget webTarget = client.target("http://192.168.0.10:5000/api/");    	
+    	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
     	WebTarget resourceWebTarget = webTarget.path("projects");
     	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
     	Response response = invocationBuilder.get();
@@ -99,7 +100,7 @@ public class RepositoryEndPoint extends EndPoint{
     public String getRepository(@PathParam("repoId") String repoId) {    	
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
-    	WebTarget webTarget = client.target("http://192.168.0.10:5000/api/");    	
+    	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
     	WebTarget resourceWebTarget = webTarget.path("projects").path(repoId);    	
     	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
     	Response response = invocationBuilder.get();

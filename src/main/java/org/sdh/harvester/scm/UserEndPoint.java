@@ -45,6 +45,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.sdh.harvester.constants.GitlabEnhancerConstants;
 import org.sdh.harvester.scm.handler.UserHandler;
 
 /**
@@ -69,7 +70,7 @@ public class UserEndPoint extends EndPoint{
 	    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
 	    public String getUsers() {	    	
 	    	Client client = ClientBuilder.newClient();
-	    	WebTarget webTarget = client.target("http://192.168.0.10:5000/api/");    	
+	    	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
 	    	WebTarget resourceWebTarget = webTarget.path("users");
 	    	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
 	    	Response response = invocationBuilder.get();
@@ -85,7 +86,7 @@ public class UserEndPoint extends EndPoint{
 	    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
 	    public String getUser(@PathParam("userId") String userId) {
 	    	Client client = ClientBuilder.newClient();
-	    	WebTarget webTarget = client.target("http://192.168.0.10:5000/api/");    	
+	    	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
 	    	WebTarget resourceWebTarget = webTarget.path("users").path(userId);
 	    	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
 	    	Response response = invocationBuilder.get();

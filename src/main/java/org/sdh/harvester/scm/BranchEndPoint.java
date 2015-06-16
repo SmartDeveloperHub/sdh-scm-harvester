@@ -42,6 +42,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
+import org.sdh.harvester.constants.GitlabEnhancerConstants;
 import org.sdh.harvester.constants.GlobalVariablesInitializer;
 import org.sdh.harvester.scm.handler.BranchHandler;
 
@@ -68,7 +69,7 @@ public class BranchEndPoint extends EndPoint{
     	System.out.println("getBranch");
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
-    	WebTarget webTarget = client.target("http://192.168.0.10:5000/api/");    	
+    	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
     	WebTarget resourceWebTarget = webTarget.path("projects").path(repoId).path("branches");    	
     	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
     	Response response = invocationBuilder.get();
@@ -92,7 +93,7 @@ public class BranchEndPoint extends EndPoint{
     	System.out.println("getBranch");
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
-    	WebTarget webTarget = client.target("http://192.168.0.10:5000/api/");    	
+    	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
     	WebTarget resourceWebTarget = webTarget.path("projects").path(repoId).path("branches").path(branchName);    	
     	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
     	Response response = invocationBuilder.get();

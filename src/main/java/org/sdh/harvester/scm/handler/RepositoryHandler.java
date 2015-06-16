@@ -339,8 +339,8 @@ public class RepositoryHandler {
 			repo.setDepiction(repoImage);
 		}
 					
-		if (defaultBranch != null){
-			branch.setName(schemaModel.createLiteral(defaultBranch));
+		if (defaultBranch != null){			
+			branch.setName(defaultBranch);
 			branch.setRepo(String.valueOf(id));
 			repo.setDefaultBranch(branch);
 		}
