@@ -28,23 +28,17 @@
 package org.sdh.vocabulary.scm;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.io.IoBuilder;
 import org.sdh.harvester.constants.AlternativeURI;
-import org.sdh.harvester.scm.Harvester;
 
 import com.hp.hpl.jena.ontology.OntDocumentManager;
 import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.util.FileManager;
 
 public class ScmOntology {
+
 	String inputFileName; 
 	OntModel ontModel;
 	
@@ -58,12 +52,17 @@ public class ScmOntology {
 
 	public void loadOntology(){
 		
-		inputFileName=AlternativeURI.scmOntologyFile;
+		inputFileName=AlternativeURI.scmOntologyFile;		
+//		ClassLoader classLoader = getClass().getClassLoader();
 		
-		ClassLoader classLoader = getClass().getClassLoader();
-		
-//		InputStream in = FileManager.get().open(classLoader.getResource(inputFileName).getFile());
-		InputStream in = FileManager.get().open(inputFileName);
+		inputFileName = "vocabulary/v1/scm.ttl";
+		InputStream in=
+			Thread.
+				currentThread().
+					getContextClassLoader().
+						getResourceAsStream(inputFileName);		
+
+//		InputStream in = FileManager.get().open(inputFileName);
 		
 		if (in == null) {
 		    throw new IllegalArgumentException(
@@ -82,14 +81,16 @@ public class ScmOntology {
 		//this option worked!
 		ontModel= ModelFactory.createOntologyModel();
 		OntDocumentManager docMgr = ontModel.getDocumentManager();
-		docMgr.addAltEntry(AlternativeURI.srcDoapURI, AlternativeURI.trgDoapURI);
+		docMgr.getFileManager().addLocatorClassLoader(Thread.currentThread().getContextClassLoader());
+		docMgr.addAltEntry(AlternativeURI.srcDoapURI,"vocabulary/external/doap/doap.rdf");		
+		docMgr.addAltEntry(AlternativeURI.srcDctermsURI,"vocabulary/external/dcmi/dcterms.rdf");
+		docMgr.addAltEntry(AlternativeURI.srcDctypeURI, "vocabulary/external/dcmi/dctype.rdf");
+		docMgr.addAltEntry(AlternativeURI.srcPlatformURI, "vocabulary/v1/platform.ttl");
 		
-		docMgr.addAltEntry(AlternativeURI.srcDctermsURI, AlternativeURI.trgDctermsURI);
-		
-		docMgr.addAltEntry(AlternativeURI.srcDctypeURI, AlternativeURI.trgDctypeURI);
-		
-		docMgr.addAltEntry(AlternativeURI.srcPlatformURI,  AlternativeURI.trgPlatformURI);							
-		
+//		docMgr.addAltEntry(AlternativeURI.srcDctermsURI, AlternativeURI.trgDctermsURI);		
+//		docMgr.addAltEntry(AlternativeURI.srcDctypeURI, AlternativeURI.trgDctypeURI);		
+//		docMgr.addAltEntry(AlternativeURI.srcPlatformURI,  AlternativeURI.trgPlatformURI);							
+
 		// read the RDF/XML file
 		ontModel.read(in, null, "TTL" );
 		// write it to standard out

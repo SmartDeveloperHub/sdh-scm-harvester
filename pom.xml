@@ -108,7 +108,13 @@
         </plugins>
     </build>
 
-    <dependencies>      
+    <dependencies>  
+        <dependency>
+        	<groupId>org.smartdeveloperhub.vocabulary</groupId>
+			<artifactId>sdh-vocabulary</artifactId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+        </dependency>
 	    <dependency>
 		    <groupId>org.glassfish.jersey.containers</groupId>
 		    <!-- if your container implements Servlet API older than 3.0, use "jersey-container-servlet-core"  -->

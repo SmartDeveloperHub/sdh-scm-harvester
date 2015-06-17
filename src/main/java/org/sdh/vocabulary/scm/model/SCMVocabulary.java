@@ -69,6 +69,11 @@ public class SCMVocabulary extends RDFResource {
 	
 	public Individual getIndividual(){	   
 		System.out.println("vocabulary.getIndividual");
+		if (schemaModel==null)
+			System.out.println("schemaModel Null");
+		if (instanceModel==null)
+			System.out.println("instanceModel Null");
+		
 		//vocabulary;
 		OntClass scmVocabularyClass = schemaModel.getOntClass(Namespace.scmNS+"SCMVocabulary");
 		Individual vocabularyIndividual = instanceModel.createIndividual(Namespace.scmIndividualNS+"harvester/scm/"+harvesterId+"/vocabulary", scmVocabularyClass);

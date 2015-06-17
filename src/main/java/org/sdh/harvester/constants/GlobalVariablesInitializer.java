@@ -45,25 +45,25 @@ public class GlobalVariablesInitializer {
 		return scmOntologyPath;
 	}
 	
-	public static String getTargetPlaformUri() {
-		String targetPlatformUri=servletContext.getInitParameter("platform.ttl");
-		return targetPlatformUri;
-	}
-	
-	public static String getTargetDoapURI(){
-		String targetDoapUri=servletContext.getInitParameter("doap.rdf");
-		return targetDoapUri;
-	}
-
-	public static String getTargetDcTerms() {
-		String targetDcTermsUri=servletContext.getInitParameter("dcterms.rdf");
-		return targetDcTermsUri;
-	}
-	
-	public static String getTargetDcType() {
-		String targetDcTypeUri=servletContext.getInitParameter("dctype.rdf");
-		return targetDcTypeUri;
-	}
+//	public static String getTargetPlaformUri() {
+//		String targetPlatformUri=servletContext.getInitParameter("platform.ttl");
+//		return targetPlatformUri;
+//	}
+//	
+//	public static String getTargetDoapURI(){
+//		String targetDoapUri=servletContext.getInitParameter("doap.rdf");
+//		return targetDoapUri;
+//	}
+//
+//	public static String getTargetDcTerms() {
+//		String targetDcTermsUri=servletContext.getInitParameter("dcterms.rdf");
+//		return targetDcTermsUri;
+//	}
+//	
+//	public static String getTargetDcType() {
+//		String targetDcTypeUri=servletContext.getInitParameter("dctype.rdf");
+//		return targetDcTypeUri;
+//	}
 
 	public static String getSrcPlaformUri() {
 		String srcPlatformUri=servletContext.getInitParameter("platform-reference");

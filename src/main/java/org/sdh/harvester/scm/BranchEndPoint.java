@@ -27,6 +27,7 @@
 package org.sdh.harvester.scm;
 
 import java.io.InputStream;
+import java.net.URI;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
@@ -40,6 +41,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.sdh.harvester.constants.GitlabEnhancerConstants;
@@ -65,7 +67,7 @@ public class BranchEndPoint extends EndPoint{
      */
 	@GET
     @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-    public String getBranches(@PathParam("repositoryId") String repoId) {
+    public String getBranches(@PathParam("repositoryId") String repoId, @Context UriInfo uriInfo) {
     	System.out.println("getBranches");
     	String responseContent="";
     	Client client = ClientBuilder.newClient();

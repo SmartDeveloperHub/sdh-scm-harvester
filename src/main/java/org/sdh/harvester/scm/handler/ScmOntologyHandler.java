@@ -62,7 +62,7 @@ public class ScmOntologyHandler {
 	public String getPlatformModel(String format){
 		OntModel schemaModel=getSchemaModel();
 		System.out.println("platform reference:"+AlternativeURI.srcPlatformURI);
-		System.out.println("platform.ttl:"+AlternativeURI.trgPlatformURI);
+//		System.out.println("platform.ttl:"+AlternativeURI.trgPlatformURI);
 		OntModel platform = schemaModel.getImportedModel(AlternativeURI.srcPlatformURI);
 		output= new ByteArrayOutputStream();
 		platform.write(output, format);
@@ -71,9 +71,9 @@ public class ScmOntologyHandler {
 	
 	public String getDoapModel(String format){
 		OntModel schemaModel=getSchemaModel();
-		OntModel platform = schemaModel.getImportedModel(AlternativeURI.srcDoapURI);
+		OntModel doap = schemaModel.getImportedModel(AlternativeURI.srcDoapURI);
 		output= new ByteArrayOutputStream();
-		platform.write(output, format);
+		doap.write(output, format);
 		return output.toString();
 	}
 }

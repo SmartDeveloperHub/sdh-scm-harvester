@@ -43,10 +43,10 @@ public final class AlternativeURI {
 	public static final String srcDctypeURI;
 	
 	public static final String scmOntologyFile;
-	public static final String trgPlatformURI;;
-	public static final String trgDoapURI;
-	public static final String trgDctermsURI;
-	public static final String trgDctypeURI;
+//	public static final String trgPlatformURI;;
+//	public static final String trgDoapURI;
+//	public static final String trgDctermsURI;
+//	public static final String trgDctypeURI;
 
 
 	
@@ -56,16 +56,16 @@ public final class AlternativeURI {
 		scmOntologyEndpoint = GlobalVariablesInitializer.gestScmOntologyEndPoint();
 		
 		srcPlatformURI = GlobalVariablesInitializer.getSrcPlaformUri();
-		trgPlatformURI = GlobalVariablesInitializer.getTargetPlaformUri();
+//		trgPlatformURI = GlobalVariablesInitializer.getTargetPlaformUri();
 		
 		srcDoapURI = GlobalVariablesInitializer.getSrcDoapURI();
-		trgDoapURI = GlobalVariablesInitializer.getTargetDoapURI();
+//		trgDoapURI = GlobalVariablesInitializer.getTargetDoapURI();
 		
 		srcDctermsURI = GlobalVariablesInitializer.getSrcDcTerms();
-		trgDctermsURI = GlobalVariablesInitializer.getTargetDcTerms();
+//		trgDctermsURI = GlobalVariablesInitializer.getTargetDcTerms();
 		
 		srcDctypeURI = GlobalVariablesInitializer.getSrcDcType();
-		trgDctypeURI = GlobalVariablesInitializer.getTargetDcType();
+//		trgDctypeURI = GlobalVariablesInitializer.getTargetDcType();
 	}
 	
 
