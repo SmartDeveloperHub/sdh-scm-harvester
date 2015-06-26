@@ -51,32 +51,58 @@ public class ScmOntologyEndPoint extends EndPoint {
 	
 	@GET
     @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-    public String getOntology(){
+    public String getOntologyTTL(){
 		ScmOntologyHandler onto = new ScmOntologyHandler();
-		return onto.getAllModels("TTL");
+		return onto.getAllModels(turtleJena);
+	}
+	
+	@GET
+    @Produces({rdfXmlMediaType})
+    public String getOntologyRDF(){
+		ScmOntologyHandler onto = new ScmOntologyHandler();
+		return onto.getAllModels(rdfXmlJena);
 	}
 	
 	@GET @Path("/scm")
     @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-    public String getScmOntology(){
+    public String getScmOntologyTTL(){
 		ScmOntologyHandler onto = new ScmOntologyHandler();
-		return onto.getScmModel("TTL");	
+		return onto.getScmModel(turtleJena);	
+	}
+	
+	@GET @Path("/scm")
+    @Produces({rdfXmlMediaType})
+    public String getScmOntologyRDF(){
+		ScmOntologyHandler onto = new ScmOntologyHandler();
+		return onto.getScmModel(rdfXmlJena);	
 	}
 	
 	@GET @Path("/platform")
     @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-    public String getPlatformOntology(){
+    public String getPlatformOntologyTTL(){
 		ScmOntologyHandler onto = new ScmOntologyHandler();
-		return onto.getPlatformModel("TTL");	
+		return onto.getPlatformModel(turtleJena);	
 	}
 	
-	@GET @Path("/doap")
-    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-    public String getDoapOntology(){
+	@GET @Path("/platform")
+    @Produces({rdfXmlMediaType})
+    public String getPlatformOntologyRDF(){
 		ScmOntologyHandler onto = new ScmOntologyHandler();
-		return onto.getDoapModel("TTL");	
+		return onto.getPlatformModel(rdfXmlJena);	
 	}
 
-	
+	@GET @Path("/doap")
+    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
+    public String getDoapOntologyTTL(){
+		ScmOntologyHandler onto = new ScmOntologyHandler();
+		return onto.getDoapModel(turtleJena);	
+	}
+
+	@GET @Path("/doap")
+    @Produces({rdfXmlMediaType})
+    public String getDoapOntology(){
+		ScmOntologyHandler onto = new ScmOntologyHandler();
+		return onto.getDoapModel(rdfXmlJena);	
+	}
 
 }

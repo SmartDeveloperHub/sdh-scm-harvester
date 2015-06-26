@@ -26,25 +26,15 @@
  */
 package org.sdh.harvester.scm;
 
-import java.io.InputStream;
-
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.sdh.harvester.constants.GitlabEnhancerConstants;
 import org.sdh.harvester.scm.handler.HarvesterHandler;
-import org.sdh.harvester.scm.handler.RepositoryHandler;
 
-@Path("harvester/scm")
+@Path("harvester/scm/gitlab")
 public class HarvesterEndPoint extends EndPoint {
 
 	HarvesterHandler harvesterHandler;
@@ -53,13 +43,21 @@ public class HarvesterEndPoint extends EndPoint {
 		super(servletContext);
 	}
 		  
-    @GET @Path("gitlab")
-    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})  
-    public String getHarvester() {    	    	    	
+	@GET 
+	@Produces({MediaType.TEXT_PLAIN, turtleMediaType})
+	public String getHarvester() {  	    	    	
     	harvesterHandler = new HarvesterHandler();
-    	String rdf=harvesterHandler.publishHarvester("TTL");    	
+    	String rdf=harvesterHandler.publishHarvester(turtleJena);    	
     	return rdf;
     }
 		
+    @GET 
+    @Produces(rdfXmlMediaType)  
+    public String getHarvesterRDF() {    	    	    	
+    	harvesterHandler = new HarvesterHandler();
+    	String rdf=harvesterHandler.publishHarvester(rdfXmlJena);    	
+    	return rdf;
+    }
+
 
 }

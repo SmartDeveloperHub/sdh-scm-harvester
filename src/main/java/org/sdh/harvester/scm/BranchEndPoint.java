@@ -67,9 +67,31 @@ public class BranchEndPoint extends EndPoint{
      */
 	@GET
     @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-    public String getBranches(@PathParam("repositoryId") String repoId, @Context UriInfo uriInfo) {
-    	System.out.println("getBranches");
-    	String responseContent="";
+    public String getBranchesTTL(@PathParam("repositoryId") String repoId, @Context UriInfo uriInfo) {
+		
+    	String rdf=getBranch(repoId, turtleJena);   	    	
+        return rdf;    	
+    }
+	
+	@GET
+    @Produces({rdfXmlMediaType})
+    public String getBranchesRDF(@PathParam("repositoryId") String repoId, @Context UriInfo uriInfo) {   	
+    	String rdf=getBranch(repoId, rdfXmlJena);   	
+        return rdf;    	
+    }
+	
+	private String getBranch(String repoId,  String format){
+		InputStream branchesIS=getBranchesFromEnhancer(repoId);
+    	
+    	BranchHandler handler = new BranchHandler();
+    	handler.setRepositoryId(repoId);
+   	
+    	String rdf=handler.processBranches(branchesIS, format);   	
+    	return rdf;
+	}
+	
+	private InputStream getBranchesFromEnhancer(String repoId){
+		System.out.println("getBranches");    	
     	Client client = ClientBuilder.newClient();
     	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
     	WebTarget resourceWebTarget = webTarget.path("projects").path(repoId).path("branches");    	
@@ -77,23 +99,43 @@ public class BranchEndPoint extends EndPoint{
     	Response response = invocationBuilder.get();
     	
     	System.out.println("response status:"+response.getStatus());   
+    	return response.readEntity(InputStream.class);
+	}
+	
+    @GET @Path("/{branchname}")
+    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
+    public String getBranchTTL(@PathParam("repositoryId") String repoId, @PathParam("branchname") String branchName ) {
     	
+    	String rdf = getBranch(repoId, branchName, turtleJena);    	
+    	
+        return rdf;    	
+    }
+    
+    @GET @Path("/{branchname}")
+    @Produces({rdfXmlMediaType})
+    public String getBranchRDF(@PathParam("repositoryId") String repoId, @PathParam("branchname") String branchName ) {
+    	
+    	String rdf = getBranch(repoId, branchName, rdfXmlJena);
+
+        return rdf;    	
+    }
+    
+    private String getBranch(String repoId, String branchName, String format){
+    	InputStream branchesIS = getBranchFromEnhancer(repoId, branchName);
+    	InputStream commitsIS = getCommitsFromEnhancer(repoId, branchName);
     	BranchHandler handler = new BranchHandler();
     	handler.setRepositoryId(repoId);
-    	//handler.setId(branchName);
-    	
-    	String rdf=handler.processBranches(response.readEntity(InputStream.class), "TTL");
-    	
+    	handler.setId(branchName);
+    	    	
+    	String rdf=handler.processBranch(branchesIS,commitsIS, format);
+    	    	
     	//responseContent =response.readEntity(String.class);    	   
     	//System.out.println(responseContent);
         return rdf;    	
     }
-	
-    @GET @Path("/{branchname}")
-    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-    public String getBranch(@PathParam("repositoryId") String repoId, @PathParam("branchname") String branchName ) {
-    	System.out.println("getBranch:"+branchName);
-    	String responseContent="";
+    
+    private InputStream getBranchFromEnhancer(String repoId, String branchName){
+    	System.out.println("getBranch:"+branchName);    	
     	Client client = ClientBuilder.newClient();
     	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
     	WebTarget resourceWebTarget = webTarget.path("projects").path(repoId).path("branches").path(branchName);    	
@@ -101,22 +143,17 @@ public class BranchEndPoint extends EndPoint{
     	Response response = invocationBuilder.get();
     	
     	System.out.println("response status:"+response.getStatus());
-    	
-    	BranchHandler handler = new BranchHandler();
-    	handler.setRepositoryId(repoId);
-    	handler.setId(branchName);
-    	
-    	//get the branch commits
-    	resourceWebTarget = webTarget.path("projects").path(repoId).path("branches").path(branchName).path("commits"); //replace for next line when commits per branch are available
-    	//resourceWebTarget = resourceWebTarget.path("commits");
-    	invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
-    	Response commitsResponse = invocationBuilder.get();
-    	
-    	String rdf=handler.processBranch(response.readEntity(InputStream.class),commitsResponse.readEntity(InputStream.class), "TTL");
-    	
-    	//responseContent =response.readEntity(String.class);    	   
-    	//System.out.println(responseContent);
-        return rdf;    	
+    	return response.readEntity(InputStream.class);
     }
 
+    private InputStream getCommitsFromEnhancer(String repoId, String branchName){
+    	System.out.println("getCommits Branch:"+branchName);  
+    	Client client = ClientBuilder.newClient();
+    	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);
+    	WebTarget resourceWebTarget = webTarget.path("projects").path(repoId).path("branches").path(branchName).path("commits"); //replace for next line when commits per branch are available    	//
+    	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
+    	Response commitsResponse = invocationBuilder.get();
+    	System.out.println("response status:"+commitsResponse.getStatus());
+    	return commitsResponse.readEntity(InputStream.class);
+    }
 }

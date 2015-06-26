@@ -51,7 +51,7 @@ import org.sdh.harvester.scm.handler.UserHandler;
 /**
  * Root resource (exposed at "user" path)
  */
-@Path("users")
+@Path("/users")
 public class UserEndPoint extends EndPoint{
 	
 	 public UserEndPoint(@Context ServletContext servletContext) {
@@ -68,7 +68,19 @@ public class UserEndPoint extends EndPoint{
 	     */
 	    @GET
 	    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-	    public String getUsers() {	    	
+	    public String getUsersTTL() {	    		    	
+	    	String rdf=getUsers(turtleJena);				    	
+	        return rdf;
+	    }	
+	    
+	    @GET
+	    @Produces({rdfXmlMediaType})
+	    public String getUsersRDF() {	    		    	
+	    	String rdf=getUsers(rdfXmlJena);				    	
+	        return rdf;
+	    }
+	    
+	    private String getUsers(String format){
 	    	Client client = ClientBuilder.newClient();
 	    	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
 	    	WebTarget resourceWebTarget = webTarget.path("users");
@@ -77,14 +89,31 @@ public class UserEndPoint extends EndPoint{
 	    	System.out.println("response status:"+response.getStatus());
 	    	
 	    	userHandler = new UserHandler();
-	    	String rdf=userHandler.processUsers(response.readEntity(InputStream.class), "TTL");
+	    	String rdf=userHandler.processUsers(response.readEntity(InputStream.class), format);
 				    	
 	        return rdf;
-	    }	
+	    }
 	    
 	    @GET @Path("/{userId}")
 	    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-	    public String getUser(@PathParam("userId") String userId) {
+	    public String getUserTTl(@PathParam("userId") String userId) {
+	    	
+	    	String rdf=getUser(userId,turtleJena);
+				    	
+	        return rdf;
+	    }
+	    
+	    @GET @Path("/{userId}")
+	    @Produces({rdfXmlMediaType})
+	    public String getUserRDF(@PathParam("userId") String userId) {
+	    	
+	    	String rdf=getUser(userId,rdfXmlJena);
+				    	
+	        return rdf;
+	    }
+
+	    
+	    private String getUser(String userId, String format){
 	    	Client client = ClientBuilder.newClient();
 	    	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
 	    	WebTarget resourceWebTarget = webTarget.path("users").path(userId);
@@ -93,7 +122,7 @@ public class UserEndPoint extends EndPoint{
 	    	System.out.println("response status:"+response.getStatus());
 	    	
 	    	userHandler = new UserHandler();
-	    	String rdf=userHandler.processUser(response.readEntity(InputStream.class), "TTL");
+	    	String rdf=userHandler.processUser(response.readEntity(InputStream.class), format);
 				    	
 	        return rdf;
 	    }

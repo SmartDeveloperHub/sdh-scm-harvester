@@ -54,6 +54,7 @@ public class HarvesterHandler {
 	private SCMHarvester harvester;
 	
 	public String publishHarvester(String rdfFormat) {
+		System.out.println("publish Harvester in :"+rdfFormat);    	
 		initOntologyModels();
 		harvester.setId("gitlab");
 		

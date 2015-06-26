@@ -34,7 +34,12 @@ import org.sdh.harvester.constants.GlobalVariablesInitializer;
 
 public class EndPoint extends ResourceConfig {
 
-	static final String turtleMediaType = "text/turtle";	
+	static final String turtleMediaType = "text/turtle";
+	static final String rdfXmlMediaType = "application/rdf+xml; qs=0.9";	
+	
+	static final String rdfXmlJena = "RDF/XML";
+	static final String turtleJena = "TTL";
+	
 	
 	public EndPoint(ServletContext servletContext){
 		GlobalVariablesInitializer variableInitializer= new GlobalVariablesInitializer(servletContext);

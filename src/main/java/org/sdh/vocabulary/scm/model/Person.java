@@ -60,7 +60,7 @@ public class Person extends RDFResource{
 	Literal lastCommit;
 	Literal signUpDate;	
 	
-	Resource mbox;
+	Literal mbox;
 	Resource account;
 	
 	//acount -> OnlineAccount
@@ -98,7 +98,7 @@ public class Person extends RDFResource{
 	
 	public void setUserId(String userId) {
 		this.id = userId;
-		this.userId = ResourceFactory.createTypedLiteral(userId, XSDDatatype.XSDstring);;
+		this.userId = ResourceFactory.createTypedLiteral(userId, XSDDatatype.XSDstring);
 	}	
 
 	public Literal getFirstCommit() {
@@ -141,16 +141,18 @@ public class Person extends RDFResource{
 		
 	}
 
-	public Resource getMbox() {
+	public Literal getMbox() {
 		return mbox;
 	}
 
-	public void setMbox(Resource mbox) {
+	public void setMbox(Literal mbox) {
 		this.mbox = mbox;
 	}
 	
 	public void setMbox(String mbox){
-		this.mbox=schemaModel.createResource(mbox);
+		//this.mbox=schemaModel.createResource(mbox);
+		this.mbox = ResourceFactory.createTypedLiteral(mbox, XSDDatatype.XSDstring);
+		
 	}
 		
 	public Image getImg() {
@@ -233,7 +235,7 @@ System.out.println("user.getIndividual");
        	
        	if (mbox!=null){
        		Property boxProperty = schemaModel.getProperty( Namespace.foafNS + "mbox" );
-       		indv.addProperty(boxProperty, mbox);
+       		indv.addLiteral(boxProperty, mbox);
        	}
        	
        	if(account!=null){

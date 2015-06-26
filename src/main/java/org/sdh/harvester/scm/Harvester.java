@@ -101,7 +101,7 @@ public class Harvester {
 				
 		Commit commit01 = new Commit(ontModel, instModel);
 		Person person01 = new Person(ontModel, instModel);
-		person01.setMbox(ontModel.createResource("andresgs77@hotmail.com"));
+		//person01.setMbox(ontModel.createResource("andresgs77@hotmail.com"));
 		person01.setName(ontModel.createLiteral("andres garcia",true));
 		person01.setSignUpDate(ontModel.createLiteral("2015-05-20T21:00:00Z",true));
 		person01.setFirstCommit(ontModel.createLiteral("2015-05-20T21:00:00Z",true));

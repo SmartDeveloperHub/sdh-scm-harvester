@@ -60,7 +60,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 /**
  * Root resource (exposed at "repository" path)
  */
-@Path("repositories")
+@Path("/repositories")
 public class RepositoryEndPoint extends EndPoint{
 	
 	 public RepositoryEndPoint(@Context ServletContext servletContext) {
@@ -77,8 +77,19 @@ public class RepositoryEndPoint extends EndPoint{
      */
     @GET
     @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-    public String getRepositories() {    	
-    	String responseContent="";
+    public String getRepositoriesTTL() {    	    	
+    	String rdf=getRepositories(turtleJena);    
+        return rdf;
+    }
+    
+    @GET
+    @Produces(rdfXmlMediaType)
+    public String getRepositoriesRDF() {    	    	
+    	String rdf=getRepositories(rdfXmlJena);    
+        return rdf;
+    }
+    
+    private String getRepositories(String format){
     	Client client = ClientBuilder.newClient();
     	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
     	WebTarget resourceWebTarget = webTarget.path("projects");
@@ -88,16 +99,27 @@ public class RepositoryEndPoint extends EndPoint{
     	System.out.println("response status:"+response.getStatus());
     	
     	repoHandler = new RepositoryHandler();
-    	String rdf=repoHandler.processRepositories(response.readEntity(InputStream.class), "TTL");
-    	
+    	String rdf=repoHandler.processRepositories(response.readEntity(InputStream.class), format);
     	//responseContent =response.readEntity(String.class);    	   
     	//System.out.println(responseContent);
-        return rdf;
+        return rdf;    	
     }
     
     @GET @Path("/{repoId}")
     @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-    public String getRepository(@PathParam("repoId") String repoId) {    	
+    public String getRepositoryTTL(@PathParam("repoId") String repoId) {
+    	String rdf= getRepository(repoId, turtleJena);
+    	return rdf;
+    }
+    
+    @GET @Path("/{repoId}")
+    @Produces(rdfXmlMediaType)
+    public String getRepositoryRDF(@PathParam("repoId") String repoId) {
+    	String rdf= getRepository(repoId, rdfXmlJena);
+    	return rdf;
+    }
+    
+    private String getRepository(String repoId, String format){
     	String responseContent="";
     	Client client = ClientBuilder.newClient();
     	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
@@ -115,7 +137,7 @@ public class RepositoryEndPoint extends EndPoint{
     	repoHandler = new RepositoryHandler();
     	String rdf=repoHandler.processRepository(response.readEntity(InputStream.class), 
     											branchesResponse.readEntity(InputStream.class), 
-    											"TTL");
+    											format);
     	
     	//responseContent =response.readEntity(String.class);    	   
     	//System.out.println(responseContent);

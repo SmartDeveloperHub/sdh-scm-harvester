@@ -56,7 +56,20 @@ public class CommitEndPoint extends EndPoint{
 		
 	    @GET @Path("/{commitId}")
 	    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-	    public String getCommit(@PathParam("repositoryId") String repositoryId, @PathParam("branchName") String branchName, @PathParam("commitId") String commitId) {
+	    public String getCommitTTL(@PathParam("repositoryId") String repositoryId, @PathParam("branchName") String branchName, @PathParam("commitId") String commitId) {	    		    	
+	    	String rdf=getCommitFromEnhancer(repositoryId, branchName, commitId, turtleJena);    		    		    	
+	        return rdf;    		    		    	    	
+	    }
+	    
+	    @GET @Path("/{commitId}")
+	    @Produces({rdfXmlMediaType})
+	    public String getCommitRDF(@PathParam("repositoryId") String repositoryId, @PathParam("branchName") String branchName, @PathParam("commitId") String commitId) {	    		    	
+	    	String rdf=getCommitFromEnhancer(repositoryId, branchName, commitId, rdfXmlJena);    		    		    	
+	        return rdf;    		    		    	    	
+	    }
+
+	    
+	    private String getCommitFromEnhancer(String repositoryId, String branchName, String commitId, String format){
 	    	System.out.println("getBranch");
 	    	String responseContent="";
 	    	Client client = ClientBuilder.newClient();
@@ -70,13 +83,12 @@ public class CommitEndPoint extends EndPoint{
 	    	handler.setRepositoryId(Integer.valueOf(repositoryId));
 	    	handler.setBranchId(branchName);
 	    		    	
-	    		    	
-	    	String rdf=handler.processCommit(response.readEntity(InputStream.class), "TTL");
+//	    	responseContent =response.readEntity(String.class);    	   
+//	    	System.out.println(responseContent);
 	    	
-	    	responseContent =response.readEntity(String.class);    	   
-	    	System.out.println(responseContent);
+	    	String rdf=handler.processCommit(response.readEntity(InputStream.class), format);
 	    	
-	        return rdf;    		    		    
+	    	return rdf;
 	    	
 	    }
 
