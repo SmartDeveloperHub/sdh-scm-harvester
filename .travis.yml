@@ -1,24 +1,28 @@
+sudo: false
+cache:
+  directories:
+  - $HOME/.m2/repository
+  - $HOME/.sonar
 language: java
 jdk:
 - oraclejdk7
 before_install:
-- git fetch
-- git checkout ${TRAVIS_BRANCH}
+- if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 before_script:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in target/config/ci/secring.gpg.enc
   -out local.secring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in target/config/ci/pubring.gpg.enc
   -out local.pubring.gpg -d
 script:
-- if [ ${TRAVIS_PULL_REQUEST} = 'false' ]; then mvn deploy -Dossrh -Dcodebase.directory=`pwd`
-  -Dcoverage.reports.dir=`pwd`/target/all
-  --settings target/config/ci/settings.xml; else mvn verify -Dcodebase.directory=`pwd`
-  -Dcoverage.reports.dir=`pwd`/target/all
-  --settings target/config/ci/settings.xml; fi
-after_success:
-- if [ ${TRAVIS_PULL_REQUEST} = 'false' ]; then mvn sonar:sonar -Dcodebase.directory=`pwd`
-  -Dcoverage.reports.dir=`pwd`/target/all
-  --settings target/config/ci/settings.xml; else mvn clean; fi
+- if [ ${TRAVIS_BRANCH} == 'master' ] && [ ${TRAVIS_PULL_REQUEST} = 'false' ];
+  then mvn clean deploy -B -Dcodebase.directory=`pwd` -Dcoverage.reports.dir=`pwd`/target/all --settings target/config/ci/settings.xml;
+  else mvn clean verify -B --settings target/config/ci/settings.xml;
+  fi
+- if [ ${TRAVIS_PULL_REQUEST} = 'false' ];
+  then mvn sonar:sonar -B -Dsonar.branch=$TRAVIS_BRANCH -Dcoverage.reports.dir=`pwd`/target/all --settings target/config/ci/settings.xml;
+  fi
+- mkdir /tmp/cache-trick
+- mv $HOME/.m2/repository/org/smartdeveloperhub /tmp/cache-trick/
 env:
   global:
   - secure: wetl6HoSWSN4LpqE1qRS2/rcJRdtukLAFeNLywdusqmMpRZgzP+o72gtpnruYS/Kj7Duqgy/LGWsRu0W9Xm8MUn/rGyUZCEr56KxqtaFL6he3ArWNBkOhr5IkShpPSdUI7H5ZCBC81nxVSDxU+rmABwkx4liqblmUIvBt/e0KkB6c44zcpR/BzbPCL66FeyOOX8t1mImeSwXyEVqZM3L0IH0pECl0R7BB3FSB7r1d/izyVX7IoxyMwHUCfS5BrvokUgmVrPKBZYBpxOupDUpU2KDpsmtBzvHKK81PJA2ZKAVqD6306U1Ogslo67ViPvXIwu/sKx9H6h4Gnm5xhKpJbftpoobLGfy3L/BMO9FlVfgJNHHNB1kh1zPct/NTZQ1uhz70Ft5aVgi5wikgYb0+0jrXTqyjG+YWPtLfmU9dkFFwnBRfXcKe/5VDO6iUDI8eOWSeggYOFul+VI/m5iasllZ3uGKkTHABiJHNJQzNPMhrP29V82YdokSkFlhu9eDq5T1Tnlm31e7GmNvf5K6IQqfm0Hbodi/bxjrR2ComgC4BzGoXI4zbvbQtl9iACyKNdSmopks9zHfFVUhKiQVlsKUemY/knUFfbFA8Z6BFBxBJUzCUf0MQctsIA4cigKYlJmA5/z5Z0Jj3oHDyxHOPXd6lQJ2zhCChoBREHL9+VE=
