@@ -234,7 +234,7 @@ System.out.println("user.getIndividual");
        	}
        	
        	if (mbox!=null){
-       		Property boxProperty = schemaModel.getProperty( Namespace.foafNS + "mbox" );
+       		Property boxProperty = schemaModel.getProperty( Namespace.scmNS + "mbox" );
        		indv.addLiteral(boxProperty, mbox);
        	}
        	
