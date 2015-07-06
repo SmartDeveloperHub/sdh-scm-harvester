@@ -45,7 +45,7 @@ public class Image extends RDFResource{
 
     String userId;    
     String repoId;
-	Resource isDefinedBy;
+	Resource foafDepicts;
 	
 	
 	
@@ -59,17 +59,17 @@ public class Image extends RDFResource{
 	}
 
 
-	public Resource getIsDefinedBy() {
-		return isDefinedBy;
+	public Resource getFoafDepicts() {
+		return foafDepicts;
 	}
 
 
-	public void setIsDefinedBy(Resource isDefinedBy) {
-		this.isDefinedBy = isDefinedBy;
+	public void setFoafDepicts(Resource foafDepicts) {
+		this.foafDepicts = foafDepicts;
 	}
 	
-	public void setIsDefinedBy(String isDefinedBy){
-		this.isDefinedBy = schemaModel.createResource(isDefinedBy);
+	public void setFoafDepicts(String foafDepicts){
+		this.foafDepicts = schemaModel.createResource(foafDepicts);
 	}
 
 	
@@ -96,9 +96,9 @@ public class Image extends RDFResource{
 				indv = instanceModel.createIndividual(Namespace.scmIndividualNS+repoId+"/image", imageClass);
 		
 		if (indv!=null)
-			if (isDefinedBy!=null){	    		
-				Property isDefinedByProperty = schemaModel.getProperty( Namespace.rdfsNS + "isDefinedBy" ); 
-	    		indv.addProperty(isDefinedByProperty, isDefinedBy);
+			if (foafDepicts!=null){	    		
+				Property isDefinedByProperty = schemaModel.getProperty( Namespace.foafNS + "depicts" ); 
+	    		indv.addProperty(isDefinedByProperty, foafDepicts);
 	    	}
 		
 		return indv;

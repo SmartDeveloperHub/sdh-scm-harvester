@@ -307,7 +307,7 @@ public class UserHandler {
     	//String userName; there's no correspondence in the ontology
 		
     	if (avatarUrl!=null){
-			userImage.setIsDefinedBy(avatarUrl);
+			userImage.setFoafDepicts(avatarUrl);
 			userImage.setUserId(String.valueOf(id));
 			user.setImg(userImage);
 		}

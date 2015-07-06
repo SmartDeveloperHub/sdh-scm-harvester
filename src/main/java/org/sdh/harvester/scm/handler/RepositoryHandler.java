@@ -352,7 +352,7 @@ public class RepositoryHandler {
 	    //repo.setTags(schemaModel.createLiteral("repo, development, business",true));
 		
 		if (avatarUrl!=null){
-			repoImage.setIsDefinedBy(avatarUrl);
+			repoImage.setFoafDepicts(avatarUrl);
 			repoImage.setRepoId(String.valueOf(id));
 			repo.setDepiction(repoImage);
 		}
