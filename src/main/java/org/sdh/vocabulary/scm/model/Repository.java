@@ -137,10 +137,10 @@ public class Repository extends RDFResource {
 	
 	public void setCreatedOn(Date createdOn){
 		DateTime dateTime = new DateTime(createdOn);
-		this.firstCommit = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
+		this.createdOn = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
 	}
 
-
+	
 	public Literal getFirstCommit() {
 		return firstCommit;
 	}
@@ -182,7 +182,7 @@ public class Repository extends RDFResource {
 	
 	public void setLastCommit(Date lastCommit){
 		DateTime dateTime = new DateTime(lastCommit);
-		this.firstCommit = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
+		this.lastCommit = ResourceFactory.createTypedLiteral(dateTime.toString(), XSDDatatype.XSDdateTime);
 	}
 
 

@@ -85,6 +85,10 @@ public class RepositoryHandler {
 	long createdAt ;
 	Date createdAtDate ;
 	String avatarUrl;
+	long firstCommit ;
+	Date firstCommitDate ;
+	long lastCommit ;
+	Date lastCommitDate ;
 	
 	JsonObject owner;
 	ArrayList<Integer> developerIds;	
@@ -233,7 +237,19 @@ public class RepositoryHandler {
 		  if (repository.containsKey("created_at"))
 			  if (!repository.isNull("created_at")){
 				  createdAt = repository.getJsonNumber("created_at").longValue();				  
-					  createdAtDate = new DateTime(Long.valueOf(createdAt)).toDate();
+				  createdAtDate = new DateTime(Long.valueOf(createdAt)).toDate();
+			  }
+		  
+		  if (repository.containsKey("first_commit_at"))
+			  if (!repository.isNull("first_commit_at")){
+				  firstCommit = repository.getJsonNumber("first_commit_at").longValue();				  
+				  firstCommitDate = new DateTime(Long.valueOf(firstCommit)).toDate();
+			  }
+		  
+		  if (repository.containsKey("last_commit_at"))
+			  if (!repository.isNull("last_commit_at")){
+				  lastCommit = repository.getJsonNumber("last_commit_at").longValue();				  
+				  lastCommitDate = new DateTime(Long.valueOf(lastCommit)).toDate();
 			  }
 		  				  
 		  if (repository.containsKey("owner"))
@@ -326,8 +342,11 @@ public class RepositoryHandler {
 		// repo.setFirstCommit(firstCommit);				
 		// repo.setLastBuildDate(lastBuildDate);
 		
-		if (lastActivityAtDate!=null)
-			repo.setLastCommit(lastActivityAtDate);
+		if (firstCommitDate!=null)
+			repo.setFirstCommit(firstCommitDate);
+		
+		if (lastCommitDate!=null)
+			repo.setLastCommit(lastCommitDate);
 			
 		if (archived !=null)
 			repo.setIsArchived(archived);
