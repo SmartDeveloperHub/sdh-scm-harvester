@@ -135,7 +135,8 @@ public class Commit extends RDFResource {
 		System.out.println("commit.getIndividual");
 		OntClass commitClass = schemaModel.getOntClass(Namespace.scmNS+"Commit");
 		OntClass actionClass = schemaModel.getOntClass(Namespace.scmNS+"Action");
-		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repoId+"/branches/"+branchId+"/commits/"+id, commitClass);
+		//Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repoId+"/branches/"+branchId+"/commits/"+id, commitClass);
+		Individual indv = instanceModel.createIndividual(Namespace.scmIndividualNS+"repositories/"+repoId+"/commits/"+id, commitClass);
 
 		//every commit is an action
 		Property typeProperty = schemaModel.getProperty(Namespace.rdfNS+"type");
@@ -160,7 +161,8 @@ public class Commit extends RDFResource {
 
 	public Resource getResource() {
 		// TODO Auto-generated method stub
-		return instanceModel.createResource(Namespace.scmIndividualNS+"repositories/"+repoId+"/branches/"+branchId+"/commits/"+id);
+		//return instanceModel.createResource(Namespace.scmIndividualNS+"repositories/"+repoId+"/branches/"+branchId+"/commits/"+id);
+		return instanceModel.createResource(Namespace.scmIndividualNS+"repositories/"+repoId+"/commits/"+id);
 	}
 
 

@@ -46,7 +46,7 @@ import org.sdh.harvester.constants.GitlabEnhancerConstants;
 import org.sdh.harvester.constants.GlobalVariablesInitializer;
 import org.sdh.harvester.scm.handler.CommitHandler;
 
-@Path("/repositories/{repositoryId}/branches/{branchName}/commits")
+@Path("/repositories/{repositoryId}/commits")
 public class CommitEndPoint extends EndPoint{
 	
 	 public CommitEndPoint(@Context ServletContext servletContext) {
@@ -56,21 +56,21 @@ public class CommitEndPoint extends EndPoint{
 		
 	    @GET @Path("/{commitId}")
 	    @Produces({MediaType.TEXT_PLAIN, turtleMediaType})
-	    public String getCommitTTL(@PathParam("repositoryId") String repositoryId, @PathParam("branchName") String branchName, @PathParam("commitId") String commitId) {	    		    	
-	    	String rdf=getCommitFromEnhancer(repositoryId, branchName, commitId, turtleJena);    		    		    	
+	    public String getCommitTTL(@PathParam("repositoryId") String repositoryId, @PathParam("commitId") String commitId) {	    		    	
+	    	String rdf=getCommitFromEnhancer(repositoryId, commitId, turtleJena);    		    		    	
 	        return rdf;    		    		    	    	
 	    }
 	    
 	    @GET @Path("/{commitId}")
 	    @Produces({rdfXmlMediaType})
-	    public String getCommitRDF(@PathParam("repositoryId") String repositoryId, @PathParam("branchName") String branchName, @PathParam("commitId") String commitId) {	    		    	
-	    	String rdf=getCommitFromEnhancer(repositoryId, branchName, commitId, rdfXmlJena);    		    		    	
+	    public String getCommitRDF(@PathParam("repositoryId") String repositoryId, @PathParam("commitId") String commitId) {	    		    	
+	    	String rdf=getCommitFromEnhancer(repositoryId, commitId, rdfXmlJena);    		    		    	
 	        return rdf;    		    		    	    	
 	    }
 
 	    
-	    private String getCommitFromEnhancer(String repositoryId, String branchName, String commitId, String format){
-	    	System.out.println("getBranch");
+	    private String getCommitFromEnhancer(String repositoryId, String commitId, String format){
+	    	System.out.println("getCommit");
 	    	String responseContent="";
 	    	Client client = ClientBuilder.newClient();
 	    	WebTarget webTarget = client.target(GitlabEnhancerConstants.gitlabEnhancerEndpoint);    	
@@ -81,7 +81,7 @@ public class CommitEndPoint extends EndPoint{
 	    	
 	    	CommitHandler handler = new CommitHandler();
 	    	handler.setRepositoryId(Integer.valueOf(repositoryId));
-	    	handler.setBranchId(branchName);
+	    	//handler.setBranchId(branchName);
 	    		    	
 //	    	responseContent =response.readEntity(String.class);    	   
 //	    	System.out.println(responseContent);
