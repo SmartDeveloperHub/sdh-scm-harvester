@@ -288,9 +288,13 @@ public class Repository extends RDFResource {
 
 	public void setTags(ArrayList<String> tags) {
 		String concatenatedTags="";
-		for (String tag:tags)
+		boolean processed=false;
+		for (String tag:tags){
 			concatenatedTags+=tag+",";
-		concatenatedTags.substring(0, concatenatedTags.length()-1);
+			processed=true;
+		}
+		if (processed && concatenatedTags.length()>0)
+			concatenatedTags=concatenatedTags.substring(0, concatenatedTags.length()-1);
 		this.tags = ResourceFactory.createTypedLiteral(concatenatedTags, XSDDatatype.XSDstring); 
 	}
 
