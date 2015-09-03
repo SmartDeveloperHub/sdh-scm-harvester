@@ -21,7 +21,7 @@
       See the License for the specific language governing permissions and
       limitations under the License.
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-      Artifact    : org.smartdeveloperhub.harvester:sdh-scm-harvester:1.0.0-SNAPSHOT
+      Artifact    : org.smartdeveloperhub.harvester:sdh-scm-harvester:0.1.0
       Bundle      : scmharvester.war
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
@@ -35,12 +35,12 @@
     <parent>
 		<groupId>org.smartdeveloperhub</groupId>
 		<artifactId>sdh-build</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>0.1.0</version>
 	</parent>
 
 	<groupId>org.smartdeveloperhub.harvester</groupId>
 	<artifactId>sdh-scm-harvester</artifactId>
-    
+   <version>0.1.0</version> 
 	<!--     <groupId>sdh</groupId> -->
 	<!--     <artifactId>scmharvester</artifactId> -->
 
@@ -181,7 +181,7 @@
 			<dependency>
 	        	<groupId>org.smartdeveloperhub.vocabulary</groupId>
 				<artifactId>sdh-vocabulary</artifactId>
-				<version>${project.version}</version>
+				<version>0.1.0</version>
 				<scope>runtime</scope>
         </dependency>
 			
