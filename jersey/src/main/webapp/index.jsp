@@ -1,4 +1,4 @@
-<!--
+<%--
 
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
       This file is part of the Smart Developer Hub Project:
@@ -21,37 +21,16 @@
       See the License for the specific language governing permissions and
       limitations under the License.
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-      Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-aggregator:0.2.0-SNAPSHOT
-      Bundle      : scm-harvester-aggregator-0.2.0-SNAPSHOT.pom
+      Artifact    : org.smartdeveloperhub.harvesters.scm.jersey:scm-harvester-jersey:0.2.0-SNAPSHOT
+      Bundle      : scmharvester.war
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-  <groupId>org.smartdeveloperhub</groupId>
-  <artifactId>sdh-build</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
-  </parent>
- 
-  <groupId>org.smartdeveloperhub.harvesters.scm</groupId>
-  <artifactId>scm-harvester-aggregator</artifactId>
-  <name>SDH :: SCMH :: SCM Harvester</name>
-  <version>0.2.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-
-
-  <description>The Software Configuration Management Harvester of the Smart Developer Hub project </description>
-
-    <modules> 
-    <module>jersey</module>
-    <module>ldp4j</module>
-    <module>container/ldp4j</module>
-    <module>container/jersey</module>
-  </modules>
-
-
-</project>
+--%>
+<html>
+<body>
+    <h2>Jersey RESTful Web Application!</h2>
+    <p><a href="webapi/myresource">Jersey resource</a>
+    <p>Visit <a href="http://jersey.java.net">Project Jersey website</a>
+    for more information on Jersey!
+</body>
+</html>
