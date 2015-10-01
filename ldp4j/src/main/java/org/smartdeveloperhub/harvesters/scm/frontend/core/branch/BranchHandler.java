@@ -40,8 +40,8 @@ import org.ldp4j.application.ext.UnknownResourceException;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 
 @Resource(id=BranchHandler.ID)
 public class BranchHandler implements ResourceHandler, BranchVocabulary{

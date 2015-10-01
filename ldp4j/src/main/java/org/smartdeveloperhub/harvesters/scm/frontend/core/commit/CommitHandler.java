@@ -39,7 +39,7 @@ import org.ldp4j.application.ext.UnknownResourceException;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.BackendController;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Mapper;
 

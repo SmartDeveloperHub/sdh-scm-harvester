@@ -40,10 +40,10 @@ import org.ldp4j.application.ext.UnknownResourceException;
 import org.ldp4j.application.ext.annotations.Attachment;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.GitLabHarvester;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 
 @Resource(
 		id=HarvesterHandler.ID,
@@ -71,7 +71,7 @@ public class HarvesterHandler implements ResourceHandler, HarvesterVocabulary{
 	public DataSet get(ResourceSnapshot resource) throws UnknownResourceException, ApplicationRuntimeException {
 		Name<URI> name = (Name<URI>)resource.name();
 		try{
-			GitLabHarvester gitLabHarvester = backendController.getGitLabHarvester(name.id().toString());		
+			GitLabHarvester gitLabHarvester = backendController.createGitLabHarvester(name.id().toString());		
 ////		trace("Requested service %s retrieval",serviceId);
 //		Service service = findService(serviceId);
 //		info("Retrieved service %s: %s",serviceId,service);

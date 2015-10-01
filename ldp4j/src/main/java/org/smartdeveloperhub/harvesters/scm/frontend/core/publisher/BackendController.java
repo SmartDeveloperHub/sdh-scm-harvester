@@ -24,7 +24,7 @@
  *   Bundle      : scm-harvester.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.frontend.core;
+package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,6 +41,7 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.GitLabHarvester;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityMap;
@@ -53,6 +54,8 @@ public class BackendController {
 	
 	IdentityMap<BranchKey> branchIdentityMap;
 	IdentityMap<CommitKey> commitIdentityMap;
+	
+	GitLabHarvester gitLabHarvester;
 	
 	public BackendController() {
 	  String gitLabEnhancer = System.getenv("GITLAB_ENHANCER");
@@ -86,15 +89,20 @@ public class BackendController {
 		this.commitIdentityMap = commitIdentityMap;
 	}
 
-	public GitLabHarvester getGitLabHarvester(String id) throws Exception {
+	public GitLabHarvester createGitLabHarvester(String id) throws Exception {
 		
 		RepositoryController repoCtl = new RepositoryController(scmRestService);
 		Repositories repos = repoCtl.getRepositories();
 		
-		GitLabHarvester gitLabHarvester = new GitLabHarvester();	
+		gitLabHarvester = new GitLabHarvester();	
 		gitLabHarvester.setId(id);
 		for(Integer repoId:repos.getRepositoryIds())
 			gitLabHarvester.addRepository(repoId);
+		
+		return gitLabHarvester;
+	}
+	
+	public GitLabHarvester getGitLabHarvester() throws Exception {			
 		
 		return gitLabHarvester;
 	}

@@ -43,6 +43,10 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.harvester.HarvesterHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendResourcePublisher;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BranchCommitPublisherThread;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.UserPublisherThread;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
 //import org.smartdeveloperhub.harvesters.ci.backend.ContinuousIntegrationService;
@@ -106,18 +110,19 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 		BackendResourcePublisher publisher = new BackendResourcePublisher(session, controller);		
 		
 		try {
-			publisher.publishHarvesterResources(target);
-			publisher.publishUserResources();
-				
-//			ContainerSnapshot repositoryContainerSnapshot = session.find(ContainerSnapshot.class, harvesterName ,RepositoryContainerHandler.class);			
-//			if(repositoryContainerSnapshot==null) {
-//				LOGGER.warn("Repository Container does not exits");
-//				return;
-//			}
-			
+			// publisher.publishUserResources(); moved to the threadePublisher
+			publisher.publishHarvesterResources(target);			
 			session.saveChanges();
-			
 			LOGGER.info("SCM Harvester Application initialization completed.");
+			
+			LOGGER.info("SCM Harvester: Starting thread for registering branches and commits.");
+			BranchCommitPublisherThread branchCommitpublisher = new BranchCommitPublisherThread(controller);
+			branchCommitpublisher.start();			
+			
+			LOGGER.info("SCM Harvester: Starting thread for registering users.");			
+			UserPublisherThread userPublisher = new UserPublisherThread(controller);
+			userPublisher.start();		
+						
 		} catch (Exception e) {
 			String errorMessage = "SCM Harvester Application initialization failed";
 			LOGGER.warn(errorMessage+". Full stacktrace follows: ",e);

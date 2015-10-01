@@ -42,9 +42,9 @@ import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryVocabulary;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Mapper;
 
 @Resource(id=UserHandler.ID)
