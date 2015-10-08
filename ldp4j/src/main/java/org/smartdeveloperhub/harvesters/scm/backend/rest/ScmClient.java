@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
 public class ScmClient {
+	
 	String scmRestService;
 	
 	public ScmClient(String scmRestService) {

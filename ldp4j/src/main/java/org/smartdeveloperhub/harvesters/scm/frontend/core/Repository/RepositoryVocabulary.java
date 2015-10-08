@@ -32,7 +32,7 @@ public interface RepositoryVocabulary {
 
 		static final String SCMREPOSITORY = "http://www.smartdeveloperhub.org/vocabulary/scm#Repository";
 		static final String DEVELOPER = "http://usefulinc.com/ns/doap#developer";
-		static final String LOCATION="http://usefulinc.com/ns/doap#location";
+		static final String LOCATION="http://www.smartdeveloperhub.org/vocabulary/scm#location";
 		static final String NAME="http://usefulinc.com/ns/doap#name";
 		static final String DESCRIPTION= "http://usefulinc.com/ns/doap#description";	
 		static final String CREATEDON="http://www.smartdeveloperhub.org/vocabulary/scm#createdOn";
@@ -47,7 +47,7 @@ public interface RepositoryVocabulary {
 		static final String TAGS="http://www.smartdeveloperhub.org/vocabulary/scm#tags";
 		static final String DEPICTION="http://xmlns.com/foaf/0.1/depiction";
 		static final String REPOSITORYOF="http://www.smartdeveloperhub.org/vocabulary/scm#isRepositoryOf";
-		
+						
 	
 		//IMAGE PROPERTIES
 		static final String IMAGE="http://xmlns.com/foaf/0.1/Image";

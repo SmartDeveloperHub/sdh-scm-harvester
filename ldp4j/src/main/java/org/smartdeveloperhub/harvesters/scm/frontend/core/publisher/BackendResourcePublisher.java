@@ -50,7 +50,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHand
 
 public class BackendResourcePublisher {
 	
-	private static final Logger LOGGER=LoggerFactory.getLogger(HarvesterApplication.class);
+	private static final Logger LOGGER=LoggerFactory.getLogger(BackendResourcePublisher.class);
 	
 	WriteSession session;
 	BackendController controller;

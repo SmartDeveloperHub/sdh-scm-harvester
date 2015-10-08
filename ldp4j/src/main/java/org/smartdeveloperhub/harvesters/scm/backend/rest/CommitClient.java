@@ -38,8 +38,12 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CommitClient extends ScmClient{	
+	
+	private static final Logger LOGGER=LoggerFactory.getLogger(CommitClient.class);
 	
 	public CommitClient(String scmRestService) {
 		super(scmRestService);
@@ -49,11 +53,11 @@ public class CommitClient extends ScmClient{
 	public InputStream getCommits(String repoId, String branchId) throws URISyntaxException, ClientProtocolException, IOException{
 		CloseableHttpClient httpclient = HttpClients.createDefault();		        
 		HttpGet httpGet = new HttpGet(scmRestService+"/projects/"+repoId+"/branches/"+branchId+"/commits");
-		System.out.println("*"+httpGet.getURI());
+		LOGGER.info("Call {}",httpGet.getURI());
 		httpGet.addHeader("accept", "application/json");
 		CloseableHttpResponse response1 = httpclient.execute(httpGet);
 		try {
-		    System.out.println(response1.getStatusLine());
+			LOGGER.info("response {}",response1.getStatusLine());
 		    HttpEntity entity1 = response1.getEntity();
 		    return entity1.getContent();
 		} finally {
@@ -74,11 +78,11 @@ public class CommitClient extends ScmClient{
 	public InputStream getCommit(String repoId, String commitId) throws URISyntaxException, ClientProtocolException, IOException{
 		CloseableHttpClient httpclient = HttpClients.createDefault();		       
 		HttpGet httpGet = new HttpGet(scmRestService+"/projects/"+repoId+"/commits/"+commitId);
-		System.out.println("*"+httpGet.getURI());
+		LOGGER.info("Call {}",httpGet.getURI());
 		httpGet.addHeader("accept", "application/json");
 		CloseableHttpResponse response1 = httpclient.execute(httpGet);
 		try {
-		    System.out.println(response1.getStatusLine());
+			LOGGER.info("response {}",response1.getStatusLine());
 		    HttpEntity entity1 = response1.getEntity();
 		    return entity1.getContent();
 		} finally {
@@ -99,11 +103,11 @@ public class CommitClient extends ScmClient{
 	public InputStream getCommits(String repoId) throws ClientProtocolException, IOException {
 		CloseableHttpClient httpclient = HttpClients.createDefault();		       
 		HttpGet httpGet = new HttpGet(scmRestService+"/projects/"+repoId+"/commits");
-		System.out.println("*"+httpGet.getURI());
+		LOGGER.info("Call {}",httpGet.getURI());
 		httpGet.addHeader("accept", "application/json");
 		CloseableHttpResponse response1 = httpclient.execute(httpGet);
 		try {
-		    System.out.println(response1.getStatusLine());
+			LOGGER.info("response {}",response1.getStatusLine());
 		    HttpEntity entity1 = response1.getEntity();
 		    return entity1.getContent();
 		} finally {

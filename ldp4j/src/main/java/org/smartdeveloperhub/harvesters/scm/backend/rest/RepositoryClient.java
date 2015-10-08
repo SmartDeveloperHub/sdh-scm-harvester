@@ -38,9 +38,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RepositoryClient extends ScmClient {
-	
+	private static final Logger LOGGER=LoggerFactory.getLogger(RepositoryClient.class);
 	
 	public RepositoryClient(String scmRestService) {
 		super(scmRestService);
@@ -52,11 +54,11 @@ public class RepositoryClient extends ScmClient {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 	 
 		HttpGet httpGet = new HttpGet(scmRestService+"/projects");
-		System.out.println("*"+httpGet.getURI());
+		LOGGER.info("Call {}",httpGet.getURI());
 		httpGet.addHeader("accept", "application/json");
 		CloseableHttpResponse response1 = httpclient.execute(httpGet);
 		try {
-		    System.out.println(response1.getStatusLine());
+			LOGGER.info("response {}",response1.getStatusLine());
 		    HttpEntity entity1 = response1.getEntity();
 		    return entity1.getContent();
 		} finally {
@@ -77,12 +79,12 @@ public class RepositoryClient extends ScmClient {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		
 		HttpGet httpGet = new HttpGet(scmRestService+"/projects/"+repoId);
-		System.out.println("*"+httpGet.getURI());
+		LOGGER.info("Call {}",httpGet.getURI());
 		
 		httpGet.addHeader("accept", "application/json");
 		CloseableHttpResponse response1 = httpclient.execute(httpGet);
 		try {
-		    System.out.println(response1.getStatusLine());
+			LOGGER.info("response {}",response1.getStatusLine());
 		    HttpEntity entity1 = response1.getEntity();
 		    return entity1.getContent();
 		} finally {

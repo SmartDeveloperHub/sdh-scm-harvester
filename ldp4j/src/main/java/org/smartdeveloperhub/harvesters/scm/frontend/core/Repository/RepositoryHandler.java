@@ -128,6 +128,7 @@ public class RepositoryHandler implements ResourceHandler, RepositoryVocabulary{
 		
 		for (Integer userId:repository.getContributors()){
 			Name<String> userName = NamingScheme.getDefault().name(Integer.toString(userId));
+			
 			helper.
 			managedIndividual(repoName, RepositoryHandler.ID).
 					property(DEVELOPER).

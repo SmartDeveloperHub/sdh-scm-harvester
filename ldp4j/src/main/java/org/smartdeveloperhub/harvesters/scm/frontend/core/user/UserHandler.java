@@ -84,7 +84,7 @@ public class UserHandler implements ResourceHandler, UserVocabulary{
 				withIndividual(PERSONTYPE).				
 			property(NAME).
 				withLiteral(user.getName()).
-			property(USERID).
+			property(COMMITERID).
 				withLiteral(user.getId().toString()).
 			property(FIRSTCOMMIT).
 				withLiteral(Mapper.toLiteral(new DateTime(user.getFirstCommitAt()).toDate())).

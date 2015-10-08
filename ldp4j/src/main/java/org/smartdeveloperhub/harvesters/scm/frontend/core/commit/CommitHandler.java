@@ -78,6 +78,8 @@ public class CommitHandler implements ResourceHandler, CommitVocabulary{
 			property(TYPE).
 				withIndividual(ACTION).
 				withIndividual(COMMIT).	
+			property(COMMITID).
+				withLiteral(commit.getId()).
 			property(CREATEDON).
 				withLiteral(Mapper.toLiteral(new DateTime(commit.getCreatedAt()).toDate())).
 			property(PERFORMEDBY).

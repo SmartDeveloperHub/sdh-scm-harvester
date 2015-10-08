@@ -41,7 +41,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHand
 
 public class UserPublisherThread extends Thread {
 	
-	 private static final Logger LOGGER=LoggerFactory.getLogger(BranchCommitPublisherThread.class); 
+	 private static final Logger LOGGER=LoggerFactory.getLogger(UserPublisherThread.class); 
 	
 	 private Thread t;
 	 private String threadName = "UserPublisherThread";
