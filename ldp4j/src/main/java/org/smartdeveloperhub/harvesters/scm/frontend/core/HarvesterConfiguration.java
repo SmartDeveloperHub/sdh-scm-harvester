@@ -59,22 +59,23 @@ public class HarvesterConfiguration extends Configuration {
 	
 	// the name of the service you're publishing.
 	public URI target() throws IOException {
-		LOGGER.info("- Get GitLab enhancer ..");
+		String target="http://scmharvester/service/";
+//		LOGGER.info("- Get GitLab enhancer ..");
 		//first try to get the enhancer url from the system property;
-		String target = System.getProperty(SCM_HARVESTER_TARGET);		
-		if(target==null) {
-			//if the system property is not set then read the property file
-			target=getURIfromPropertyFile();
-			if (target==null){
-				target="http://192.168.0.10:5000/api/";
-				LOGGER.info("- Using default enhancer url ..: {}", target);
-			}
-			else 
-				LOGGER.info("- Enhancer from property file {}..: {}",SCM_HARVESTER_CONFIG_PATH, target);
-		}
-		else{
-			LOGGER.info("- Enhancer from system property {}..: {}",SCM_HARVESTER_TARGET, target);
-		}
+//		String target = System.getProperty(SCM_HARVESTER_TARGET);		
+//		if(target==null) {
+//			//if the system property is not set then read the property file
+//			target=getURIfromPropertyFile();
+//			if (target==null){
+//				target="http://192.168.0.10:5000/api/";
+//				LOGGER.info("- Using default enhancer url ..: {}", target);
+//			}
+//			else 
+//				LOGGER.info("- Enhancer from property file {}..: {}",SCM_HARVESTER_CONFIG_PATH, target);
+//		}
+//		else{
+//			LOGGER.info("- Enhancer from system property {}..: {}",SCM_HARVESTER_TARGET, target);
+//		}
 		return URI.create(target);
 	}
 	

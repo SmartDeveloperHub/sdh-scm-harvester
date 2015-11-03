@@ -61,10 +61,10 @@ public class BackendController {
 	  String gitLabEnhancer = System.getenv("GITLAB_ENHANCER");
 	  if (gitLabEnhancer==null){
 		  scmRestService="http://192.168.0.10:5000/api";
-		  LOGGER.info("GITLAB_ENHANCER by default {}",gitLabEnhancer);
+		  LOGGER.info("GITLAB_ENHANCER by default {}",scmRestService);
 	  }
 	  else{		  
-		  LOGGER.debug("GITLAB_ENHANCER environment variable {}",gitLabEnhancer);
+		  LOGGER.info("GITLAB_ENHANCER environment variable {}",gitLabEnhancer);
 		  scmRestService=gitLabEnhancer;		  
 	  }
 		  

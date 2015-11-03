@@ -97,7 +97,7 @@ public class UserPublisherThread extends Thread {
 				for (String userId:userIds){			
 					Name<String> userName = NamingScheme.getDefault().name(userId);			
 					ResourceSnapshot userSnapshot = userContainerSnapshot.addMember(userName);
-					LOGGER.debug("Published resource for user {} @ {} ({})",userId, userSnapshot.name(),userSnapshot.templateId());
+					//LOGGER.debug("Published resource for user {} @ {} ({})",userId, userSnapshot.name(),userSnapshot.templateId());
 				}
 				
 				session.modify(userContainerSnapshot);	
