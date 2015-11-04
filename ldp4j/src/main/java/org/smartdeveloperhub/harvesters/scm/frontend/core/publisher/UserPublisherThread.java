@@ -84,24 +84,24 @@ public class UserPublisherThread extends Thread {
 		   }
 		 
 			public void publishUserResources(ApplicationContext ctx) throws Exception{
-				WriteSession session = ctx.createSession();
-				
-				Name<String> userContainerName = NamingScheme.getDefault().name(UserContainerHandler.NAME);
-				ContainerSnapshot userContainerSnapshot = session.find(ContainerSnapshot.class, userContainerName ,UserContainerHandler.class);			
-				if(userContainerSnapshot==null) {
-					LOGGER.warn("User Container does not exits");
-					return;
+				try{WriteSession session = ctx.createSession()){				
+					Name<String> userContainerName = NamingScheme.getDefault().name(UserContainerHandler.NAME);
+					ContainerSnapshot userContainerSnapshot = session.find(ContainerSnapshot.class, userContainerName ,UserContainerHandler.class);			
+					if(userContainerSnapshot==null) {
+						LOGGER.warn("User Container does not exits");
+						return;
+					}
+					
+					ArrayList<String> userIds = controller.getUsers();	
+					for (String userId:userIds){			
+						Name<String> userName = NamingScheme.getDefault().name(userId);			
+						ResourceSnapshot userSnapshot = userContainerSnapshot.addMember(userName);
+						//LOGGER.debug("Published resource for user {} @ {} ({})",userId, userSnapshot.name(),userSnapshot.templateId());
+					}
+					
+					session.modify(userContainerSnapshot);	
+					session.saveChanges();
 				}
-				
-				ArrayList<String> userIds = controller.getUsers();	
-				for (String userId:userIds){			
-					Name<String> userName = NamingScheme.getDefault().name(userId);			
-					ResourceSnapshot userSnapshot = userContainerSnapshot.addMember(userName);
-					//LOGGER.debug("Published resource for user {} @ {} ({})",userId, userSnapshot.name(),userSnapshot.templateId());
-				}
-				
-				session.modify(userContainerSnapshot);	
-				session.saveChanges();
 				
 			}	
 }
