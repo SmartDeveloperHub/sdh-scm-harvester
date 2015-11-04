@@ -84,7 +84,7 @@ public class UserPublisherThread extends Thread {
 		   }
 		 
 			public void publishUserResources(ApplicationContext ctx) throws Exception{
-				try{WriteSession session = ctx.createSession()){				
+				try(WriteSession session = ctx.createSession()){				
 					Name<String> userContainerName = NamingScheme.getDefault().name(UserContainerHandler.NAME);
 					ContainerSnapshot userContainerSnapshot = session.find(ContainerSnapshot.class, userContainerName ,UserContainerHandler.class);			
 					if(userContainerSnapshot==null) {
