@@ -38,6 +38,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.HarvesterApplication;
@@ -60,10 +61,10 @@ public class BranchClient extends ScmClient{
 		CloseableHttpResponse response1 = httpclient.execute(httpGet);
 		try {
 			LOGGER.info("response {}",response1.getStatusLine());		    
-		    HttpEntity entity1 = response1.getEntity();
+		    HttpEntity entity1 = response1.getEntity();		    
 		    return entity1.getContent();
 		} finally {
-		   // response1.close();
+		    response1.close();
 		}
 		
 //    	Client client = ClientBuilder.newClient();
@@ -88,7 +89,7 @@ public class BranchClient extends ScmClient{
 		    HttpEntity entity1 = response1.getEntity();
 		    return entity1.getContent();
 		} finally {
-		   // response1.close();
+		    response1.close();
 		}
 
 		

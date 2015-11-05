@@ -62,7 +62,7 @@ public class UserClient extends ScmClient {
 		    HttpEntity entity1 = response1.getEntity();
 		    return entity1.getContent();
 		} finally {
-		  //  response1.close();
+		    response1.close();
 		}
 //    	Client client = ClientBuilder.newClient();
 //    	WebTarget webTarget = client.target(scmRestService);    	
