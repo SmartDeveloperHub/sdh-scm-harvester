@@ -27,7 +27,6 @@
 package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
 import org.smartdeveloperhub.harvesters.scm.backend.readers.UserReader;
@@ -46,7 +45,7 @@ public class UserController {
 	}
 	
 	public User getUser(String userId) throws Exception{
-		InputStream userIS = userClient.getUser(userId);
+		String userIS = userClient.getUser(userId);
 		return userReader.readUser(userIS);
 	}
 }

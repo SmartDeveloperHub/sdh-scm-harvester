@@ -27,7 +27,6 @@
 package org.smartdeveloperhub.harvesters.scm.backend.readers;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branches;
@@ -57,8 +56,7 @@ public class RepositoryReader {
 
 	private Commits commits;
 	
-
-	public Repositories readReposistories(InputStream repositoriesIS) throws JsonParseException, JsonMappingException, IOException {
+	public Repositories readReposistories(String repositoriesIS) throws JsonParseException, JsonMappingException, IOException {
 		List<Integer> list = mapper.readValue(repositoriesIS, 
 				  TypeFactory.defaultInstance().constructCollectionType(List.class, Integer.class));
 		//repositories = mapper.readValue(repositoriesIS, Repositories.class);		
@@ -67,7 +65,7 @@ public class RepositoryReader {
 		return repositories;
 	}
 	
-	public Repository readRepository(InputStream repositoryIS, InputStream branchesIS) throws JsonParseException, JsonMappingException, IOException{
+	public Repository readRepository(String repositoryIS, String branchesIS) throws JsonParseException, JsonMappingException, IOException{
 		repository=readRepository(repositoryIS);
 		branchReader= new BranchReader();
 		branches=branchReader.readBranches(branchesIS);
@@ -75,21 +73,25 @@ public class RepositoryReader {
 		return repository;		
 	}
 
-	private Repository readRepository(InputStream repositoryIS) throws JsonParseException, JsonMappingException, IOException {						 
+	private Repository readRepository(String repositoryIS) throws JsonParseException, JsonMappingException, IOException {						 
     		repository=mapper.readValue(repositoryIS, Repository.class);
     		return repository;
 	}
 
 	
-	public Repository readRepository(InputStream repositoryIS,
-			InputStream branchesIS, InputStream commitsIS) throws JsonParseException, JsonMappingException, IOException {
+	public Repository readRepository(String repositoryIS,
+			String branchesIS, String commitsIS) throws JsonParseException, JsonMappingException, IOException {
 		repository=readRepository(repositoryIS);
-		branchReader= new BranchReader();
-		branches=branchReader.readBranches(branchesIS);
-		repository.setBranches(branches);
-		commitReader = new CommitReader();
-		commits=commitReader.readCommits(commitsIS);
-		repository.setCommits(commits);
+		if (!branchesIS.isEmpty()){
+			branchReader= new BranchReader();
+			branches=branchReader.readBranches(branchesIS);
+			repository.setBranches(branches);
+		}
+		if (!commitsIS.isEmpty()){
+			commitReader = new CommitReader();
+			commits=commitReader.readCommits(commitsIS);
+			repository.setCommits(commits);
+		}
 		return repository;
 	}
 	

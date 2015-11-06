@@ -27,7 +27,6 @@
 package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
 import org.smartdeveloperhub.harvesters.scm.backend.readers.BranchReader;
@@ -49,8 +48,8 @@ public class BranchController {
 	}
 	
 	public Branch getBranch(String repoId, String branchId) throws Exception{
-		InputStream branchIS=branchClient.getBranch(repoId, branchId);
-		InputStream commitsIS=commitClient.getCommits(repoId, branchId);
+		String branchIS=branchClient.getBranch(repoId, branchId);
+		String commitsIS=commitClient.getCommits(repoId, branchId);
 		return branchReader.readBranch(branchIS,commitsIS);
 	}
 	

@@ -27,7 +27,6 @@
 package org.smartdeveloperhub.harvesters.scm.backend.readers;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
@@ -49,7 +48,7 @@ public class BranchReader {
 	CommitReader commitReader;
 	Commits commits;
 	
-	public Branches readBranches(InputStream branchesIS) throws JsonParseException, JsonMappingException, IOException {
+	public Branches readBranches(String branchesIS) throws JsonParseException, JsonMappingException, IOException {
 		//branches = mapper.readValue(branchesIS, Branches.class);
 		List<String> list = mapper.readValue(branchesIS, 
 				  TypeFactory.defaultInstance().constructCollectionType(List.class, String.class));	
@@ -58,7 +57,7 @@ public class BranchReader {
 		return branches;
 	}
 	
-	public Branch readBranch(InputStream branchIS, InputStream commitsIS) throws JsonParseException, JsonMappingException, IOException{
+	public Branch readBranch(String branchIS, String commitsIS) throws JsonParseException, JsonMappingException, IOException{
 		branch=readBranch(branchIS);
 		commitReader = new CommitReader();
 		commits = commitReader.readCommits(commitsIS);
@@ -66,7 +65,7 @@ public class BranchReader {
 		return branch;
 	}
 	
-	private Branch readBranch(InputStream branchIS) throws JsonParseException, JsonMappingException, IOException{
+	private Branch readBranch(String branchIS) throws JsonParseException, JsonMappingException, IOException{
 		branch=mapper.readValue(branchIS, Branch.class);
 		return branch;
 	}

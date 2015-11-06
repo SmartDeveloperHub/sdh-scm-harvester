@@ -37,6 +37,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,30 +50,41 @@ public class UserClient extends ScmClient {
 		// TODO Auto-generated constructor stub
 	}
 
-	public InputStream getUser(String userId) throws URISyntaxException, UnsupportedOperationException, IOException {
-		
-		CloseableHttpClient httpclient = HttpClients.createDefault();		
-		HttpGet httpGet = new HttpGet(scmRestService+"/users/"+userId);
-		LOGGER.info("Call {}",httpGet.getURI());
-		
-		httpGet.addHeader("accept", "application/json");
-		CloseableHttpResponse response1 = httpclient.execute(httpGet);
-		try {
-			LOGGER.info("response {}",response1.getStatusLine());
-		    HttpEntity entity1 = response1.getEntity();
-		    return entity1.getContent();
-		} finally {
-		    response1.close();
+//	public InputStream getUser(String userId) throws Exception {
+    public String getUser(String userId) throws Exception {
+		int attempts=0;
+		while(attempts<maxAttempts){
+			attempts++;
+			CloseableHttpClient httpclient = HttpClients.createDefault();			
+			try{
+				HttpGet httpGet = new HttpGet(scmRestService+"/users/"+userId);
+				LOGGER.info("Call {}",httpGet.getURI());
+				
+				httpGet.addHeader("accept", "application/json");
+				CloseableHttpResponse response1 = httpclient.execute(httpGet);
+				try{
+		        	int status = response1.getStatusLine().getStatusCode();
+			        if (status >= 200 && status < 300) {
+						LOGGER.info("response {}",status);		    
+						HttpEntity entity = response1.getEntity();
+	                    return entity != null ? EntityUtils.toString(entity) : null;
+			         }
+			        else {
+						 LOGGER.info("HTTP GET fail with response code {}",response1.getStatusLine());						       
+				     }
+				}
+				catch(Exception e){
+					LOGGER.info("Not raised Exception {}",e.getMessage());
+				} finally {				
+					response1.close();		 		      
+			    }
+			}
+			catch(Exception e){
+				LOGGER.info("Not raised Exception {}",e.getMessage());
+			} finally {				
+				httpclient.close();
+			}		    
 		}
-//    	Client client = ClientBuilder.newClient();
-//    	WebTarget webTarget = client.target(scmRestService);    	
-//    	WebTarget resourceWebTarget = webTarget.path("users").path(userId);
-//    	Invocation.Builder invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
-//    	Response response = invocationBuilder.get();
-//    	System.out.println("response status:"+response.getStatus());
-//    	
-//    	return response.readEntity(InputStream.class); 	
-
-    }
-
+		throw new Exception("Maximum attempts for HTTP GET reached");		
+	}
 }

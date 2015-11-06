@@ -27,7 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.backend.readers;
 
 import java.io.IOException;
-import java.io.InputStream;
+
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
 
@@ -40,7 +40,7 @@ public class UserReader {
 	ObjectMapper mapper = new ObjectMapper();
 	private User user;
 	
-	public User readUser(InputStream userIS) throws JsonParseException, JsonMappingException, IOException{
+	public User readUser(String userIS) throws JsonParseException, JsonMappingException, IOException{
 		user = mapper.readValue(userIS, User.class);		
 		return user;
 	}

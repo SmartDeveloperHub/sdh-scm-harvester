@@ -27,7 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
 import java.io.IOException;
-import java.io.InputStream;
+
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.backend.readers.CommitReader;
@@ -47,7 +47,7 @@ public class CommitController {
 	}
 	
 	public Commit getCommit(String repoId, String commitId) throws Exception{
-		InputStream commitIS = commitClient.getCommit(repoId, commitId);
+		String commitIS = commitClient.getCommit(repoId, commitId);
 		return commitReader.readCommit(commitIS);
 	}
 }

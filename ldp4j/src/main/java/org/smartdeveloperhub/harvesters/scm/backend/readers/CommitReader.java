@@ -27,7 +27,6 @@
 package org.smartdeveloperhub.harvesters.scm.backend.readers;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branches;
@@ -45,7 +44,7 @@ public class CommitReader {
 	Commits commits;
 	Commit commit;
 
-	public Commits readCommits(InputStream commitsIS) throws JsonParseException, JsonMappingException, IOException{
+	public Commits readCommits(String commitsIS) throws JsonParseException, JsonMappingException, IOException{
 		//commits = mapper.readValue(commitsIS, Commits.class);
 		List<String> list = mapper.readValue(commitsIS, 
 				  TypeFactory.defaultInstance().constructCollectionType(List.class, String.class));	
@@ -54,7 +53,7 @@ public class CommitReader {
 		return commits;
 	}
 	
-	public Commit readCommit(InputStream commitIS) throws JsonParseException, JsonMappingException, IOException{
+	public Commit readCommit(String commitIS) throws JsonParseException, JsonMappingException, IOException{
 		commit = mapper.readValue(commitIS, Commit.class);		
 		return commit;
 	}

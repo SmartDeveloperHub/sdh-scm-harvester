@@ -112,7 +112,7 @@ public class BackendController {
 		RepositoryController repoCtl = new RepositoryController(scmRestService);
 		Repositories repos = repoCtl.getRepositories();
 		for(Integer repoId:repos.getRepositoryIds()){
-			Repository repo=repoCtl.getRepository(repoId.toString());
+			Repository repo=repoCtl.getRepositoryWithoutBranchCommit(repoId.toString());
 			List<Integer> contributors=repo.getContributors();
 			for(Integer contributorId:contributors)
 				uniqueUsers.add(Integer.toString(contributorId));

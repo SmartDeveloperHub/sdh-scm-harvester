@@ -26,7 +26,6 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
-import java.io.InputStream;
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commits;
@@ -52,19 +51,27 @@ public class RepositoryController {
 	
 	public Repositories getRepositories() throws Exception{
 		
-		InputStream repositoriesIS = repositoryClient.getRepositories();
+		String repositoriesIS = repositoryClient.getRepositories();
 		return repositoryReader.readReposistories(repositoriesIS);			
 	}
 	
 	public Repository getRepository(String repoId) throws Exception{
-		InputStream repositoryIS = repositoryClient.getRepository(repoId);
-		InputStream branchesIS = branchClient.getBranches(repoId);
-		InputStream commitsIS = commitClient.getCommits(repoId);
+		String repositoryIS = repositoryClient.getRepository(repoId);
+		String branchesIS = branchClient.getBranches(repoId);
+		String commitsIS = commitClient.getCommits(repoId);
 		return repositoryReader.readRepository(repositoryIS, branchesIS, commitsIS);			
 	}
 	
+	
+	public Repository getRepositoryWithoutBranchCommit(String repoId) throws Exception{
+		String repositoryIS = repositoryClient.getRepository(repoId);
+		String branchesIS="";
+		String commitsIS="";
+		return repositoryReader.readRepository(repositoryIS, branchesIS, commitsIS);
+	}
+	
 //	public Commits getCommits(String repoId) throws Exception{
-//		InputStream commitsIS = commitClient.getCommits(repoId);
+//		String commitsIS = commitClient.getCommits(repoId);
 //		return repositoryReader.readCommits(commitsIS);
 //	}
 
