@@ -49,7 +49,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryH
 public class UserContainerHandler  implements ContainerHandler {
 	
 	public static final String ID="UserContainerHandler";
-	public static final String path="commiters/";
+	public static final String path="committers/";
 	public static final String NAME = "UserContainer";
 
 	public DataSet get(ResourceSnapshot resource)

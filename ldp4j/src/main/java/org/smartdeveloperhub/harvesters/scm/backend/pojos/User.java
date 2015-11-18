@@ -51,7 +51,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "state",
     "avatar_url",
     "last_commit_at",
-    "id"
+    "id",
+    "external"
 })
 public class User {
 
@@ -73,6 +74,8 @@ public class User {
     private Long lastCommitAt;
     @JsonProperty("id")
     private Integer id;
+    @JsonProperty("external")
+    private boolean external;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -255,8 +258,17 @@ public class User {
     public void setId(Integer id) {
         this.id = id;
     }
+        
 
-    @Override
+    public boolean isExternal() {
+		return external;
+	}
+
+	public void setExternal(boolean external) {
+		this.external = external;
+	}
+
+	@Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
