@@ -26,7 +26,9 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.pojos;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Generated;
@@ -47,7 +49,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "first_commit_at",
     "name",
     "created_at",
-    "email",
+   // "email",
+    "emails",
     "state",
     "avatar_url",
     "last_commit_at",
@@ -64,8 +67,10 @@ public class User {
     private String name;
     @JsonProperty("created_at")
     private Long createdAt;
-    @JsonProperty("email")
-    private String email;
+//    @JsonProperty("email")
+//    private String email;
+    @JsonProperty("emails")
+    private List<String> emails=new ArrayList<String>();
     @JsonProperty("state")
     private String state;
     @JsonProperty("avatar_url")
@@ -73,7 +78,7 @@ public class User {
     @JsonProperty("last_commit_at")
     private Long lastCommitAt;
     @JsonProperty("id")
-    private Integer id;
+    private String id;
     @JsonProperty("external")
     private boolean external;
     @JsonIgnore
@@ -164,20 +169,20 @@ public class User {
      * @return
      *     The email
      */
-    @JsonProperty("email")
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * 
-     * @param email
-     *     The email
-     */
-    @JsonProperty("email")
-    public void setEmail(String email) {
-        this.email = email;
-    }
+//    @JsonProperty("email")
+//    public String getEmail() {
+//        return email;
+//    }
+//
+//    /**
+//     * 
+//     * @param email
+//     *     The email
+//     */
+//    @JsonProperty("email")
+//    public void setEmail(String email) {
+//        this.email = email;
+//    }
 
     /**
      * 
@@ -245,7 +250,7 @@ public class User {
      *     The id
      */
     @JsonProperty("id")
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
@@ -255,7 +260,7 @@ public class User {
      *     The id
      */
     @JsonProperty("id")
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
         
@@ -266,6 +271,16 @@ public class User {
 
 	public void setExternal(boolean external) {
 		this.external = external;
+	}
+
+	
+	
+	public List<String> getEmails() {
+		return emails;
+	}
+
+	public void setEmails(List<String> emails) {
+		this.emails = emails;
 	}
 
 	@Override

@@ -113,9 +113,9 @@ public class BackendController {
 		Repositories repos = repoCtl.getRepositories();
 		for(Integer repoId:repos.getRepositoryIds()){
 			Repository repo=repoCtl.getRepositoryWithoutBranchCommit(repoId.toString());
-			List<Integer> contributors=repo.getContributors();
-			for(Integer contributorId:contributors)
-				uniqueUsers.add(Integer.toString(contributorId));
+			List<String> contributors=repo.getContributors();
+			for(String contributorId:contributors)
+				uniqueUsers.add(contributorId);
 		}
 		return new ArrayList<String>(uniqueUsers);
 	}

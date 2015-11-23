@@ -89,13 +89,20 @@ public class UserHandler implements ResourceHandler, UserVocabulary{
 			property(EXTERNAL).
 				withLiteral(new Boolean(user.isExternal())).
 			property(COMMITTERID).
-				withLiteral(user.getId().toString()).
+				withLiteral(user.getId()).
 			property(FIRSTCOMMIT).
 				withLiteral(Mapper.toLiteral(new DateTime(user.getFirstCommitAt()).toDate())).
 			property(LASTCOMMIT).
-				withLiteral(Mapper.toLiteral(new DateTime(user.getLastCommitAt()).toDate())).
-			property(MBOX).
-				withLiteral(user.getEmail());
+				withLiteral(Mapper.toLiteral(new DateTime(user.getLastCommitAt()).toDate()));
+//			property(MBOX).
+//				withLiteral(user.getEmail());
+		
+		for (String email:user.getEmails()){
+			helper.
+			managedIndividual(userName, UserHandler.ID).
+				property(MBOX).
+					withLiteral(email);
+		}
 		
 		if ( user.getAvatarUrl() !=null){
 			helper.

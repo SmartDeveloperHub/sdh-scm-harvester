@@ -74,7 +74,7 @@ public class Repository {
     @JsonProperty("description")
     private String description;
     @JsonProperty("contributors")
-    private List<Integer> contributors = new ArrayList<Integer>();
+    private List<String> contributors = new ArrayList<String>();
     @JsonProperty("tags")
     private List<String> tags = new ArrayList<String>();
     @JsonProperty("created_at")
@@ -190,7 +190,7 @@ public class Repository {
      *     The contributors
      */
     @JsonProperty("contributors")
-    public List<Integer> getContributors() {
+    public List<String> getContributors() {
         return contributors;
     }
 
@@ -200,7 +200,7 @@ public class Repository {
      *     The contributors
      */
     @JsonProperty("contributors")
-    public void setContributors(List<Integer> contributors) {
+    public void setContributors(List<String> contributors) {
         this.contributors = contributors;
     }
 

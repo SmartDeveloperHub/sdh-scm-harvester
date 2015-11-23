@@ -97,7 +97,7 @@ public class RepositoryHandler implements ResourceHandler, RepositoryVocabulary{
 		DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 		
 
-		Name<String> ownerName = NamingScheme.getDefault().name(repository.getOwner().getId().toString());	
+		Name<String> ownerName = NamingScheme.getDefault().name(repository.getOwner().getId());	
 
 		helper.
 		managedIndividual(repoName, RepositoryHandler.ID).
@@ -126,8 +126,8 @@ public class RepositoryHandler implements ResourceHandler, RepositoryVocabulary{
 //				property(DEFAULTBRANCH).
 //				withIndividual(repository.getDefaultBranch());
 		
-		for (Integer userId:repository.getContributors()){
-			Name<String> userName = NamingScheme.getDefault().name(Integer.toString(userId));
+		for (String userId:repository.getContributors()){
+			Name<String> userName = NamingScheme.getDefault().name(userId);
 			
 			helper.
 			managedIndividual(repoName, RepositoryHandler.ID).
