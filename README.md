@@ -1,6 +1,6 @@
 # Smart Developer Hub Software Configuration Management Harvester
-Harvester of the Smart Developer Hub platform for publishing Software Configuration Management information gathered from GitLab servers.
-
+Harvester of the Smart Developer Hub (SDH) platform for publishing Software Configuration Management information gathered from GitLab servers.
+ 
 For more information, please visit the [Smart Developer Hub website](http://www.smartdeveloperhub.org/).
 
 ## Build Status
