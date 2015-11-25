@@ -60,7 +60,7 @@ public class Branch {
     @JsonProperty("name")
     private String name;
     @JsonProperty("contributors")
-    private List<Integer> contributors = new ArrayList<Integer>();
+    private List<String> contributors = new ArrayList<String>();
     @JsonProperty("last_commit")
     private String lastCommit;
     @JsonIgnore
@@ -142,7 +142,7 @@ public class Branch {
      *     The contributors
      */
     @JsonProperty("contributors")
-    public List<Integer> getContributors() {
+    public List<String> getContributors() {
         return contributors;
     }
 
@@ -152,7 +152,7 @@ public class Branch {
      *     The contributors
      */
     @JsonProperty("contributors")
-    public void setContributors(List<Integer> contributors) {
+    public void setContributors(List<String> contributors) {
         this.contributors = contributors;
     }
 

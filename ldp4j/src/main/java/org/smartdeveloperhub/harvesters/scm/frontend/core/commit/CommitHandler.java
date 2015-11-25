@@ -71,7 +71,7 @@ public class CommitHandler implements ResourceHandler, CommitVocabulary{
 		DataSet dataSet=DataSets.createDataSet(commitName);
 		DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 		
-		Name<String> userName = NamingScheme.getDefault().name(commit.getAuthor().toString());
+		Name<String> userName = NamingScheme.getDefault().name(commit.getAuthor());
 		
 		helper.
 		managedIndividual(commitName, CommitHandler.ID).

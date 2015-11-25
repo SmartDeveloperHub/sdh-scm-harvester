@@ -93,8 +93,8 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 				
 			environment.
 				publishResource(NamingScheme.getDefault().name(target),HarvesterHandler.class, SERVICE_PATH);
-			environment.
-				publishResource(NamingScheme.getDefault().name(UserContainerHandler.NAME), UserContainerHandler.class, UserContainerHandler.path);
+//			environment.
+//				publishResource(NamingScheme.getDefault().name(UserContainerHandler.NAME), UserContainerHandler.class, UserContainerHandler.path);
 		
 		LOGGER.info("SCM Harvester Application configuration completed.");
 		

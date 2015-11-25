@@ -64,7 +64,7 @@ public class Commit {
     @JsonProperty("short_id")
     private String shortId;
     @JsonProperty("author")
-    private Integer author;
+    private String author;
     @JsonProperty("lines_added")
     private Integer linesAdded;
     @JsonProperty("created_at")
@@ -130,7 +130,7 @@ public class Commit {
      *     The author
      */
     @JsonProperty("author")
-    public Integer getAuthor() {
+    public String getAuthor() {
         return author;
     }
 
@@ -140,7 +140,7 @@ public class Commit {
      *     The author
      */
     @JsonProperty("author")
-    public void setAuthor(Integer author) {
+    public void setAuthor(String author) {
         this.author = author;
     }
 

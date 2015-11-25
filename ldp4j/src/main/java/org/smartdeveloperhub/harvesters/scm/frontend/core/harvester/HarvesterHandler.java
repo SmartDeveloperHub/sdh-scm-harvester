@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.harvester;
 
 import java.net.URI;
+import java.util.ArrayList;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSets;
@@ -44,6 +45,8 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.GitLabHarvester;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
 
 @Resource(
 		id=HarvesterHandler.ID,
@@ -52,13 +55,19 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendContr
 				id=HarvesterHandler.HARVESTER_REPOSITORIES,
 				path="repositories/",
 				handler=RepositoryContainerHandler.class
-			)
+			),
+			@Attachment(
+					id=HarvesterHandler.HARVESTER_COMMITTERS,
+					path="committers/",
+					handler=UserContainerHandler.class
+			)			
 		}
 	)
 public class HarvesterHandler implements ResourceHandler, HarvesterVocabulary{
 	
 	public static final String ID="HarvesterHandler";
 	public static final String HARVESTER_REPOSITORIES="HarvesterRepositories";
+	public static final String HARVESTER_COMMITTERS="HarvesterCommitters";
 	BackendController backendController;
 	
 	private static final URI VOCABULARY_PATH = URI.create("#vocabulary");
@@ -83,7 +92,7 @@ public class HarvesterHandler implements ResourceHandler, HarvesterVocabulary{
 		}
 	}
 
-	private DataSet maptoDataSet(GitLabHarvester gitLabHarvester, Name<URI> harvesterName) {
+	private DataSet maptoDataSet(GitLabHarvester gitLabHarvester, Name<URI> harvesterName) throws Exception {
 	
 		Name<String> vocabularyName = NamingScheme.getDefault().name("vocabulary");
 						
@@ -111,6 +120,15 @@ public class HarvesterHandler implements ResourceHandler, HarvesterVocabulary{
 						withIndividual(repositoryName,RepositoryHandler.ID);
 		}
 
+		ArrayList<String> userIds = backendController.getUsers();	
+		for (String userId:userIds){			
+			Name<String> userName = NamingScheme.getDefault().name(userId);			
+			helper.
+			managedIndividual(harvesterName, ID).
+					property(COMMITTER).
+						withIndividual(userName,UserHandler.ID);
+		}
+			
 
 		helper.
 			relativeIndividual(harvesterName,HarvesterHandler.ID,VOCABULARY_PATH).

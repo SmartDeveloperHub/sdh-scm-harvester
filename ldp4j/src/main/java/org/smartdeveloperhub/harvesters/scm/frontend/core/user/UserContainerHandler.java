@@ -44,12 +44,12 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryH
 @DirectContainer(
 		id = UserContainerHandler.ID,
 		memberHandler = UserHandler.class,
-		membershipPredicate="http://usefulinc.com/ns/doap#developer"
+		membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasCommitter"
 	)
 public class UserContainerHandler  implements ContainerHandler {
 	
 	public static final String ID="UserContainerHandler";
-	public static final String path="committers/";
+	//public static final String path="committers/";
 	public static final String NAME = "UserContainer";
 
 	public DataSet get(ResourceSnapshot resource)

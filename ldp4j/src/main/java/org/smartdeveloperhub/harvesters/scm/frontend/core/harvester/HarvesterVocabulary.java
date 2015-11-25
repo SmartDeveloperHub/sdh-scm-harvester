@@ -54,5 +54,6 @@ public interface HarvesterVocabulary {
 		static final String SCM_V1_TTL         = "http://www.smartdeveloperhub.org/vocabulary/v1/scm.ttl";
 		
 		static final String REPOSITORY      = "http://www.smartdeveloperhub.org/vocabulary/scm#hasRepository";		
+		static final String COMMITTER       = "http://www.smartdeveloperhub.org/vocabulary/scm#hasCommitter";
 
 }

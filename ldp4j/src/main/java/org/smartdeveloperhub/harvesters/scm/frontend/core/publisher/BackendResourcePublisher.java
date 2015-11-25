@@ -70,6 +70,10 @@ public class BackendResourcePublisher {
 												  harvesterName, RepositoryContainerHandler.class);
 		LOGGER.debug("Published repository container for service {}", harvesterName);
 		
+		ContainerSnapshot userContainerSnapshot = harvesterSnapshot.createAttachedResource( ContainerSnapshot.class, HarvesterHandler.HARVESTER_COMMITTERS,
+				NamingScheme.getDefault().name(UserContainerHandler.NAME), UserContainerHandler.class);
+		LOGGER.debug("Published user container for service {}", harvesterName);
+		
 		//only add the repository to the container (Does not include branch or commit information)
 		addRepositoryMembersToHarvester(target, repositoryContainerSnapshot);				
 				
