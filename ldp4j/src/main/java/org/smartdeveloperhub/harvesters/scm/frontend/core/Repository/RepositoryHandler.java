@@ -103,8 +103,10 @@ public class RepositoryHandler implements ResourceHandler, RepositoryVocabulary{
 		managedIndividual(repoName, RepositoryHandler.ID).
 			property(TYPE).
 				withIndividual(SCMREPOSITORY).				
+//			property(LOCATION).
+//				withIndividual(repository.getHttpUrlToRepo()).
 			property(LOCATION).
-				withIndividual(repository.getHttpUrlToRepo()).
+				withLiteral(repository.getHttpUrlToRepo()).
 			property(NAME).
 				withLiteral(repository.getName()).
 			property(CREATEDON).
