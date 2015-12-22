@@ -35,9 +35,10 @@
 	xsi:schemaLocation="
 		http://java.sun.com/xml/ns/javaee
 		http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-  <display-name>SCM Harvester Web Application</display-name>
-  
-  <context-param>
+
+	<display-name>SCM Harvester Web Application</display-name>
+
+	<context-param>
 		<param-name>ldp4jTargetApplication</param-name>
 		<param-value>org.smartdeveloperhub.harvesters.scm.frontend.core.HarvesterApplication</param-value>
 	</context-param>

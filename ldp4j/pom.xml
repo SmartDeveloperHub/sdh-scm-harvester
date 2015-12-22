@@ -26,31 +26,47 @@
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <modelVersion>4.0.0</modelVersion>
+	<!-- =================================================================== -->
+	<!--   MODULE COORDINATES                                                -->
+	<!-- =================================================================== -->
 
-  <parent>
-	<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
-	<artifactId>scm-harvester-aggregator</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
-  </parent>
- 
-  <groupId>org.smartdeveloperhub.harvesters.scm.ldp4j</groupId>
-  <artifactId>scm-harvester-ldp4j</artifactId>
-  <name>SDH :: SCMH :: SCM Harvester (ldp4j)</name>
+	<parent>
+		<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
+		<artifactId>scm-harvester-aggregator</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
-  <description>This harvester publishes gitlab data such as users, repositories, 
-	             and branches using ldp4j and the sdh gitlab enhancer rest api.
-  </description>
+	<groupId>org.smartdeveloperhub.harvesters.scm.ldp4j</groupId>
+	<artifactId>scm-harvester-ldp4j</artifactId>
 
-  <packaging>war</packaging>
-    <properties>
-		<ldp4j.version>0.2.0-SNAPSHOT</ldp4j.version>
+	<packaging>war</packaging>
+
+	<!-- =================================================================== -->
+	<!--   MODULE INFORMATION                                                -->
+	<!-- =================================================================== -->
+
+	<name>SDH :: SCMH :: SCM Harvester (LDP4j)</name>
+
+	<description>
+		This harvester publishes gitlab data such as users, repositories, and
+		branches using ldp4j and the sdh gitlab enhancer rest api.
+	</description>
+
+	<!-- =================================================================== -->
+	<!--   BUILD SETTINGS                                                    -->
+	<!-- =================================================================== -->
+
+	<properties>
+		<ldp4j.version>0.2.0</ldp4j.version>
 		<jackson.version>2.4.4</jackson.version>
-    </properties>
+	</properties>
 
 	<dependencyManagement>
 		<dependencies>
@@ -63,9 +79,9 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
- 
-  <dependencies>
-  		<dependency>
+
+	<dependencies>
+		<dependency>
 			<groupId>org.ldp4j.framework</groupId>
 			<artifactId>ldp4j-application-api</artifactId>
 		</dependency>
@@ -117,74 +133,62 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
-				
-<!--         <dependency> -->
-<!-- 	    	<groupId>javax.json</groupId> -->
-<!-- 	    	<artifactId>javax.json-api</artifactId> -->
-<!-- 	    	<version>1.0</version> -->
-<!-- 		</dependency>   -->
-<!-- 		<dependency> -->
-<!--     		<groupId>org.glassfish</groupId> -->
-<!--     		<artifactId>javax.json</artifactId> -->
-<!--     		<version>1.0.4</version> -->
-<!-- 		</dependency> -->
-		  <dependency>
-		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-databind</artifactId>
-		    <version>${jackson.version}</version>
-		  </dependency>
-		  <dependency>
-		    <!-- Note: core-annotations version x.y.0 is generally compatible with
-		         (identical to) version x.y.1, x.y.2, etc. -->
-		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-annotations</artifactId>
-		    <version>${jackson.version}</version>
-		  </dependency>
-		  <dependency>
-		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-core</artifactId>
-		    <version>${jackson.version}</version>
-		  </dependency>
-		
-		<dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.4</version>
-        </dependency>
-         <dependency>
-		  <groupId>joda-time</groupId>
-		  <artifactId>joda-time</artifactId>
-		</dependency>
-		
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency> 
-    
-  </dependencies>
 
-  <build>
-    <finalName>scm-harvester</finalName>
-     <plugins>
-		    <plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-war-plugin</artifactId>
-		        <version>2.6</version>
-		        <configuration>
-		            <failOnMissingWebXml>true</failOnMissingWebXml>
-		        </configuration>
-		    </plugin>
-    		<plugin>
-	            <groupId>org.apache.tomcat.maven</groupId>
-	            <artifactId>tomcat7-maven-plugin</artifactId>
-	            <version>2.2</version>
-	            <configuration>
-	                <server>TomcatServer</server>
-	                <path>/scm-harvester</path>
-	            </configuration>
-	        </plugin>
-	</plugins>	        
-  </build>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<finalName>scm-harvester</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<failOnMissingWebXml>true</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<server>TomcatServer</server>
+					<path>/scm-harvester</path>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

@@ -26,10 +26,15 @@
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
+
+	<!-- =================================================================== -->
+	<!--   MODULE COORDINATES                                                -->
+	<!-- =================================================================== -->
 
 	<parent>
 		<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
@@ -41,75 +46,33 @@
 	<groupId>org.smartdeveloperhub.harvesters.scm.jersey</groupId>
 	<artifactId>scm-harvester-jersey</artifactId>
 
-	<!-- <groupId>sdh</groupId> -->
-	<!-- <artifactId>scmharvester</artifactId> -->
+	<packaging>war</packaging>
 
 	<!-- =================================================================== -->
 	<!-- MODULE INFORMATION -->
 	<!-- =================================================================== -->
 
-	<name>SDH :: SCMH :: SCM Harvester (jersey)</name>
+	<name>SDH :: SCMH :: SCM Harvester (Jersey)</name>
 
-
-	<description>This harvester publishes gitlab data such as users, repositories, 
-	             and branches using jersey and the sdh gitlab enhancer rest api.</description>
-
-	<packaging>war</packaging>
+	<description>
+		This harvester publishes gitlab data such as users, repositories,
+		and branches using jersey and the sdh gitlab enhancer rest api.
+	</description>
 
 	<!-- =================================================================== -->
 	<!-- BUILD SETTINGS -->
 	<!-- =================================================================== -->
 
-	<build>
-		<finalName>scmharvester</finalName>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.6</version>
-				<configuration>
-					<failOnMissingWebXml>true</failOnMissingWebXml>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.2</version>
-				<configuration>
-					<server>TomcatServer</server>
-					<path>/scmharvester</path>
-				</configuration>
-			</plugin>
-			<!-- <plugin> -->
-			<!-- <groupId>org.glassfish.maven.plugin</groupId> -->
-			<!-- <artifactId>maven-glassfish-plugin</artifactId> -->
-			<!-- <version>2.1</version> -->
-			<!-- <configuration> -->
-			<!-- <glassfishDirectory>/home/hagarcia/apps/glassfish4/glassfish</glassfishDirectory> -->
-			<!-- <user>admin</user> -->
-			<!-- <passwordFile>/home/hagarcia/apps/glassfish4/glassfish/domains/domain1/config/admin-keyfile</passwordFile> -->
-			<!-- <domain> -->
-			<!-- <name>domain1</name> -->
-			<!-- <httpPort>8080</httpPort> -->
-			<!-- <adminPort>4848</adminPort> -->
-			<!-- </domain> -->
-			<!-- <components> -->
-			<!-- <component> -->
-			<!-- <name>${project.artifactId}</name> -->
-			<!-- <artifact>target/${project.build.finalName}.war</artifact> -->
-			<!-- </component> -->
-			<!-- </components> -->
-			<!-- <debug>true</debug> -->
-			<!-- <terse>false</terse> -->
-			<!-- <echo>true</echo> -->
-			<!-- </configuration> -->
-			<!-- </plugin> -->
-
-
-		</plugins>
-	</build>
+	<properties>
+		<vocabulary.version>0.2.0</vocabulary.version>
+	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<!-- if your container implements Servlet API older than 3.0, use "jersey-container-servlet-core" -->
@@ -168,27 +131,44 @@
 			<artifactId>joda-time</artifactId>
 			<version>2.7</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.smartdeveloperhub.vocabulary</groupId>
+			<artifactId>sdh-vocabulary</artifactId>
+			<version>${vocabulary.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.smartdeveloperhub.vocabulary</groupId>
-			<artifactId>sdh-vocabulary</artifactId>
-			<version>${project.version}</version>
-			<scope>runtime</scope>
-		</dependency>
 
 	</dependencies>
-	<!-- <properties> -->
-	<!-- <jersey.version>2.17</jersey.version> -->
-	<!-- <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> -->
-	<!-- </properties> -->
+
+	<build>
+		<finalName>scmharvester</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<failOnMissingWebXml>true</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<server>TomcatServer</server>
+					<path>/scmharvester</path>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
