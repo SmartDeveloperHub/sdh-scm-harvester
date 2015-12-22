@@ -21,8 +21,8 @@
       See the License for the specific language governing permissions and
       limitations under the License.
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-      Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-container-ldp4j:0.2.0-SNAPSHOT
-      Bundle      : scm-harvester-container-ldp4j-0.2.0-SNAPSHOT.pom
+      Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-container-ldp4j:0.2.0
+      Bundle      : scm-harvester-container-ldp4j-0.2.0.pom
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
 -->
@@ -38,7 +38,7 @@
 
 	<groupId>org.smartdeveloperhub.harvester.scm</groupId>
 	<artifactId>scm-harvester-container-ldp4j</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.2.0</version>
 	<packaging>war</packaging>
 
 	<!-- =================================================================== -->
@@ -178,7 +178,7 @@
 							<port>${harvester.http.port}</port>
 							<configurationDir>${basedir}${file.separator}.container</configurationDir>
 							<path>/harvester</path>
-							<systemProperties>								
+							<systemProperties>
 								<scm.harvester.config>${harvester.config}</scm.harvester.config>
 							</systemProperties>
 							<useTestClasspath>false</useTestClasspath>
