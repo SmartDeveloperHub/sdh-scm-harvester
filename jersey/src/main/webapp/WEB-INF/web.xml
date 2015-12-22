@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+      This file is part of the Smart Developer Hub Project:
+        http://www.smartdeveloperhub.org/
+
+      Center for Open Middleware
+        http://www.centeropenmiddleware.com/
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+      Copyright (C) 2015 Center for Open Middleware.
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+                http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+      Artifact    : org.smartdeveloperhub.harvesters.scm.jersey:scm-harvester-jersey:0.2.0
+      Bundle      : scmharvester.war
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+
+-->
+<!-- This web.xml file is not required when using Servlet 3.0 container, 
+	see implementation details http://jersey.java.net/nonav/documentation/latest/jax-rs.html -->
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+	<servlet>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>jersey.config.server.provider.packages</param-name>
+			<param-value>org.sdh.harvester.scm</param-value>
+		</init-param>
+		<init-param>
+			<param-name>jersey.config.server.provider.classnames</param-name>
+			<param-value>org.glassfish.jersey.filter.LoggingFilter</param-value>
+		</init-param>
+		<init-param>
+			<param-name>jersey.config.server.tracing</param-name>
+			<param-value>ALL</param-value>
+		</init-param>
+
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<url-pattern>/webapi/*</url-pattern>
+	</servlet-mapping>
+	<context-param>
+		<param-name>gitlab-enhancer-endpoint</param-name>
+		<param-value>http://192.168.0.10:5000/api/</param-value>
+	</context-param>
+	<!-- namespace for scm individuals. Note it must be deferenceable -->
+	<context-param>
+		<param-name>scm-ontology-endpoint</param-name>
+		<param-value>http://localhost:8080/scmharvester/webapi/</param-value>
+	</context-param>
+	<context-param>
+		<param-name>scm-individual-namespace</param-name>
+		<param-value>http://localhost:8080/scmharvester/webapi/</param-value>
+	</context-param>
+	<!-- <context-param> -->
+	<!-- this is the o.s. path to the scm ttl, notice it does not start with 
+		file: -->
+	<!-- <param-name>scm.ttl</param-name> -->
+	<!-- <param-value>/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/v1/scm.ttl</param-value> -->
+	<!-- </context-param> -->
+	<context-param>
+		<!-- reference to the ontology to import -->
+		<param-name>platform-reference</param-name>
+		<param-value>http://www.smartdeveloperhub.org/vocabulary/v1/platform</param-value>
+	</context-param>
+	<!-- <context-param> -->
+	<!-- this is a entry in the catalog file, notice it starts with file: -->
+	<!-- <param-name>platform.ttl</param-name> -->
+	<!-- <param-value>file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/v1/platform.ttl</param-value> -->
+	<!-- </context-param> -->
+	<context-param>
+		<!-- reference to the ontology to import -->
+		<param-name>doap-reference</param-name>
+		<param-value>http://www.smartdeveloperhub.org/vocabulary/external/doap/doap.rdf</param-value>
+	</context-param>
+	<!-- <context-param> -->
+	<!-- this is a entry in the catalog file, notice it starts with file: -->
+	<!-- <param-name>doap.rdf</param-name> -->
+	<!-- <param-value>file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/external/doap/doap.rdf</param-value> -->
+	<!-- </context-param> -->
+	<context-param>
+		<!-- reference to the ontology to import -->
+		<param-name>dcterms-reference</param-name>
+		<param-value>http://www.smartdeveloperhub.org/vocabulary/external/dcmi/dcterms.rdf</param-value>
+	</context-param>
+	<!-- <context-param> -->
+	<!-- this is a entry in the catalog file, notice it starts with file: -->
+	<!-- <param-name>dcterms.rdf</param-name> -->
+	<!-- <param-value>file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/external/dcmi/dcterms.rdf</param-value> -->
+	<!-- </context-param> -->
+	<context-param>
+		<!-- reference to the ontology to import -->
+		<param-name>dctype-reference</param-name>
+		<param-value>http://www.smartdeveloperhub.org/vocabulary/external/dcmi/dctype.rdf</param-value>
+	</context-param>
+	<!-- <context-param> -->
+	<!-- this is a entry in the catalog file, notice it starts with file: -->
+	<!-- <param-name>dctype.rdf</param-name> -->
+	<!-- <param-value>file:/home/hagarcia/git-repos/sdh-vocabulary/src/main/resources/vocabulary/external/dcmi/dctype.rdf</param-value> -->
+	<!-- </context-param> -->
+
+</web-app>
+

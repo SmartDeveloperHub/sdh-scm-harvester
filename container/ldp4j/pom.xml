@@ -21,8 +21,8 @@
       See the License for the specific language governing permissions and
       limitations under the License.
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-      Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-aggregator:0.2.0
-      Bundle      : scm-harvester-aggregator-0.2.0.pom
+      Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-container-ldp4j:0.2.0
+      Bundle      : scm-harvester-container-ldp4j-0.2.0.pom
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
 -->
@@ -37,34 +37,50 @@
 	<!-- =================================================================== -->
 
 	<parent>
-		<groupId>org.smartdeveloperhub</groupId>
-		<artifactId>sdh-build</artifactId>
-		<version>0.2.0</version>
+ 		<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
+  		<artifactId>scm-harvester-aggregator</artifactId>
+  		<version>0.2.0</version>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
-	<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
-	<artifactId>scm-harvester-aggregator</artifactId>
-	<version>0.2.0</version>
-
+	<artifactId>scm-harvester-container-ldp4j</artifactId>
 	<packaging>pom</packaging>
 
 	<!-- =================================================================== -->
 	<!--   MODULE INFORMATION                                                -->
 	<!-- =================================================================== -->
 
-	<name>SDH :: SCMH :: SCM Harvester</name>
+	<name>SDH :: SCMH :: Container</name>
 
-	<description>The Software Configuration Management Harvester of the Smart Developer Hub project </description>
+	<description>Module for executing the Software Configuration Management Harvester of the Smart Developer Hub project within an embedded container</description>
 
 	<!-- =================================================================== -->
 	<!--   BUILD SETTINGS                                                    -->
 	<!-- =================================================================== -->
 
-	<modules>
-		<module>jersey</module>
-		<module>ldp4j</module>
-		<module>container/ldp4j</module>
-		<module>container/jersey</module>
-	</modules>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>Create Container Assembly</id>
+						<configuration>
+							<appendAssemblyId>false</appendAssemblyId>
+							<attach>true</attach>
+							<finalName>scm-harvester-container-${project.version}</finalName>
+							<descriptors>
+								<descriptor>src${file.separator}main${file.separator}assembly${file.separator}assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
