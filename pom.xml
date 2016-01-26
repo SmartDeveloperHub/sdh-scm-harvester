@@ -52,7 +52,7 @@
 	<!--   MODULE INFORMATION                                                -->
 	<!-- =================================================================== -->
 
-	<name>SDH :: SCMH :: SCM Harvester</name>
+	<name>SDH :: SCMH -- SCM Harvester</name>
 
 	<description>The Software Configuration Management Harvester of the Smart Developer Hub project </description>
 
@@ -61,10 +61,8 @@
 	<!-- =================================================================== -->
 
 	<modules>
-		<module>jersey</module>
 		<module>ldp4j</module>
 		<module>container/ldp4j</module>
-		<module>container/jersey</module>
 	</modules>
 
 </project>
