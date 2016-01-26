@@ -62,7 +62,7 @@
 
 	<modules>
 		<module>ldp4j</module>
-		<module>container/ldp4j</module>
+		<module>container</module>
 	</modules>
 
 </project>
