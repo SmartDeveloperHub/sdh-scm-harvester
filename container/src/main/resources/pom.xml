@@ -21,8 +21,8 @@
       See the License for the specific language governing permissions and
       limitations under the License.
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-      Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-container-ldp4j:0.3.0-SNAPSHOT
-      Bundle      : scm-harvester-container-ldp4j-0.3.0-SNAPSHOT.pom
+      Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-container:0.3.0-SNAPSHOT
+      Bundle      : scm-harvester-container-0.3.0-SNAPSHOT.pom
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
 -->
@@ -37,15 +37,15 @@
 	<!-- =================================================================== -->
 
 	<groupId>org.smartdeveloperhub.harvester.scm</groupId>
-	<artifactId>scm-harvester-container-ldp4j</artifactId>
-	<version>0.2.0</version>
+	<artifactId>scm-harvester-container-bootstrap</artifactId>
+	<version>0.3.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 
 	<!-- =================================================================== -->
 	<!--   MODULE INFORMATION                                                -->
 	<!-- =================================================================== -->
 
-	<name>SDH :: SCMH :: Container LDP4J</name>
+	<name>SDH :: SCMH :: Container Bootstrap</name>
 
 	<description>Module for executing the Software Configuration Management Harvester of the Smart Developer Hub project within an embedded container</description>
 
@@ -126,8 +126,8 @@
 						<configuration>
 							<artifactItems>
 								<artifactItem>
-									<groupId>org.smartdeveloperhub.harvesters.scm.ldp4j</groupId>
-									<artifactId>scm-harvester-ldp4j</artifactId>
+									<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
+									<artifactId>scm-harvester-frontend</artifactId>
 									<version>${project.version}</version>
 									<type>war</type>
 									<overWrite>true</overWrite>

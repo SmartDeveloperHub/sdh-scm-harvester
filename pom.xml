@@ -61,8 +61,10 @@
 	<!-- =================================================================== -->
 
 	<modules>
-		<module>ldp4j</module>
+		<module>frontend</module>
 		<module>container</module>
+		<module>relocation/frontend</module>
+		<module>relocation/container</module>
 	</modules>
 
 </project>
