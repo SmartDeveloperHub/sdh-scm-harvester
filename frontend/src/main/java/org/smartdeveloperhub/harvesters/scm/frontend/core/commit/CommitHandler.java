@@ -28,9 +28,9 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
 import org.joda.time.DateTime;
 import org.ldp4j.application.data.DataSet;
-import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
+import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
@@ -47,44 +47,47 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Mapper;
 public class CommitHandler implements ResourceHandler, CommitVocabulary{
 	public static final String ID="CommitHandler";
 	BackendController backendController;
-	
-	public CommitHandler(BackendController backendController) {	
+
+	public CommitHandler(final BackendController backendController) {
 		this.backendController = backendController;
 	}
-	
-	public DataSet get(ResourceSnapshot resource) throws UnknownResourceException, ApplicationRuntimeException {		
+
+	@Override
+	public DataSet get(final ResourceSnapshot resource) throws UnknownResourceException, ApplicationRuntimeException {
+		@SuppressWarnings("unchecked")
+		final
 		Name<String> name = (Name<String>)resource.name();
-		
-		CommitKey commitKey=backendController.getCommitIdentityMap().getKey(name);
-		
+
+		final CommitKey commitKey=this.backendController.getCommitIdentityMap().getKey(name);
+
 		try{
-			Commit commit= backendController.getCommit(commitKey.getRepoId(), commitKey.getCommitId());		
-			return maptoDataSet(commit,name);	
+			final Commit commit= this.backendController.getCommit(commitKey.getRepoId(), commitKey.getCommitId());
+			return maptoDataSet(commit,name);
 		}
-		catch(Exception e){
+		catch(final Exception e){
 			 throw new ApplicationRuntimeException(e);
-		}				
+		}
 	}
-	
-	private DataSet maptoDataSet(Commit commit, Name<String> commitName) {
-					
-		DataSet dataSet=DataSets.createDataSet(commitName);
-		DataSetHelper helper=DataSetUtils.newHelper(dataSet);
-		
-		Name<String> userName = NamingScheme.getDefault().name(commit.getAuthor());
-		
+
+	private DataSet maptoDataSet(final Commit commit, final Name<String> commitName) {
+
+		final DataSet dataSet=DataSets.createDataSet(commitName);
+		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
+
+		final Name<String> userName = NamingScheme.getDefault().name(commit.getAuthor());
+
 		helper.
 		managedIndividual(commitName, CommitHandler.ID).
 			property(TYPE).
 				withIndividual(ACTION).
-				withIndividual(COMMIT).	
+				withIndividual(COMMIT).
 			property(COMMITID).
 				withLiteral(commit.getId()).
 			property(CREATEDON).
 				withLiteral(Mapper.toLiteral(new DateTime(commit.getCreatedAt()).toDate())).
 			property(PERFORMEDBY).
-				withIndividual(userName, UserHandler.ID );													
-				
+				withIndividual(userName, UserHandler.ID );
+
 		return dataSet;
 	}
 }

@@ -39,30 +39,32 @@ import org.slf4j.LoggerFactory;
 
 
 public class HarvesterConfiguration extends Configuration {
-	
+
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER=LoggerFactory.getLogger(HarvesterConfiguration.class);
 
 	//system property
+	@SuppressWarnings("unused")
 	private static final String SCM_HARVESTER_TARGET = "scm.harvester.target";
 	//property file
 	private static final String SCM_HARVESTER_CONFIG_PATH = "Scm.harvester.config";
-	
+
 	@Override
 	public Namespaces namespaces() {
 		return
 			new ImmutableNamespaces().
-				withPrefix("scm", "http://www.smartdeveloperhub.org/vocabulary/scm#").				                   
-				withPrefix("platform", "http://www.smartdeveloperhub.org/vocabulary/platform#").				
+				withPrefix("scm", "http://www.smartdeveloperhub.org/vocabulary/scm#").
+				withPrefix("platform", "http://www.smartdeveloperhub.org/vocabulary/platform#").
 				withPrefix("doap", "http://usefulinc.com/ns/doap#").
 				withPrefix("foaf", "http://xmlns.com/foaf/0.1/");
 	}
-	
+
 	// the name of the service you're publishing.
 	public URI target() throws IOException {
-		String target="http://scmharvester/service/";
+		final String target="http://scmharvester/service/";
 //		LOGGER.info("- Get GitLab enhancer ..");
 		//first try to get the enhancer url from the system property;
-//		String target = System.getProperty(SCM_HARVESTER_TARGET);		
+//		String target = System.getProperty(SCM_HARVESTER_TARGET);
 //		if(target==null) {
 //			//if the system property is not set then read the property file
 //			target=getURIfromPropertyFile();
@@ -70,7 +72,7 @@ public class HarvesterConfiguration extends Configuration {
 //				target="http://192.168.0.10:5000/api/";
 //				LOGGER.info("- Using default enhancer url ..: {}", target);
 //			}
-//			else 
+//			else
 //				LOGGER.info("- Enhancer from property file {}..: {}",SCM_HARVESTER_CONFIG_PATH, target);
 //		}
 //		else{
@@ -78,11 +80,11 @@ public class HarvesterConfiguration extends Configuration {
 //		}
 		return URI.create(target);
 	}
-	
-	private String getURIfromPropertyFile() throws IOException{
+
+	protected String getURIfromPropertyFile() throws IOException{
 		String target=null;
-		Properties prop = new Properties();		
-		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(SCM_HARVESTER_CONFIG_PATH);
+		final Properties prop = new Properties();
+		final InputStream inputStream = getClass().getClassLoader().getResourceAsStream(SCM_HARVESTER_CONFIG_PATH);
 
 		if (inputStream != null) {
 			prop.load(inputStream);
@@ -90,5 +92,5 @@ public class HarvesterConfiguration extends Configuration {
 		}
 		return target;
 	}
-	
+
 }

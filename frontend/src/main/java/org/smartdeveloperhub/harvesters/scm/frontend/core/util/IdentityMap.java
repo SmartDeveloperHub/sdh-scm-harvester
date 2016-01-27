@@ -26,38 +26,32 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.util;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.ldp4j.application.data.Name;
 
 public class IdentityMap<T> {
-	
-	private T key;
-	
+
 	ConcurrentHashMap<T,Name<String>> keytoResourceName;
 	ConcurrentHashMap<Name<String>,T> resourceNameToKey;
-	
+
 	public IdentityMap() {
-		keytoResourceName = new ConcurrentHashMap<T,Name<String>> ();
-		resourceNameToKey = new ConcurrentHashMap<Name<String>,T>();
+		this.keytoResourceName = new ConcurrentHashMap<T,Name<String>> ();
+		this.resourceNameToKey = new ConcurrentHashMap<Name<String>,T>();
 	}
-	
-	
-	public void addKey(T key,Name<String> resourceName ){
-		keytoResourceName.put(key, resourceName);
-		resourceNameToKey.put(resourceName, key);
+
+
+	public void addKey(final T key,final Name<String> resourceName ){
+		this.keytoResourceName.put(key, resourceName);
+		this.resourceNameToKey.put(resourceName, key);
 	}
-	
-	public T getKey(Name<String> resourceName){
-		return resourceNameToKey.get(resourceName);
+
+	public T getKey(final Name<String> resourceName){
+		return this.resourceNameToKey.get(resourceName);
 	}
-	
-	public Name<String> getResourceName(T key){
-		return keytoResourceName.get(key);
+
+	public Name<String> getResourceName(final T key){
+		return this.keytoResourceName.get(key);
 	}
-	
-	
-	
 
 }

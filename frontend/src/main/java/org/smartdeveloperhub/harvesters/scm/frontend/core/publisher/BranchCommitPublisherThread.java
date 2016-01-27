@@ -26,12 +26,9 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import java.util.ArrayList;
-
 import org.ldp4j.application.ApplicationContext;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
-import org.ldp4j.application.session.AttachmentSnapshot;
 import org.ldp4j.application.session.ContainerSnapshot;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.ldp4j.application.session.WriteSession;
@@ -39,116 +36,107 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.GitLabHarvester;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 
 public class BranchCommitPublisherThread extends Thread {
-	
-	 private static final Logger LOGGER=LoggerFactory.getLogger(BranchCommitPublisherThread.class); 
-	
-	 private Thread t;
-	 private String threadName = "BranchCommitPublisher";
-	 ContainerSnapshot branchContainerSnapshot;
-	 ContainerSnapshot commitContainerSnapshot;
-	 
-	 Repository repository; 
-	 BackendController controller;
-	 GitLabHarvester gitLabHarvester;
-	
-	 public BranchCommitPublisherThread(BackendController controller) {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(BranchCommitPublisherThread.class);
+
+	private Thread t;
+	private final String threadName = "BranchCommitPublisher";
+	ContainerSnapshot branchContainerSnapshot;
+	ContainerSnapshot commitContainerSnapshot;
+
+	Repository repository;
+	BackendController controller;
+	GitLabHarvester gitLabHarvester;
+
+	public BranchCommitPublisherThread(final BackendController controller) {
 		super();
 		this.controller = controller;
 	}
-	 
+
+	@Override
 	public void run(){
-		LOGGER.info(threadName +" is running...");
-		long startTime = System.currentTimeMillis();
-		
-		ApplicationContext ctx = ApplicationContext.getInstance();
-		
-		try{					
-			GitLabHarvester gitLabHarvester=controller.getGitLabHarvester();
-			for (Integer repositoryId:gitLabHarvester.getRepositories()){
-				Repository repository=controller.getRepository(Integer.toString(repositoryId));
+		LOGGER.info(this.threadName +" is running...");
+		final long startTime = System.currentTimeMillis();
+
+		final ApplicationContext ctx = ApplicationContext.getInstance();
+
+		try {
+			final GitLabHarvester gitLabHarvester=this.controller.getGitLabHarvester();
+			for (final Integer repositoryId:gitLabHarvester.getRepositories()){
+				final Repository repository=this.controller.getRepository(Integer.toString(repositoryId));
 				addBranchMemberstToRepository(ctx, repositoryId, repository);
-				addCommitMembersToRepository(ctx, repositoryId, repository);				
+				addCommitMembersToRepository(ctx, repositoryId, repository);
 			}
-									
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			LOGGER.error("Could not update repository information resource",e);
 		} finally {
 			LOGGER.debug("Finalized update repository process");
-			
 		}
-			
-		long stopTime = System.currentTimeMillis();
-		long elapsedTime = stopTime - startTime;
+
+		final long stopTime = System.currentTimeMillis();
+		final long elapsedTime = stopTime - startTime;
 		LOGGER.info("- thread elapsed time (ms)..: {}",elapsedTime);
-			
-	}	
-	
-	 public void start ()
-	   {
-		 LOGGER.info("Starting " +  threadName); 
-	    if (t == null)
-	      {
-	         t = new Thread (this, threadName);
-	         t.start ();
-	      }
-	   }
-	 
-	 public void addBranchMemberstToRepository(ApplicationContext ctx, Integer repositoryId, Repository repository) throws Exception{
-			
-		    try( WriteSession session = ctx.createSession() ) {
-				Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
-				
-				//ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);		
-															
-				branchContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,BranchContainerHandler.class);
-				//This is an alternative:
-				//ContainerSnapshot ContainerSnapshot = (ContainerSnapshot)repositorySnapshot.attachmentById(RepositoryHandler.REPOSITORY_BRANCHES).resource();
-				
-				if (branchContainerSnapshot!=null){
-					for (String branchId:repository.getBranches().getBranchIds()){
-						Name<String> branchName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),branchId);			
-						//keeptrack of the branch key and resource name
-						controller.getBranchIdentityMap().addKey(new BranchKey(Integer.toString(repository.getId()),branchId), branchName);
-						ResourceSnapshot branchSnapshot = branchContainerSnapshot.addMember(branchName);			
-					}	
+	}
+
+	@Override
+	public void start() {
+		LOGGER.info("Starting " + this.threadName);
+		if (this.t == null) {
+			this.t = new Thread(this, this.threadName);
+			this.t.start();
+		}
+	}
+
+	public void addBranchMemberstToRepository(final ApplicationContext ctx, final Integer repositoryId, final Repository repository) throws Exception{
+		try( WriteSession session = ctx.createSession() ) {
+			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
+
+			//ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
+
+			this.branchContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,BranchContainerHandler.class);
+			//This is an alternative:
+			//ContainerSnapshot ContainerSnapshot = (ContainerSnapshot)repositorySnapshot.attachmentById(RepositoryHandler.REPOSITORY_BRANCHES).resource();
+
+			if (this.branchContainerSnapshot!=null){
+				for (final String branchId:repository.getBranches().getBranchIds()){
+					final Name<String> branchName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),branchId);
+					//keeptrack of the branch key and resource name
+					this.controller.getBranchIdentityMap().addKey(new BranchKey(Integer.toString(repository.getId()),branchId), branchName);
+					@SuppressWarnings("unused")
+					final ResourceSnapshot branchSnapshot = this.branchContainerSnapshot.addMember(branchName);
 				}
-				session.modify(branchContainerSnapshot);
-				session.saveChanges(); 
 			}
-		    
-            
+			session.modify(this.branchContainerSnapshot);
+			session.saveChanges();
+		}
 	 }
 
-	 public void addCommitMembersToRepository(ApplicationContext ctx, Integer repositoryId, Repository repository) throws Exception{
-		 
+	 public void addCommitMembersToRepository(final ApplicationContext ctx, final Integer repositoryId, final Repository repository) throws Exception{
 		 try( WriteSession session = ctx.createSession() ) {
-			Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
- 
-			commitContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,CommitContainerHandler.class);
-			
-			if (commitContainerSnapshot!=null){
-				
-				for (String commitId:repository.getCommits().getCommitIds()){
-					Name<String> commitName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),commitId);			
+			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
+
+			this.commitContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,CommitContainerHandler.class);
+
+			if (this.commitContainerSnapshot!=null){
+
+				for (final String commitId:repository.getCommits().getCommitIds()){
+					final Name<String> commitName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),commitId);
 					//keeptrack of the branch key and resource name
-					controller.getCommitIdentityMap().addKey(new CommitKey(Integer.toString(repository.getId()),commitId), commitName);
-					ResourceSnapshot commitSnapshot = commitContainerSnapshot.addMember(commitName);			
-				}		
+					this.controller.getCommitIdentityMap().addKey(new CommitKey(Integer.toString(repository.getId()),commitId), commitName);
+					@SuppressWarnings("unused")
+					final ResourceSnapshot commitSnapshot = this.commitContainerSnapshot.addMember(commitName);
+				}
 			}
-																				
-			session.modify(commitContainerSnapshot);	
+
+			session.modify(this.commitContainerSnapshot);
 			session.saveChanges();
-		 }
-	 }
-	 
-	 
- 
+		}
+	}
+
 }

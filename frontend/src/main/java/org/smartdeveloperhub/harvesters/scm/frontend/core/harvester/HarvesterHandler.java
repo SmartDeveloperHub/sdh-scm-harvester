@@ -30,9 +30,9 @@ import java.net.URI;
 import java.util.ArrayList;
 
 import org.ldp4j.application.data.DataSet;
-import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
+import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
@@ -42,63 +42,58 @@ import org.ldp4j.application.ext.annotations.Attachment;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.GitLabHarvester;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryContainerHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryContainerHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
 
 @Resource(
-		id=HarvesterHandler.ID,
-		attachments={
-			@Attachment(
-				id=HarvesterHandler.HARVESTER_REPOSITORIES,
-				path="repositories/",
-				handler=RepositoryContainerHandler.class
-			),
-			@Attachment(
-					id=HarvesterHandler.HARVESTER_COMMITTERS,
-					path="committers/",
-					handler=UserContainerHandler.class
-			)			
-		}
-	)
+	id=HarvesterHandler.ID,
+	attachments={
+		@Attachment(
+			id=HarvesterHandler.HARVESTER_REPOSITORIES,
+			path="repositories/",
+			handler=RepositoryContainerHandler.class
+		),
+		@Attachment(
+				id=HarvesterHandler.HARVESTER_COMMITTERS,
+				path="committers/",
+				handler=UserContainerHandler.class
+		)
+	}
+)
 public class HarvesterHandler implements ResourceHandler, HarvesterVocabulary{
-	
+
 	public static final String ID="HarvesterHandler";
 	public static final String HARVESTER_REPOSITORIES="HarvesterRepositories";
 	public static final String HARVESTER_COMMITTERS="HarvesterCommitters";
 	BackendController backendController;
-	
+
 	private static final URI VOCABULARY_PATH = URI.create("#vocabulary");
-	
-	public HarvesterHandler(BackendController backendController) {
+
+	public HarvesterHandler(final BackendController backendController) {
 		//super(controller);
 		this.backendController = backendController;
 	}
 
-	public DataSet get(ResourceSnapshot resource) throws UnknownResourceException, ApplicationRuntimeException {
+	@Override
+	public DataSet get(final ResourceSnapshot resource) throws UnknownResourceException, ApplicationRuntimeException {
+		@SuppressWarnings("unchecked")
+		final
 		Name<URI> name = (Name<URI>)resource.name();
 		try{
-			GitLabHarvester gitLabHarvester = backendController.createGitLabHarvester(name.id().toString());		
-////		trace("Requested service %s retrieval",serviceId);
-//		Service service = findService(serviceId);
-//		info("Retrieved service %s: %s",serviceId,service);
+			final GitLabHarvester gitLabHarvester = this.backendController.createGitLabHarvester(name.id().toString());
 			return maptoDataSet(gitLabHarvester,name);
-		
-		}
-		catch(Exception e){
-			 throw new ApplicationRuntimeException(e);
+		} catch(final Exception e){
+			throw new ApplicationRuntimeException(e);
 		}
 	}
 
-	private DataSet maptoDataSet(GitLabHarvester gitLabHarvester, Name<URI> harvesterName) throws Exception {
-	
-		Name<String> vocabularyName = NamingScheme.getDefault().name("vocabulary");
-						
-		DataSet dataSet=DataSets.createDataSet(harvesterName);
+	private DataSet maptoDataSet(final GitLabHarvester gitLabHarvester, final Name<URI> harvesterName) throws Exception {
+		final DataSet dataSet=DataSets.createDataSet(harvesterName);
 
-		DataSetHelper helper=DataSetUtils.newHelper(dataSet);
+		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
 		helper.
 			managedIndividual(harvesterName, ID).
@@ -106,29 +101,28 @@ public class HarvesterHandler implements ResourceHandler, HarvesterVocabulary{
 					withIndividual(DC_TYPE_SERVICE_TYPE).
 					withIndividual(MICRO_SERVICE_TYPE).
 					withIndividual(LINKED_DATA_MICRO_SERVICE_TYPE).
-					withIndividual(HARVESTER).				
+					withIndividual(HARVESTER).
 					withIndividual(SCMHARVESTER).
 				property(HARVESTER_VOCABULARY).
 					withIndividual(harvesterName,HarvesterHandler.ID,VOCABULARY_PATH);
 
-		
-		for (Integer repositoryId:gitLabHarvester.getRepositories()){
-			Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));	
+
+		for (final Integer repositoryId:gitLabHarvester.getRepositories()){
+			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
 			helper.
 			managedIndividual(harvesterName, ID).
 					property(REPOSITORY).
 						withIndividual(repositoryName,RepositoryHandler.ID);
 		}
 
-		ArrayList<String> userIds = backendController.getUsers();	
-		for (String userId:userIds){			
-			Name<String> userName = NamingScheme.getDefault().name(userId);			
+		final ArrayList<String> userIds = this.backendController.getUsers();
+		for (final String userId:userIds){
+			final Name<String> userName = NamingScheme.getDefault().name(userId);
 			helper.
 			managedIndividual(harvesterName, ID).
 					property(COMMITTER).
 						withIndividual(userName,UserHandler.ID);
 		}
-			
 
 		helper.
 			relativeIndividual(harvesterName,HarvesterHandler.ID,VOCABULARY_PATH).
@@ -142,9 +136,8 @@ public class HarvesterHandler implements ResourceHandler, HarvesterVocabulary{
 				property(IMPLEMENTS).
 					withIndividual(SCM_DOMAIN_TYPE);
 
-
 		return dataSet;
 	}
 
-	
+
 }

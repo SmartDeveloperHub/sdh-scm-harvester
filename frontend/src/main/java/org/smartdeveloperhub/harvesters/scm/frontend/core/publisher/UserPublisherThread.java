@@ -40,68 +40,68 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.GitLabHarvester;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 
 public class UserPublisherThread extends Thread {
-	
-	 private static final Logger LOGGER=LoggerFactory.getLogger(UserPublisherThread.class); 
-	
-	 private Thread t;
-	 private String threadName = "UserPublisherThread";
-	 BackendController controller;
-	 GitLabHarvester gitLabHarvester;
-	 
-	 public UserPublisherThread(BackendController controller) {
-			super();
-			this.controller = controller;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserPublisherThread.class);
+
+	private Thread t;
+	private final String threadName = "UserPublisherThread";
+	BackendController controller;
+	GitLabHarvester gitLabHarvester;
+
+	public UserPublisherThread(final BackendController controller) {
+		super();
+		this.controller = controller;
+	}
+
+	@Override
+	public void run() {
+		LOGGER.info(this.threadName + " is running...");
+		final long startTime = System.currentTimeMillis();
+
+		try {
+			final ApplicationContext ctx = ApplicationContext.getInstance();
+			publishUserResources(ctx);
+		} catch (final Exception e) {
+			LOGGER.error("Could not update repository information resource", e);
+		} finally {
+			LOGGER.debug("Finalized update repository process");
 		}
-		 
-		public void run(){
-			LOGGER.info(threadName +" is running...");
-			long startTime = System.currentTimeMillis();
-									
-			try{					
-				ApplicationContext ctx = ApplicationContext.getInstance();
-				publishUserResources(ctx);
-										
-			} catch (Exception e) {
-				LOGGER.error("Could not update repository information resource",e);
-			} finally {
-				LOGGER.debug("Finalized update repository process");
+
+		final long stopTime = System.currentTimeMillis();
+		final long elapsedTime = stopTime - startTime;
+		LOGGER.info("- thread elapsed time (ms)..: {}", elapsedTime);
+	}
+
+	@Override
+	public void start() {
+		LOGGER.info("Starting " + this.threadName);
+		if (this.t == null) {
+			this.t = new Thread(this, this.threadName);
+			this.t.start();
+		}
+	}
+
+	public void publishUserResources(final ApplicationContext ctx) throws Exception{
+		try(WriteSession session = ctx.createSession()){
+			final Name<String> userContainerName = NamingScheme.getDefault().name(UserContainerHandler.NAME);
+			final ContainerSnapshot userContainerSnapshot = session.find(ContainerSnapshot.class, userContainerName ,UserContainerHandler.class);
+			if(userContainerSnapshot==null) {
+				LOGGER.warn("User Container does not exits");
+				return;
 			}
-				
-			long stopTime = System.currentTimeMillis();
-			long elapsedTime = stopTime - startTime;
-			LOGGER.info("- thread elapsed time (ms)..: {}",elapsedTime);
-				
-		}	
-		
-		 public void start ()
-		   {
-			 LOGGER.info("Starting " +  threadName); 
-		    if (t == null)
-		      {
-		         t = new Thread (this, threadName);
-		         t.start ();
-		      }
-		   }
-		 
-			public void publishUserResources(ApplicationContext ctx) throws Exception{
-				try(WriteSession session = ctx.createSession()){				
-					Name<String> userContainerName = NamingScheme.getDefault().name(UserContainerHandler.NAME);
-					ContainerSnapshot userContainerSnapshot = session.find(ContainerSnapshot.class, userContainerName ,UserContainerHandler.class);			
-					if(userContainerSnapshot==null) {
-						LOGGER.warn("User Container does not exits");
-						return;
-					}
-					
-					ArrayList<String> userIds = controller.getUsers();	
-					for (String userId:userIds){			
-						Name<String> userName = NamingScheme.getDefault().name(userId);			
-						ResourceSnapshot userSnapshot = userContainerSnapshot.addMember(userName);
-						//LOGGER.debug("Published resource for user {} @ {} ({})",userId, userSnapshot.name(),userSnapshot.templateId());
-					}
-					
-					session.modify(userContainerSnapshot);	
-					session.saveChanges();
-				}
-				
-			}	
+
+			final ArrayList<String> userIds = this.controller.getUsers();
+			for (final String userId:userIds){
+				final Name<String> userName = NamingScheme.getDefault().name(userId);
+				@SuppressWarnings("unused")
+				final ResourceSnapshot userSnapshot = userContainerSnapshot.addMember(userName);
+				//LOGGER.debug("Published resource for user {} @ {} ({})",userId, userSnapshot.name(),userSnapshot.templateId());
+			}
+
+			session.modify(userContainerSnapshot);
+			session.saveChanges();
+		}
+
+	}
+
 }

@@ -30,62 +30,61 @@ import java.net.URI;
 
 import org.joda.time.DateTime;
 import org.ldp4j.application.data.DataSet;
-import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
+import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
-import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.UnknownResourceException;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryVocabulary;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Mapper;
 
 @Resource(id=UserHandler.ID)
 public class UserHandler implements ResourceHandler, UserVocabulary{
-	
+
 	public static final String ID="UserHandler";
 	BackendController backendController;
-	
+
 	private static final URI IMG_PATH = URI.create("#img");
-	
-	public UserHandler(BackendController backendController) {	
+
+	public UserHandler(final BackendController backendController) {
 		this.backendController = backendController;
 	}
 
-	public DataSet get(ResourceSnapshot resource)
+	@Override
+	public DataSet get(final ResourceSnapshot resource)
 			throws UnknownResourceException, ApplicationRuntimeException {
-		
-		Name<String> name = (Name<String>)resource.name();						
+
+		@SuppressWarnings("unchecked")
+		final
+		Name<String> name = (Name<String>)resource.name();
 		try{
-			User user = backendController.getUser(name.id().toString());		
-			return maptoDataSet(user,name);	
+			final User user = this.backendController.getUser(name.id().toString());
+			return maptoDataSet(user,name);
 		}
-		catch(Exception e){
+		catch(final Exception e){
 			 throw new ApplicationRuntimeException(e);
-		}				
+		}
 	}
 
-	private DataSet maptoDataSet(User user, Name<String> userName) {
-					
-		DataSet dataSet=DataSets.createDataSet(userName);
-		DataSetHelper helper=DataSetUtils.newHelper(dataSet);
+	private DataSet maptoDataSet(final User user, final Name<String> userName) {
 
-		
+		final DataSet dataSet=DataSets.createDataSet(userName);
+		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
+
+
 		helper.
 		managedIndividual(userName, UserHandler.ID).
 			property(TYPE).
-				withIndividual(PERSONTYPE).				
+				withIndividual(PERSONTYPE).
 			property(NAME).
 				withLiteral(user.getName()).
 			property(NICK).
-				withLiteral(user.getUsername()).				
+				withLiteral(user.getUsername()).
 			property(EXTERNAL).
 				withLiteral(new Boolean(user.isExternal())).
 			property(COMMITTERID).
@@ -94,16 +93,14 @@ public class UserHandler implements ResourceHandler, UserVocabulary{
 				withLiteral(Mapper.toLiteral(new DateTime(user.getFirstCommitAt()).toDate())).
 			property(LASTCOMMIT).
 				withLiteral(Mapper.toLiteral(new DateTime(user.getLastCommitAt()).toDate()));
-//			property(MBOX).
-//				withLiteral(user.getEmail());
-		
-		for (String email:user.getEmails()){
+
+		for (final String email:user.getEmails()){
 			helper.
 			managedIndividual(userName, UserHandler.ID).
 				property(MBOX).
 					withLiteral(email);
 		}
-		
+
 		if ( user.getAvatarUrl() !=null){
 			helper.
 			managedIndividual(userName, UserHandler.ID).
@@ -114,9 +111,9 @@ public class UserHandler implements ResourceHandler, UserVocabulary{
 				property(TYPE).
 					withIndividual(IMAGE).
 				property(DEPICTS).
-					withIndividual(user.getAvatarUrl());		
+					withIndividual(user.getAvatarUrl());
 		}
-		
+
 		return dataSet;
 	}
 

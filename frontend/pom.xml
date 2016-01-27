@@ -43,7 +43,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
 	<artifactId>scm-harvester-frontend</artifactId>
 
 	<packaging>war</packaging>
@@ -81,6 +80,23 @@
 	</dependencyManagement>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
+			<artifactId>scm-harvester-backend</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.ldp4j.framework</groupId>
 			<artifactId>ldp4j-application-api</artifactId>
@@ -98,6 +114,7 @@
 			<groupId>org.ldp4j.framework</groupId>
 			<artifactId>ldp4j-server-core</artifactId>
 			<version>${ldp4j.version}</version>
+			<scope>runtime</scope>
 			<exclusions>
 				<exclusion>
 					<artifactId>geronimo-servlet_3.0_spec</artifactId>
@@ -128,36 +145,6 @@
 					<groupId>org.eclipse.jetty</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.4</version>
-		</dependency>
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
 		</dependency>
 
 		<dependency>

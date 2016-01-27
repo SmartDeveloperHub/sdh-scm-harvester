@@ -20,19 +20,19 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
- *   Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-frontend:0.3.0-SNAPSHOT
- *   Bundle      : scm-harvester.war
+ *   Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-backend:0.3.0-SNAPSHOT
+ *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
+package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
-public interface CommitVocabulary {
+public class ScmClient {
 
-	static final String TYPE       = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-	static final String ACTION     = "http://www.smartdeveloperhub.org/vocabulary/scm#Action";
-	static final String COMMIT     = "http://www.smartdeveloperhub.org/vocabulary/scm#Commit";
-	static final String CREATEDON     = "http://www.smartdeveloperhub.org/vocabulary/scm#createdOn";
-	static final String PERFORMEDBY   = "http://www.smartdeveloperhub.org/vocabulary/scm#performedBy";
-	static final String COMMITID   = "http://www.smartdeveloperhub.org/vocabulary/scm#commitId";
+	String scmRestService;
+	final int maxAttempts=5;
+
+	public ScmClient(final String scmRestService) {
+		this.scmRestService=scmRestService;
+	}
 
 }

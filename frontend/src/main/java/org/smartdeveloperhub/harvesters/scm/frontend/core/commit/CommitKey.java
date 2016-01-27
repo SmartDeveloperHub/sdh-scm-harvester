@@ -26,48 +26,40 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
-import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
 
-public class CommitKey implements Comparable<CommitKey> {	
-	
-	private String repoId;	
+public class CommitKey implements Comparable<CommitKey> {
+
+	private String repoId;
 	private String commitId;
-	
-	
-	
-	public CommitKey(String repoId, String commitId) {
+
+	public CommitKey(final String repoId, final String commitId) {
 		this.repoId=repoId;
 		this.commitId=commitId;
 	}
 
 	public String getRepoId() {
-		return repoId;
+		return this.repoId;
 	}
 
-
-
-	public void setRepoId(String repoId) {
+	public void setRepoId(final String repoId) {
 		this.repoId = repoId;
 	}
 
-
-
 	public String getCommitId() {
-		return commitId;
+		return this.commitId;
 	}
 
-
-
-	public void setCommitId(String commitId) {
+	public void setCommitId(final String commitId) {
 		this.commitId = commitId;
 	}
 
-
-
-	public int compareTo(CommitKey commitId) {
+	@Override
+	public int compareTo(final CommitKey commitId) {
 		if (this.commitId.equals(commitId.commitId))
 			if (this.repoId.equals(commitId.repoId))
 				return 0;
 		return 1;
 	}
+
 }
+

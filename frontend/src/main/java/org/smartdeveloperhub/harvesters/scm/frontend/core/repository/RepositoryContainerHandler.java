@@ -24,7 +24,7 @@
  *   Bundle      : scm-harvester.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
+package org.smartdeveloperhub.harvesters.scm.frontend.core.repository;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSets;
@@ -38,15 +38,13 @@ import org.ldp4j.application.session.ResourceSnapshot;
 import org.ldp4j.application.session.WriteSession;
 
 @DirectContainer(
-	id = CommitContainerHandler.ID,
-	memberHandler = CommitHandler.class,
-	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasCommit"
+	id = RepositoryContainerHandler.ID,
+	memberHandler = RepositoryHandler.class,
+	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasRepository"
 )
-public class CommitContainerHandler implements ContainerHandler {
+public class RepositoryContainerHandler  implements ContainerHandler {
 
-	public static final String ID="CommitContainerHandler";
-	public static final String path="commits/";
-	public static final String NAME = "CommitContainer";
+	public static final String ID="RepositoryContainerHandler";
 
 	@Override
 	public DataSet get(final ResourceSnapshot resource)
@@ -64,4 +62,5 @@ public class CommitContainerHandler implements ContainerHandler {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 }

@@ -26,8 +26,6 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.user;
 
-import java.net.URI;
-
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
@@ -38,29 +36,28 @@ import org.ldp4j.application.ext.annotations.DirectContainer;
 import org.ldp4j.application.session.ContainerSnapshot;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.ldp4j.application.session.WriteSession;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryContainerHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.Repository.RepositoryHandler;
 
 @DirectContainer(
-		id = UserContainerHandler.ID,
-		memberHandler = UserHandler.class,
-		membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasCommitter"
-	)
+	id = UserContainerHandler.ID,
+	memberHandler = UserHandler.class,
+	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasCommitter"
+)
 public class UserContainerHandler  implements ContainerHandler {
-	
+
 	public static final String ID="UserContainerHandler";
-	//public static final String path="committers/";
 	public static final String NAME = "UserContainer";
 
-	public DataSet get(ResourceSnapshot resource)
+	@Override
+	public DataSet get(final ResourceSnapshot resource)
 			throws UnknownResourceException, ApplicationRuntimeException {
 		return
 				DataSets.
 					createDataSet(resource.name());
 	}
 
-	public ResourceSnapshot create(ContainerSnapshot container,
-			DataSet representation, WriteSession session)
+	@Override
+	public ResourceSnapshot create(final ContainerSnapshot container,
+			final DataSet representation, final WriteSession session)
 			throws UnknownResourceException, UnsupportedContentException,
 			ApplicationRuntimeException {
 		// TODO Auto-generated method stub
