@@ -36,7 +36,6 @@ import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ResourceHandler;
-import org.ldp4j.application.ext.UnknownResourceException;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
@@ -55,7 +54,7 @@ public class BranchHandler implements ResourceHandler {
 	}
 
 	@Override
-	public DataSet get(final ResourceSnapshot resource) throws UnknownResourceException, ApplicationRuntimeException {
+	public DataSet get(final ResourceSnapshot resource) {
 		@SuppressWarnings("unchecked")
 		final Name<String> name = (Name<String>)resource.name();
 

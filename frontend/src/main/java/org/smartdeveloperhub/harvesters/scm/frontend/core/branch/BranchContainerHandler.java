@@ -42,8 +42,8 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Serviceable;
 )
 public class BranchContainerHandler extends Serviceable implements ContainerHandler {
 
-	public static final String ID="BranchContainerHandler";
-	public static final String path="branches/";
+	public static final String ID   = "BranchContainerHandler";
+	public static final String PATH = "branches/";
 	public static final String NAME = "BranchContainer";
 
 	@Override

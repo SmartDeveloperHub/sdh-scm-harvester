@@ -26,6 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
+import java.io.IOException;
+
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
 import org.smartdeveloperhub.harvesters.scm.backend.readers.BranchReader;
 import org.smartdeveloperhub.harvesters.scm.backend.rest.BranchClient;
@@ -33,9 +35,9 @@ import org.smartdeveloperhub.harvesters.scm.backend.rest.CommitClient;
 
 public class BranchController {
 
-	BranchClient branchClient;
-	CommitClient commitClient;
-	BranchReader branchReader;
+	private final BranchClient branchClient;
+	private final CommitClient commitClient;
+	private final BranchReader branchReader;
 
 	public BranchController(final String scmRestService){
 		this.branchClient = new BranchClient(scmRestService);
@@ -43,7 +45,7 @@ public class BranchController {
 		this.commitClient = new CommitClient(scmRestService);
 	}
 
-	public Branch getBranch(final String repoId, final String branchId) throws Exception{
+	public Branch getBranch(final String repoId, final String branchId) throws IOException {
 		final String branchIS=this.branchClient.getBranch(repoId, branchId);
 		final String commitsIS=this.commitClient.getCommits(repoId, branchId);
 		return this.branchReader.readBranch(branchIS,commitsIS);

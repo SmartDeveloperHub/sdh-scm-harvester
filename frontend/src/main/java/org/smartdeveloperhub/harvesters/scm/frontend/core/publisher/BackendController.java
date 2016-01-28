@@ -26,6 +26,7 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -87,7 +88,7 @@ public class BackendController {
 		this.commitIdentityMap = commitIdentityMap;
 	}
 
-	public GitLabHarvester createGitLabHarvester(final String id) throws Exception {
+	public GitLabHarvester createGitLabHarvester(final String id) throws IOException {
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
 		final Repositories repos = repoCtl.getRepositories();
 
@@ -100,11 +101,11 @@ public class BackendController {
 		return this.gitLabHarvester;
 	}
 
-	public GitLabHarvester getGitLabHarvester() throws Exception {
+	public GitLabHarvester getGitLabHarvester() {
 		return this.gitLabHarvester;
 	}
 
-	public List<String> getUsers() throws Exception {
+	public List<String> getUsers() throws IOException {
 		final Set<String> uniqueUsers = new HashSet<String>();
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
 		final Repositories repos = repoCtl.getRepositories();
@@ -120,27 +121,27 @@ public class BackendController {
 		return new ArrayList<String>(uniqueUsers);
 	}
 
-	public Repository getRepository(final String id) throws Exception {
+	public Repository getRepository(final String id) throws IOException {
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
 		return repoCtl.getRepository(id);
 	}
 
-	public User getUser(final String id) throws Exception {
+	public User getUser(final String id) throws IOException {
 		final UserController userCtl = new UserController(this.scmRestService);
 		return userCtl.getUser(id);
 	}
 
-	public Branch getBranch(final String repoId, final String branchId) throws Exception {
+	public Branch getBranch(final String repoId, final String branchId) throws IOException {
 		final BranchController branchCtl = new BranchController(this.scmRestService);
 		return branchCtl.getBranch(repoId, branchId);
 	}
 
-	public Commit getCommit(final String repoId, final String commitId) throws Exception {
+	public Commit getCommit(final String repoId, final String commitId) throws IOException {
 		final CommitController commitCtl = new CommitController(this.scmRestService);
 		return commitCtl.getCommit(repoId, commitId);
 	}
 
-	public static void main(final String[] args) throws Exception {
+	public static void main(final String[] args) throws IOException {
 		final BackendController bkend = new BackendController();
 		final Repository repo = bkend.getRepository("5");
 		LOGGER.info("{}",repo);

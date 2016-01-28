@@ -28,6 +28,9 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.repository;
 
 abstract class RepositoryVocabulary {
 
+	private RepositoryVocabulary() {
+	}
+
 	static final String TYPE          = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 	static final String DEVELOPER     = "http://usefulinc.com/ns/doap#developer";

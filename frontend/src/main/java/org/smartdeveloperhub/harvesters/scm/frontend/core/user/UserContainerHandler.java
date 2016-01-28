@@ -42,7 +42,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Serviceable;
 )
 public class UserContainerHandler extends Serviceable implements ContainerHandler {
 
-	public static final String ID="UserContainerHandler";
+	public static final String ID   = "UserContainerHandler";
 	public static final String NAME = "UserContainer";
 
 	@Override

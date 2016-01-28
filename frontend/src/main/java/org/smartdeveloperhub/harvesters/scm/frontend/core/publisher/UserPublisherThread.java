@@ -26,11 +26,16 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
+import java.io.IOException;
+
 import org.ldp4j.application.ApplicationContext;
+import org.ldp4j.application.ApplicationContextException;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.session.ContainerSnapshot;
+import org.ldp4j.application.session.SessionTerminationException;
 import org.ldp4j.application.session.WriteSession;
+import org.ldp4j.application.session.WriteSessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
@@ -71,7 +76,7 @@ public class UserPublisherThread extends Thread {
 		LOGGER.info("Starting {}",THREAD_NAME);
 	}
 
-	public void publishUserResources(final ApplicationContext ctx) throws Exception{
+	public void publishUserResources(final ApplicationContext ctx) throws IOException, SessionTerminationException, ApplicationContextException, WriteSessionException {
 		try(WriteSession session = ctx.createSession()){
 			final Name<String> userContainerName = NamingScheme.getDefault().name(UserContainerHandler.NAME);
 			final ContainerSnapshot userContainerSnapshot = session.find(ContainerSnapshot.class, userContainerName ,UserContainerHandler.class);

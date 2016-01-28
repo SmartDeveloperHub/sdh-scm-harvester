@@ -27,6 +27,8 @@
 package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
 
+import java.io.IOException;
+
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.backend.readers.RepositoryReader;
@@ -35,10 +37,11 @@ import org.smartdeveloperhub.harvesters.scm.backend.rest.CommitClient;
 import org.smartdeveloperhub.harvesters.scm.backend.rest.RepositoryClient;
 
 public class RepositoryController {
-	RepositoryClient repositoryClient;
-	BranchClient branchClient;
-	RepositoryReader repositoryReader;
-	CommitClient commitClient;
+
+	private final RepositoryClient repositoryClient;
+	private final BranchClient branchClient;
+	private final RepositoryReader repositoryReader;
+	private final CommitClient commitClient;
 
 	public RepositoryController(final String scmRestService){
 		this.repositoryClient = new RepositoryClient(scmRestService);
@@ -47,31 +50,23 @@ public class RepositoryController {
 		this.commitClient = new CommitClient(scmRestService);
 	}
 
-	public Repositories getRepositories() throws Exception{
-
+	public Repositories getRepositories() throws IOException {
 		final String repositoriesIS = this.repositoryClient.getRepositories();
 		return this.repositoryReader.readReposistories(repositoriesIS);
 	}
 
-	public Repository getRepository(final String repoId) throws Exception{
+	public Repository getRepository(final String repoId) throws IOException {
 		final String repositoryIS = this.repositoryClient.getRepository(repoId);
 		final String branchesIS = this.branchClient.getBranches(repoId);
 		final String commitsIS = this.commitClient.getCommits(repoId);
 		return this.repositoryReader.readRepository(repositoryIS, branchesIS, commitsIS);
 	}
 
-
-	public Repository getRepositoryWithoutBranchCommit(final String repoId) throws Exception{
+	public Repository getRepositoryWithoutBranchCommit(final String repoId) throws IOException {
 		final String repositoryIS = this.repositoryClient.getRepository(repoId);
 		final String branchesIS="";
 		final String commitsIS="";
 		return this.repositoryReader.readRepository(repositoryIS, branchesIS, commitsIS);
 	}
-
-//	public Commits getCommits(String repoId) throws Exception{
-//		String commitsIS = commitClient.getCommits(repoId);
-//		return repositoryReader.readCommits(commitsIS);
-//	}
-
 
 }

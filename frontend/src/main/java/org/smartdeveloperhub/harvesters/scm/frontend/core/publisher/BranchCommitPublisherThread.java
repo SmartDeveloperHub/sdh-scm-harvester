@@ -26,12 +26,16 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
+import java.io.IOException;
+
 import org.ldp4j.application.ApplicationContext;
+import org.ldp4j.application.ApplicationContextException;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.session.ContainerSnapshot;
-import org.ldp4j.application.session.ResourceSnapshot;
+import org.ldp4j.application.session.SessionTerminationException;
 import org.ldp4j.application.session.WriteSession;
+import org.ldp4j.application.session.WriteSessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
@@ -85,7 +89,7 @@ public class BranchCommitPublisherThread extends Thread {
 		LOGGER.info("Starting {}...",THREAD_NAME);
 	}
 
-	public void addBranchMemberstToRepository(final ApplicationContext ctx, final Integer repositoryId, final Repository repository) throws Exception{
+	public void addBranchMemberstToRepository(final ApplicationContext ctx, final Integer repositoryId, final Repository repository) throws IOException, SessionTerminationException, ApplicationContextException, WriteSessionException {
 		try( WriteSession session = ctx.createSession() ) {
 			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
 
@@ -100,8 +104,7 @@ public class BranchCommitPublisherThread extends Thread {
 					final Name<String> branchName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),branchId);
 					//keeptrack of the branch key and resource name
 					this.controller.getBranchIdentityMap().addKey(new BranchKey(Integer.toString(repository.getId()),branchId), branchName);
-					@SuppressWarnings("unused")
-					final ResourceSnapshot branchSnapshot = branchContainerSnapshot.addMember(branchName);
+					branchContainerSnapshot.addMember(branchName);
 				}
 			}
 			session.modify(branchContainerSnapshot);
@@ -109,7 +112,7 @@ public class BranchCommitPublisherThread extends Thread {
 		}
 	 }
 
-	 public void addCommitMembersToRepository(final ApplicationContext ctx, final Integer repositoryId, final Repository repository) throws Exception{
+	 public void addCommitMembersToRepository(final ApplicationContext ctx, final Integer repositoryId, final Repository repository) throws IOException, SessionTerminationException, ApplicationContextException, WriteSessionException {
 		 try( WriteSession session = ctx.createSession() ) {
 			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
 
@@ -120,8 +123,7 @@ public class BranchCommitPublisherThread extends Thread {
 					final Name<String> commitName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),commitId);
 					//keeptrack of the branch key and resource name
 					this.controller.getCommitIdentityMap().addKey(new CommitKey(Integer.toString(repository.getId()),commitId), commitName);
-					@SuppressWarnings("unused")
-					final ResourceSnapshot commitSnapshot=commitContainerSnapshot.addMember(commitName);
+					commitContainerSnapshot.addMember(commitName);
 				}
 			}
 

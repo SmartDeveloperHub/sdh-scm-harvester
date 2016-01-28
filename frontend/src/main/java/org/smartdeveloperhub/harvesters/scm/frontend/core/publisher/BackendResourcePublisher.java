@@ -26,6 +26,7 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
+import java.io.IOException;
 import java.net.URI;
 
 import org.ldp4j.application.data.Name;
@@ -55,7 +56,42 @@ public class BackendResourcePublisher {
 		this.session=session;
 	}
 
-	public void publishHarvesterResources(final URI target) throws Exception{
+	private void addRepositoryMembersToHarvester(final URI target, final ContainerSnapshot repositoryContainerSnapshot) throws IOException {
+		final GitLabHarvester gitLabHarvester = this.controller.createGitLabHarvester(target.toString());
+		for (final Integer repositoryId:gitLabHarvester.getRepositories()){
+			LOGGER.debug("Starting to publish resource for repository {} @ {} ({})",repositoryId, repositoryContainerSnapshot.name(),repositoryContainerSnapshot.templateId());
+
+			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
+
+			final ResourceSnapshot repositorySnapshot = repositoryContainerSnapshot.addMember(repositoryName);
+
+			repositorySnapshot.
+				createAttachedResource(
+					ContainerSnapshot.class,
+					RepositoryHandler.REPOSITORY_BRANCHES,
+					repositoryName,
+					BranchContainerHandler.class);
+
+			//Repository repo=controller.getRepository(Integer.toString(repositoryId));
+
+//			addBranchMemberstToRepository(repo, branchContainerSnapshot);
+
+			repositorySnapshot.
+				createAttachedResource(
+					ContainerSnapshot.class,
+					RepositoryHandler.REPOSITORY_COMMITS,
+					repositoryName,
+					CommitContainerHandler.class);
+
+//			ThreadedPublisher threadedPublisher = new ThreadedPublisher(branchContainerSnapshot,commitContainerSnapshot, repo, controller);
+//			threadedPublisher.start();
+//			addCommitMembersToRepository(repo, commitContainerSnapshot);
+
+			LOGGER.debug("Published resource for repository {} @ {} ({})",repositoryId, repositoryContainerSnapshot.name(),repositoryContainerSnapshot.templateId());
+			}
+		}
+
+	public void publishHarvesterResources(final URI target) throws IOException {
 		LOGGER.info("Publishing SCM Harvester Resource...");
 
 		final Name<URI> harvesterName = NamingScheme.getDefault().name(target);
@@ -65,9 +101,12 @@ public class BackendResourcePublisher {
 												  harvesterName, RepositoryContainerHandler.class);
 		LOGGER.debug("Published repository container for service {}", harvesterName);
 
-		@SuppressWarnings("unused")
-		final ContainerSnapshot userContainerSnapshot = harvesterSnapshot.createAttachedResource( ContainerSnapshot.class, HarvesterHandler.HARVESTER_COMMITTERS,
-				NamingScheme.getDefault().name(UserContainerHandler.NAME), UserContainerHandler.class);
+		harvesterSnapshot.
+			createAttachedResource(
+				ContainerSnapshot.class,
+				HarvesterHandler.HARVESTER_COMMITTERS,
+				NamingScheme.getDefault().name(UserContainerHandler.NAME),
+				UserContainerHandler.class);
 		LOGGER.debug("Published user container for service {}", harvesterName);
 
 		//only add the repository to the container (Does not include branch or commit information)
@@ -75,34 +114,7 @@ public class BackendResourcePublisher {
 
 	}
 
-	private void addRepositoryMembersToHarvester(final URI target, final ContainerSnapshot repositoryContainerSnapshot) throws Exception{
-		final GitLabHarvester gitLabHarvester = this.controller.createGitLabHarvester(target.toString());
-		for (final Integer repositoryId:gitLabHarvester.getRepositories()){
-			LOGGER.debug("Starting to publish resource for repository {} @ {} ({})",repositoryId, repositoryContainerSnapshot.name(),repositoryContainerSnapshot.templateId());
 
-			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
-
-			final ResourceSnapshot repositorySnapshot = repositoryContainerSnapshot.addMember(repositoryName);
-
-			@SuppressWarnings("unused")
-			final ContainerSnapshot branchContainerSnapshot = repositorySnapshot.createAttachedResource( ContainerSnapshot.class, RepositoryHandler.REPOSITORY_BRANCHES,
-					repositoryName, BranchContainerHandler.class);
-
-			//Repository repo=controller.getRepository(Integer.toString(repositoryId));
-
-//			addBranchMemberstToRepository(repo, branchContainerSnapshot);
-
-			@SuppressWarnings("unused")
-			final ContainerSnapshot commitContainerSnapshot = repositorySnapshot.createAttachedResource( ContainerSnapshot.class, RepositoryHandler.REPOSITORY_COMMITS,
-					repositoryName, CommitContainerHandler.class);
-
-//			ThreadedPublisher threadedPublisher = new ThreadedPublisher(branchContainerSnapshot,commitContainerSnapshot, repo, controller);
-//			threadedPublisher.start();
-//			addCommitMembersToRepository(repo, commitContainerSnapshot);
-
-			LOGGER.debug("Published resource for repository {} @ {} ({})",repositoryId, repositoryContainerSnapshot.name(),repositoryContainerSnapshot.templateId());
-		}
-	}
 
 //	private void addBranchMemberstToRepository(Repository repository, ContainerSnapshot branchContainerSnapshot) throws Exception{
 //		for (String branchId:repository.getBranches().getBranchIds()){
@@ -124,7 +136,7 @@ public class BackendResourcePublisher {
 //
 //	}
 
-	public void publishUserResources() throws Exception{
+	public void publishUserResources() throws IOException {
 		final Name<String> userContainerName = NamingScheme.getDefault().name(UserContainerHandler.NAME);
 		final ContainerSnapshot userContainerSnapshot = this.session.find(ContainerSnapshot.class, userContainerName ,UserContainerHandler.class);
 		if(userContainerSnapshot==null) {

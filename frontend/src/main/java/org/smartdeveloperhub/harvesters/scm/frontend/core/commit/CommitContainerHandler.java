@@ -42,8 +42,8 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Serviceable;
 )
 public class CommitContainerHandler extends Serviceable implements ContainerHandler {
 
-	public static final String ID="CommitContainerHandler";
-	public static final String path="commits/";
+	public static final String ID   = "CommitContainerHandler";
+	public static final String PATH = "commits/";
 	public static final String NAME = "CommitContainer";
 
 	@Override

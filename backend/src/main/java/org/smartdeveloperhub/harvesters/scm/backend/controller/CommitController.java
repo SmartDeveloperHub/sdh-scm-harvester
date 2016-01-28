@@ -26,21 +26,23 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
+import java.io.IOException;
+
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.backend.readers.CommitReader;
 import org.smartdeveloperhub.harvesters.scm.backend.rest.CommitClient;
 
 public class CommitController {
 
-	CommitClient commitClient;
-	CommitReader commitReader;
+	private final CommitClient commitClient;
+	private final CommitReader commitReader;
 
 	public CommitController(final String scmRestService){
 		this.commitClient = new CommitClient(scmRestService);
 		this.commitReader = new CommitReader();
 	}
 
-	public Commit getCommit(final String repoId, final String commitId) throws Exception{
+	public Commit getCommit(final String repoId, final String commitId) throws IOException {
 		final String commitIS = this.commitClient.getCommit(repoId, commitId);
 		return this.commitReader.readCommit(commitIS);
 	}

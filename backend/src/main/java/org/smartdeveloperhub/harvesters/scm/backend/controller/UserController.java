@@ -26,21 +26,23 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
+import java.io.IOException;
+
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
 import org.smartdeveloperhub.harvesters.scm.backend.readers.UserReader;
 import org.smartdeveloperhub.harvesters.scm.backend.rest.UserClient;
 
 public class UserController {
 
-	UserClient userClient;
-	UserReader userReader;
+	private final UserClient userClient;
+	private final UserReader userReader;
 
 	public UserController(final String scmRestService){
 		this.userClient = new UserClient(scmRestService);
 		this.userReader = new UserReader();
 	}
 
-	public User getUser(final String userId) throws Exception{
+	public User getUser(final String userId) throws IOException {
 		final String userIS = this.userClient.getUser(userId);
 		return this.userReader.readUser(userIS);
 	}
