@@ -27,18 +27,19 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.ldp4j.application.ApplicationContext;
-import org.ldp4j.application.ApplicationContextException;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.session.ContainerSnapshot;
-import org.ldp4j.application.session.SessionTerminationException;
 import org.ldp4j.application.session.WriteSession;
-import org.ldp4j.application.session.WriteSessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
+
+import com.google.common.base.Stopwatch;
 
 public class UserPublisherThread extends Thread {
 
@@ -55,20 +56,16 @@ public class UserPublisherThread extends Thread {
 	@Override
 	public void run() {
 		LOGGER.info("Running {}...",THREAD_NAME);
-		final long startTime = System.currentTimeMillis();
-
+		final Stopwatch watch = Stopwatch.createStarted();
 		try {
-			final ApplicationContext ctx = ApplicationContext.getInstance();
-			publishUserResources(ctx);
+			publishUserResources(ApplicationContext.getInstance());
 		} catch (final Exception e) {
-			LOGGER.error("Could not update repository information resource", e);
+			LOGGER.error("Could not update repository users", e);
 		} finally {
-			LOGGER.debug("Finalized update repository process");
+			LOGGER.debug("Finalized repository users update process");
 		}
-
-		final long stopTime = System.currentTimeMillis();
-		final long elapsedTime = stopTime - startTime;
-		LOGGER.info("{} Elapsed time (ms): {}",THREAD_NAME,elapsedTime);
+		watch.stop();
+		LOGGER.info("{} Elapsed time (ms): {}",THREAD_NAME,watch.elapsed(TimeUnit.MILLISECONDS));
 	}
 
 	@Override
@@ -76,22 +73,25 @@ public class UserPublisherThread extends Thread {
 		LOGGER.info("Starting {}",THREAD_NAME);
 	}
 
-	public void publishUserResources(final ApplicationContext ctx) throws IOException, SessionTerminationException, ApplicationContextException, WriteSessionException {
+	private void publishUserResources(final ApplicationContext ctx) throws IOException {
 		try(WriteSession session = ctx.createSession()){
 			final Name<String> userContainerName = NamingScheme.getDefault().name(UserContainerHandler.NAME);
-			final ContainerSnapshot userContainerSnapshot = session.find(ContainerSnapshot.class, userContainerName ,UserContainerHandler.class);
+			final ContainerSnapshot userContainerSnapshot = session.find(ContainerSnapshot.class,userContainerName,UserContainerHandler.class);
 			if(userContainerSnapshot==null) {
-				LOGGER.warn("User Container does not exist");
+				LOGGER.warn("User container does not exist");
 				return;
 			}
-
-			for(final String userId:this.controller.getUsers()){
-				final Name<String> userName = NamingScheme.getDefault().name(userId);
-				userContainerSnapshot.addMember(userName);
+			final List<String> users = this.controller.getUsers();
+			if(!users.isEmpty()) {
+				for(final String userId:users){
+					final Name<String> userName = NamingScheme.getDefault().name(userId);
+					userContainerSnapshot.addMember(userName);
+				}
+				session.modify(userContainerSnapshot);
+				session.saveChanges();
 			}
-
-			session.modify(userContainerSnapshot);
-			session.saveChanges();
+		} catch(final Exception e) {
+			throw new IOException("Could not publish member resources",e);
 		}
 	}
 

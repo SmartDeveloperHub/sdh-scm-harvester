@@ -26,36 +26,22 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.branch;
 
-import org.ldp4j.application.data.DataSet;
-import org.ldp4j.application.data.DataSets;
-import org.ldp4j.application.ext.ContainerHandler;
 import org.ldp4j.application.ext.annotations.DirectContainer;
-import org.ldp4j.application.session.ContainerSnapshot;
-import org.ldp4j.application.session.ResourceSnapshot;
-import org.ldp4j.application.session.WriteSession;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Serviceable;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedContainerHandler;
 
 @DirectContainer(
 	id = BranchContainerHandler.ID,
 	memberHandler = BranchHandler.class,
 	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasBranch"
 )
-public class BranchContainerHandler extends Serviceable implements ContainerHandler {
+public class BranchContainerHandler extends AbstractCappedContainerHandler {
 
 	public static final String ID   = "BranchContainerHandler";
 	public static final String PATH = "branches/";
 	public static final String NAME = "BranchContainer";
 
-	@Override
-	public DataSet get(final ResourceSnapshot resource) {
-		// For the time there is nothing to return
-		return DataSets.createDataSet(resource.name());
-	}
-
-	@Override
-	public ResourceSnapshot create(final ContainerSnapshot container, final DataSet representation, final WriteSession session) {
-		trace("Requested branch creation from: %n%s",representation);
-		throw super.unexpectedFailure("Branch creation is not supported");
+	public BranchContainerHandler() {
+		super("branch");
 	}
 
 }

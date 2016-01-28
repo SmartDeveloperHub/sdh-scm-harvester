@@ -24,24 +24,34 @@
  *   Bundle      : scm-harvester.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
+package org.smartdeveloperhub.harvesters.scm.frontend.core.util;
 
-import org.ldp4j.application.ext.annotations.DirectContainer;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedContainerHandler;
+import org.ldp4j.application.data.DataSet;
+import org.ldp4j.application.data.DataSets;
+import org.ldp4j.application.ext.ContainerHandler;
+import org.ldp4j.application.session.ContainerSnapshot;
+import org.ldp4j.application.session.ResourceSnapshot;
+import org.ldp4j.application.session.WriteSession;
 
-@DirectContainer(
-	id = CommitContainerHandler.ID,
-	memberHandler = CommitHandler.class,
-	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasCommit"
-)
-public class CommitContainerHandler extends AbstractCappedContainerHandler {
+import com.google.common.base.CaseFormat;
 
-	public static final String ID   = "CommitContainerHandler";
-	public static final String PATH = "commits/";
-	public static final String NAME = "CommitContainer";
+public abstract class AbstractCappedContainerHandler extends Serviceable implements ContainerHandler {
 
-	public CommitContainerHandler() {
-		super("commit");
+	private final String artifact;
+
+	public AbstractCappedContainerHandler(final String artifact) {
+		this.artifact = artifact;
+	}
+
+	@Override
+	public final DataSet get(final ResourceSnapshot resource) {
+		return DataSets.createDataSet(resource.name());
+	}
+
+	@Override
+	public final ResourceSnapshot create(final ContainerSnapshot container, final DataSet representation, final WriteSession session) {
+		trace("Requested %s creation from: %n%s",this.artifact,representation);
+		throw super.unexpectedFailure("%s creation is not supported",CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, this.artifact));
 	}
 
 }

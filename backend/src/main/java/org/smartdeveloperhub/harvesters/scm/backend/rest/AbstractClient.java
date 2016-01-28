@@ -29,7 +29,6 @@ package org.smartdeveloperhub.harvesters.scm.backend.rest;
 import java.io.IOException;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -69,7 +68,7 @@ abstract class AbstractClient {
 	 * redirections, show we re-attempt on 4XX, what do we do with 5XX?) and
 	 * whether or not we expect a body...
 	 */
-	private String attemptRetrieval(final CloseableHttpClient client, final String resourcePath) throws IOException, ClientProtocolException {
+	private String attemptRetrieval(final CloseableHttpClient client, final String resourcePath) throws IOException {
 		final HttpGet httpGet = new HttpGet(this.scmRestService+resourcePath);
 		httpGet.addHeader("accept", "application/json");
 		this.logger.info("Call {}",httpGet.getURI());

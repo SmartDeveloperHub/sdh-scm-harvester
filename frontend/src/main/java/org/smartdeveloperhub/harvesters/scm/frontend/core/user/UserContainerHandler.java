@@ -26,35 +26,21 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.user;
 
-import org.ldp4j.application.data.DataSet;
-import org.ldp4j.application.data.DataSets;
-import org.ldp4j.application.ext.ContainerHandler;
 import org.ldp4j.application.ext.annotations.DirectContainer;
-import org.ldp4j.application.session.ContainerSnapshot;
-import org.ldp4j.application.session.ResourceSnapshot;
-import org.ldp4j.application.session.WriteSession;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Serviceable;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedContainerHandler;
 
 @DirectContainer(
 	id = UserContainerHandler.ID,
 	memberHandler = UserHandler.class,
 	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasCommitter"
 )
-public class UserContainerHandler extends Serviceable implements ContainerHandler {
+public class UserContainerHandler extends AbstractCappedContainerHandler {
 
 	public static final String ID   = "UserContainerHandler";
 	public static final String NAME = "UserContainer";
 
-	@Override
-	public DataSet get(final ResourceSnapshot resource) {
-		// For the time there is nothing to return
-		return DataSets.createDataSet(resource.name());
-	}
-
-	@Override
-	public ResourceSnapshot create(final ContainerSnapshot container, final DataSet representation, final WriteSession session) {
-		trace("Requested user creation from: %n%s",representation);
-		throw super.unexpectedFailure("User creation is not supported");
+	public UserContainerHandler() {
+		super("user");
 	}
 
 }
