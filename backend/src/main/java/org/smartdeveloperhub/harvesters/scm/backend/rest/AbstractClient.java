@@ -29,6 +29,7 @@ package org.smartdeveloperhub.harvesters.scm.backend.rest;
 import java.io.IOException;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -37,7 +38,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ScmClient {
+abstract class AbstractClient {
 
 	protected static final int MAX_ATTEMPTS=5;
 
@@ -45,36 +46,43 @@ public class ScmClient {
 
 	private final String scmRestService;
 
-	public ScmClient(final String scmRestService) {
+	public AbstractClient(final String scmRestService) {
 		this.scmRestService=scmRestService;
 		this.logger=LoggerFactory.getLogger(getClass());
 	}
 
-	protected final String getResource(final String resourcePath) throws IOException {
+	protected final String getResource(final String path, final Object... args) throws IOException {
 		int attempts=0;
 		while(attempts<MAX_ATTEMPTS){
 			attempts++;
-			try(CloseableHttpClient httpclient = HttpClients.createDefault()) {
-				final HttpGet httpGet = new HttpGet(this.scmRestService+resourcePath);
-				this.logger.info("Call {}",httpGet.getURI());
-				httpGet.addHeader("accept", "application/json");
-				try(CloseableHttpResponse response1 = httpclient.execute(httpGet)){
-					final int status = response1.getStatusLine().getStatusCode();
-					if (status >= 200 && status < 300) {
-						this.logger.info("response {}",status);
-						final HttpEntity entity = response1.getEntity();
-						return entity != null ? EntityUtils.toString(entity) : null;
-					} else {
-						this.logger.info("HTTP GET fail with response code {}",response1.getStatusLine());
-					}
-				} catch(final Exception e){
-					this.logger.info("Not raised Exception {}",e);
-				}
+			try(CloseableHttpClient client=HttpClients.createDefault()) {
+				return attemptRetrieval(client,String.format(path,args));
 			} catch(final Exception e){
-				this.logger.info("Not raised Exception {}",e);
+				this.logger.warn("Ignored exception",e);
 			}
 		}
 		throw new IOException("Maximum attempts for HTTP GET reached");
+	}
+
+	/**
+	 * TODO: Refine the behavior on failure (e.g., should we follow
+	 * redirections, show we re-attempt on 4XX, what do we do with 5XX?) and
+	 * whether or not we expect a body...
+	 */
+	private String attemptRetrieval(final CloseableHttpClient client, final String resourcePath) throws IOException, ClientProtocolException {
+		final HttpGet httpGet = new HttpGet(this.scmRestService+resourcePath);
+		httpGet.addHeader("accept", "application/json");
+		this.logger.info("Call {}",httpGet.getURI());
+		try(CloseableHttpResponse response = client.execute(httpGet)){
+			final int status = response.getStatusLine().getStatusCode();
+			if (status >= 200 && status < 300) {
+				this.logger.info("Response: {}",response.getStatusLine());
+				final HttpEntity entity = response.getEntity();
+				return entity != null ? EntityUtils.toString(entity) : null;
+			} else {
+				throw new IOException("Resource retrieval failed with response code "+response.getStatusLine());
+			}
+		}
 	}
 
 }

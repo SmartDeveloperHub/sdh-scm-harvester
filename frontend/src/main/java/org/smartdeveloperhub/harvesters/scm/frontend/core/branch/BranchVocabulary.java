@@ -28,9 +28,6 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.branch;
 
 abstract class BranchVocabulary {
 
-	private BranchVocabulary() {
-	}
-
 	static final String TYPE       = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 	static final String NAME       = "http://usefulinc.com/ns/doap#name";
@@ -39,5 +36,8 @@ abstract class BranchVocabulary {
 	static final String CREATEDON  = "http://www.smartdeveloperhub.org/vocabulary/scm#createdOn";
 	static final String HASCOMMIT  = "http://www.smartdeveloperhub.org/vocabulary/scm#hasCommit";
 	static final String ISTARGETOF = "http://www.smartdeveloperhub.org/vocabulary/scm#isTargetOf";
+
+	private BranchVocabulary() {
+	}
 
 }

@@ -28,22 +28,22 @@ package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
 import java.io.IOException;
 
-public class CommitClient extends ScmClient{
+public class CommitClient extends AbstractClient{
 
 	public CommitClient(final String scmRestService) {
 		super(scmRestService);
 	}
 
 	public String getCommits(final String repoId, final String branchId) throws IOException {
-		return getResource("/projects/"+repoId+"/branches/"+branchId+"/commits");
+		return getResource("/projects/%s/branches/%s/commits",repoId,branchId);
 	}
 
 	public String getCommit(final String repoId, final String commitId) throws IOException {
-		return getResource("/projects/"+repoId+"/commits/"+commitId);
+		return getResource("/projects/%s/commits/%s",repoId,commitId);
 	}
 
 	public String getCommits(final String repoId) throws IOException {
-		return getResource("/projects/"+repoId+"/commits");
+		return getResource("/projects/%s/commits",repoId);
 	}
 
 }

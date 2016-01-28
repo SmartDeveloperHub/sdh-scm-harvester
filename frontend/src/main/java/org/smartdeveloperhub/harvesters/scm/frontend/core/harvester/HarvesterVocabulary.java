@@ -53,4 +53,7 @@ abstract class HarvesterVocabulary {
 
 	static final String SCM_V1_TTL                     = "http://www.smartdeveloperhub.org/vocabulary/v1/scm.ttl";
 
+	private HarvesterVocabulary() {
+	}
+
 }

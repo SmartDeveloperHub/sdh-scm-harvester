@@ -28,9 +28,6 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
 abstract class CommitVocabulary {
 
-	private CommitVocabulary() {
-	}
-
 	static final String TYPE        = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 	static final String ACTION      = "http://www.smartdeveloperhub.org/vocabulary/scm#Action";
@@ -38,5 +35,8 @@ abstract class CommitVocabulary {
 	static final String CREATEDON   = "http://www.smartdeveloperhub.org/vocabulary/scm#createdOn";
 	static final String PERFORMEDBY = "http://www.smartdeveloperhub.org/vocabulary/scm#performedBy";
 	static final String COMMITID    = "http://www.smartdeveloperhub.org/vocabulary/scm#commitId";
+
+	private CommitVocabulary() {
+	}
 
 }

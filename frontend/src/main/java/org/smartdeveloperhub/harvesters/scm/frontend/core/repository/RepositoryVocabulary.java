@@ -28,9 +28,6 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.repository;
 
 abstract class RepositoryVocabulary {
 
-	private RepositoryVocabulary() {
-	}
-
 	static final String TYPE          = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 	static final String DEVELOPER     = "http://usefulinc.com/ns/doap#developer";
@@ -54,5 +51,8 @@ abstract class RepositoryVocabulary {
 	static final String REPOSITORYID  = "http://www.smartdeveloperhub.org/vocabulary/scm#repositoryId";
 	static final String TAGS          = "http://www.smartdeveloperhub.org/vocabulary/scm#tags";
 	static final String REPOSITORYOF  = "http://www.smartdeveloperhub.org/vocabulary/scm#isRepositoryOf";
+
+	private RepositoryVocabulary() {
+	}
 
 }

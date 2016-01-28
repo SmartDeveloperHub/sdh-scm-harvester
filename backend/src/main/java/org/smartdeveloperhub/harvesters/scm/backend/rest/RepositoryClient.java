@@ -28,7 +28,7 @@ package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
 import java.io.IOException;
 
-public class RepositoryClient extends ScmClient {
+public class RepositoryClient extends AbstractClient {
 
 	public RepositoryClient(final String scmRestService) {
 		super(scmRestService);
@@ -39,7 +39,7 @@ public class RepositoryClient extends ScmClient {
 	}
 
 	public String getRepository(final String repoId) throws IOException {
-		return getResource("/projects/"+repoId);
+		return getResource("/projects/%s",repoId);
 	}
 
 }

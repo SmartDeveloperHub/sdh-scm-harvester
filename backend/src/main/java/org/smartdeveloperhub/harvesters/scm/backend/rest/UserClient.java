@@ -28,14 +28,14 @@ package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
 import java.io.IOException;
 
-public class UserClient extends ScmClient {
+public class UserClient extends AbstractClient {
 
 	public UserClient(final String scmRestService) {
 		super(scmRestService);
 	}
 
 	public String getUser(final String userId) throws IOException {
-		return getResource("/users/"+userId);
+		return getResource("/users/%s",userId);
 	}
 
 }

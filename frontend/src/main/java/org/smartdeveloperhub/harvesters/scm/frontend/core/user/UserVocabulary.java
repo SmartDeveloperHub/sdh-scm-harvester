@@ -28,9 +28,6 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.user;
 
 abstract class UserVocabulary {
 
-	private UserVocabulary() {
-	}
-
 	static final String TYPE          = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 	static final String IMG           = "http://xmlns.com/foaf/0.1/img";
@@ -47,5 +44,8 @@ abstract class UserVocabulary {
 	static final String EXTERNAL      = "http://www.smartdeveloperhub.org/vocabulary/scm#external";
 
 	static final String CORRESPONDSTO = "http://www.smartdeveloperhub.org/vocabulary/platform#correspondsTo";
+
+	private UserVocabulary() {
+	}
 
 }

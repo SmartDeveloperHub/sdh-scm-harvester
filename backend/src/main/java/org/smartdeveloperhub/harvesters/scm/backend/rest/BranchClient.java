@@ -28,18 +28,18 @@ package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
 import java.io.IOException;
 
-public class BranchClient extends ScmClient{
+public class BranchClient extends AbstractClient{
 
 	public BranchClient(final String scmRestService) {
 		super(scmRestService);
 	}
 
 	public String getBranches(final String repoId) throws IOException {
-		return getResource("/projects/"+repoId+"/branches");
+		return getResource("/projects/%s/branches",repoId);
 	}
 
 	public String getBranch(final String repoId, final String branchId) throws IOException {
-		return getResource("/projects/"+repoId+"/branches/"+branchId);
+		return getResource("/projects/%s/branches/%s",repoId,branchId);
 	}
 
 }
