@@ -29,37 +29,42 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.common.base.MoreObjects;
+
 public class GitLabHarvester {
 
 	private String id;
 	private Set<Integer> repositoryIds;
-	
+
 	public String getId() {
-		return id;
+		return this.id;
 	}
-	public void setId(String id) {
+	public void setId(final String id) {
 		this.id = id;
 	}
 	public Set<Integer> getRepositories() {
-		return repositoryIds;
+		return this.repositoryIds;
 	}
-	public void setRepositories(Set<Integer> repositoryIds) {
+	public void setRepositories(final Set<Integer> repositoryIds) {
 		this.repositoryIds = repositoryIds;
 	}
-	
-	public void addRepository(Integer repositoryId){
-		if (repositoryIds == null) {
-			repositoryIds = new HashSet<Integer>();
-		} 
-		repositoryIds.add(repositoryId);
-	}
-	
-	public String toString(){
-		String output;
-		output="harvesterId ="+id;
-		for (Integer repoId: repositoryIds){
-			output+=", repoId ="+repoId;
+
+	public void addRepository(final Integer repositoryId){
+		if (this.repositoryIds == null) {
+			this.repositoryIds = new HashSet<Integer>();
 		}
-		return output;
+		this.repositoryIds.add(repositoryId);
 	}
+
+	@Override
+	public String toString() {
+		return
+			MoreObjects.
+				toStringHelper(getClass()).
+					omitNullValues().
+					add("id",this.id).
+					add("repositoryIds", this.repositoryIds).
+					toString();
+	}
+
 }

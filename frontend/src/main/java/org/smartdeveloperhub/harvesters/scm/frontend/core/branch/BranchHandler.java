@@ -44,61 +44,54 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 
 @Resource(id=BranchHandler.ID)
-public class BranchHandler implements ResourceHandler, BranchVocabulary{
+public class BranchHandler implements ResourceHandler {
 
 	public static final String ID="BranchHandler";
-	BackendController backendController;
-	
-	public BranchHandler(BackendController backendController) {	
+
+	private final BackendController backendController;
+
+	public BranchHandler(final BackendController backendController) {
 		this.backendController = backendController;
 	}
-	
-	public DataSet get(ResourceSnapshot resource) throws UnknownResourceException,
-		ApplicationRuntimeException {		
+
+	@Override
+	public DataSet get(final ResourceSnapshot resource) throws UnknownResourceException, ApplicationRuntimeException {
 		@SuppressWarnings("unchecked")
-		Name<String> name = (Name<String>)resource.name();
-		
-		BranchKey branchKey=backendController.getBranchIdentityMap().getKey(name);
-		
+		final Name<String> name = (Name<String>)resource.name();
+
+		final BranchKey branchKey=this.backendController.getBranchIdentityMap().getKey(name);
+
 		try{
-			Branch branch= backendController.getBranch(branchKey.getRepoId(), branchKey.getBranchId());		
-			return maptoDataSet(branchKey.getRepoId(), branch,name);	
-		}
-		catch(Exception e){
+			final Branch branch= this.backendController.getBranch(branchKey.getRepoId(), branchKey.getBranchId());
+			return maptoDataSet(branchKey.getRepoId(), branch,name);
+		} catch(final Exception e){
 			 throw new ApplicationRuntimeException(e);
-		}				
+		}
 	}
 
-	private DataSet maptoDataSet(String repositoryId, Branch branch, Name<String> branchName) {
-					
-		DataSet dataSet=DataSets.createDataSet(branchName);
-		DataSetHelper helper=DataSetUtils.newHelper(dataSet);
-		
+	private DataSet maptoDataSet(final String repositoryId, final Branch branch, final Name<String> branchName) {
+		final DataSet dataSet=DataSets.createDataSet(branchName);
+		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
+
 		helper.
-		managedIndividual(branchName, BranchHandler.ID).
-			property(TYPE).
-				withIndividual(BRANCHTYPE).				
-			property(NAME).
-				withLiteral(branch.getName()).
-			property(CREATEDON).
-				withLiteral(new Date(branch.getCreatedAt()));
-//						Mapper.toLiteral(new DateTime(branch.getCreatedAt()).toDate()));
-		
-		for (String commitId:branch.getCommits().getCommitIds()){			
-				Name<String> commitName = NamingScheme.getDefault().name(repositoryId,commitId);
-				helper.
+			managedIndividual(branchName, BranchHandler.ID).
+				property(BranchVocabulary.TYPE).
+					withIndividual(BranchVocabulary.BRANCHTYPE).
+				property(BranchVocabulary.NAME).
+					withLiteral(branch.getName()).
+				property(BranchVocabulary.CREATEDON).
+					withLiteral(new Date(branch.getCreatedAt()));
+
+		for (final String commitId:branch.getCommits().getCommitIds()){
+			final Name<String> commitName = NamingScheme.getDefault().name(repositoryId,commitId);
+			helper.
 				managedIndividual(branchName, BranchHandler.ID).
-						property(HASCOMMIT).
-							withIndividual(commitName,CommitHandler.ID).
-						property(iSTARGETOF).
-							withIndividual(commitName,CommitHandler.ID);							
+					property(BranchVocabulary.HASCOMMIT).
+						withIndividual(commitName,CommitHandler.ID).
+					property(BranchVocabulary.ISTARGETOF).
+						withIndividual(commitName,CommitHandler.ID);
 		}
-		
-//			property(HASCOMMIT).
-//				withIndividual(user.getId().toString()).
-//			property(iSTARGETOF).
-//				withIndividual(user.getId().toString());
-		
+
 		return dataSet;
 	}
 

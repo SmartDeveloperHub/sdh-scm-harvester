@@ -44,9 +44,11 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Mapper;
 
 @Resource(id=CommitHandler.ID)
-public class CommitHandler implements ResourceHandler, CommitVocabulary{
+public class CommitHandler implements ResourceHandler {
+
 	public static final String ID="CommitHandler";
-	BackendController backendController;
+
+	private final BackendController backendController;
 
 	public CommitHandler(final BackendController backendController) {
 		this.backendController = backendController;
@@ -63,31 +65,30 @@ public class CommitHandler implements ResourceHandler, CommitVocabulary{
 		try{
 			final Commit commit= this.backendController.getCommit(commitKey.getRepoId(), commitKey.getCommitId());
 			return maptoDataSet(commit,name);
-		}
-		catch(final Exception e){
+		} catch(final Exception e){
 			 throw new ApplicationRuntimeException(e);
 		}
 	}
 
 	private DataSet maptoDataSet(final Commit commit, final Name<String> commitName) {
-
 		final DataSet dataSet=DataSets.createDataSet(commitName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
 		final Name<String> userName = NamingScheme.getDefault().name(commit.getAuthor());
 
 		helper.
-		managedIndividual(commitName, CommitHandler.ID).
-			property(TYPE).
-				withIndividual(ACTION).
-				withIndividual(COMMIT).
-			property(COMMITID).
-				withLiteral(commit.getId()).
-			property(CREATEDON).
-				withLiteral(Mapper.toLiteral(new DateTime(commit.getCreatedAt()).toDate())).
-			property(PERFORMEDBY).
-				withIndividual(userName, UserHandler.ID );
+			managedIndividual(commitName, CommitHandler.ID).
+				property(CommitVocabulary.TYPE).
+					withIndividual(CommitVocabulary.ACTION).
+					withIndividual(CommitVocabulary.COMMIT).
+				property(CommitVocabulary.COMMITID).
+					withLiteral(commit.getId()).
+				property(CommitVocabulary.CREATEDON).
+					withLiteral(Mapper.toLiteral(new DateTime(commit.getCreatedAt()).toDate())).
+				property(CommitVocabulary.PERFORMEDBY).
+					withIndividual(userName, UserHandler.ID );
 
 		return dataSet;
 	}
+
 }

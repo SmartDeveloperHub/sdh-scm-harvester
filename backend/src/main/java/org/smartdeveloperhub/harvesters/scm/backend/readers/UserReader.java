@@ -30,17 +30,14 @@ import java.io.IOException;
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class UserReader {
+public final class UserReader {
 
-	ObjectMapper mapper = new ObjectMapper();
-	private User user;
+	private final ObjectMapper mapper = new ObjectMapper();
 
-	public User readUser(final String userIS) throws JsonParseException, JsonMappingException, IOException {
-		this.user = this.mapper.readValue(userIS, User.class);
-		return this.user;
+	public User readUser(final String userIS) throws IOException {
+		return this.mapper.readValue(userIS, User.class);
 	}
+
 }

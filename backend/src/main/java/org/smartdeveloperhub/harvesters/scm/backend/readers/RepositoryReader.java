@@ -33,63 +33,51 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branches;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commits;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
-import org.smartdeveloperhub.harvesters.scm.backend.rest.RepositoryClient;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class RepositoryReader {
+public final class RepositoryReader {
 
-	ObjectMapper mapper = new ObjectMapper();
+	private final ObjectMapper mapper = new ObjectMapper();
 
-	RepositoryClient repoClient;
-	Repositories repositories; //pojo
-	Repository repository; //pojo
-
-	BranchReader branchReader;
-	CommitReader commitReader;
-
-	private Branches branches;
-
-	private Commits commits;
-
-	public Repositories readReposistories(final String repositoriesIS) throws JsonParseException, JsonMappingException, IOException {
-		final List<Integer> list = this.mapper.readValue(repositoriesIS,
-				  TypeFactory.defaultInstance().constructCollectionType(List.class, Integer.class));
-		this.repositories = new Repositories();
-		this.repositories.setRepositoryIds(list);
-		return this.repositories;
+	private Repository readRepository(final String repositoryIS) throws IOException {
+		return this.mapper.readValue(repositoryIS, Repository.class);
 	}
 
-	public Repository readRepository(final String repositoryIS, final String branchesIS) throws JsonParseException, JsonMappingException, IOException{
-		this.repository=readRepository(repositoryIS);
-		this.branchReader= new BranchReader();
-		this.branches=this.branchReader.readBranches(branchesIS);
-		this.repository.setBranches(this.branches);
-		return this.repository;
+	public Repositories readReposistories(final String repositoriesIS) throws IOException {
+		final List<Integer> list =
+			this.mapper.readValue(
+				repositoriesIS,
+				TypeFactory.
+					defaultInstance().
+						constructCollectionType(List.class, Integer.class));
+		final Repositories repositories = new Repositories();
+		repositories.setRepositoryIds(list);
+		return repositories;
 	}
 
-	private Repository readRepository(final String repositoryIS) throws JsonParseException, JsonMappingException, IOException {
-		this.repository=this.mapper.readValue(repositoryIS, Repository.class);
-		return this.repository;
+	public Repository readRepository(final String repositoryIS, final String branchesIS) throws IOException{
+		final Repository repository = readRepository(repositoryIS);
+		final BranchReader branchReader = new BranchReader();
+		final Branches branches = branchReader.readBranches(branchesIS);
+		repository.setBranches(branches);
+		return repository;
 	}
 
-
-	public Repository readRepository(final String repositoryIS, final String branchesIS, final String commitsIS) throws JsonParseException, JsonMappingException, IOException {
-		this.repository=readRepository(repositoryIS);
+	public Repository readRepository(final String repositoryIS, final String branchesIS, final String commitsIS) throws IOException {
+		final Repository repository = readRepository(repositoryIS);
 		if (!branchesIS.isEmpty()){
-			this.branchReader= new BranchReader();
-			this.branches=this.branchReader.readBranches(branchesIS);
-			this.repository.setBranches(this.branches);
+			final BranchReader branchReader = new BranchReader();
+			final Branches branches = branchReader.readBranches(branchesIS);
+			repository.setBranches(branches);
 		}
 		if (!commitsIS.isEmpty()){
-			this.commitReader = new CommitReader();
-			this.commits=this.commitReader.readCommits(commitsIS);
-			this.repository.setCommits(this.commits);
+			final CommitReader commitReader = new CommitReader();
+			final Commits commits = commitReader.readCommits(commitsIS);
+			repository.setCommits(commits);
 		}
-		return this.repository;
+		return repository;
 	}
 
 }

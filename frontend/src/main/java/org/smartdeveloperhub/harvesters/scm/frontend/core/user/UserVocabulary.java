@@ -26,21 +26,23 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.user;
 
-public interface UserVocabulary {
-	static final String TYPE       = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-	static final String PERSONTYPE = "http://www.smartdeveloperhub.org/vocabulary/scm#Committer";
-	static final String FIRSTCOMMIT = "http://www.smartdeveloperhub.org/vocabulary/scm#firstCommit";
-	static final String LASTCOMMIT = "http://www.smartdeveloperhub.org/vocabulary/scm#lastCommit";
-	static final String MBOX = "http://www.smartdeveloperhub.org/vocabulary/scm#mbox";
-	static final String COMMITTERID = "http://www.smartdeveloperhub.org/vocabulary/scm#committerId";
-	static final String EXTERNAL = "http://www.smartdeveloperhub.org/vocabulary/scm#external";
-	static final String IMG = "http://xmlns.com/foaf/0.1/img";
-	static final String NAME = "http://xmlns.com/foaf/0.1/name";
-	static final String NICK = "http://xmlns.com/foaf/0.1/nick";
-	
-	//IMAGE PROPERTIES
-	static final String IMAGE="http://xmlns.com/foaf/0.1/Image";
-	static final String DEPICTS="http://xmlns.com/foaf/0.1/depicts";
-	
+abstract class UserVocabulary {
+
+	static final String TYPE          = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+
+	static final String IMG           = "http://xmlns.com/foaf/0.1/img";
+	static final String NAME          = "http://xmlns.com/foaf/0.1/name";
+	static final String NICK          = "http://xmlns.com/foaf/0.1/nick";
+	static final String IMAGE         = "http://xmlns.com/foaf/0.1/Image";
+	static final String DEPICTS       = "http://xmlns.com/foaf/0.1/depicts";
+
+	static final String PERSONTYPE    = "http://www.smartdeveloperhub.org/vocabulary/scm#Committer";
+	static final String FIRSTCOMMIT   = "http://www.smartdeveloperhub.org/vocabulary/scm#firstCommit";
+	static final String LASTCOMMIT    = "http://www.smartdeveloperhub.org/vocabulary/scm#lastCommit";
+	static final String MBOX          = "http://www.smartdeveloperhub.org/vocabulary/scm#mbox";
+	static final String COMMITTERID   = "http://www.smartdeveloperhub.org/vocabulary/scm#committerId";
+	static final String EXTERNAL      = "http://www.smartdeveloperhub.org/vocabulary/scm#external";
+
 	static final String CORRESPONDSTO = "http://www.smartdeveloperhub.org/vocabulary/platform#correspondsTo";
+
 }

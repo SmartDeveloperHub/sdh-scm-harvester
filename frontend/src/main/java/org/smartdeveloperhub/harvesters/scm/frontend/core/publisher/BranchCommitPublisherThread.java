@@ -45,23 +45,19 @@ public class BranchCommitPublisherThread extends Thread {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(BranchCommitPublisherThread.class);
 
-	private Thread t;
-	private final String threadName = "BranchCommitPublisher";
-	ContainerSnapshot branchContainerSnapshot;
-	ContainerSnapshot commitContainerSnapshot;
+	private static final String THREAD_NAME = "BranchCommitPublisher";
 
-	Repository repository;
-	BackendController controller;
-	GitLabHarvester gitLabHarvester;
+	private final BackendController controller;
 
 	public BranchCommitPublisherThread(final BackendController controller) {
 		super();
+		setName(THREAD_NAME);
 		this.controller = controller;
 	}
 
 	@Override
 	public void run(){
-		LOGGER.info(this.threadName +" is running...");
+		LOGGER.info("Running {}...",THREAD_NAME);
 		final long startTime = System.currentTimeMillis();
 
 		final ApplicationContext ctx = ApplicationContext.getInstance();
@@ -81,16 +77,12 @@ public class BranchCommitPublisherThread extends Thread {
 
 		final long stopTime = System.currentTimeMillis();
 		final long elapsedTime = stopTime - startTime;
-		LOGGER.info("- thread elapsed time (ms)..: {}",elapsedTime);
+		LOGGER.info("{} Elapsed run time (ms): {}",THREAD_NAME,elapsedTime);
 	}
 
 	@Override
 	public void start() {
-		LOGGER.info("Starting " + this.threadName);
-		if (this.t == null) {
-			this.t = new Thread(this, this.threadName);
-			this.t.start();
-		}
+		LOGGER.info("Starting {}...",THREAD_NAME);
 	}
 
 	public void addBranchMemberstToRepository(final ApplicationContext ctx, final Integer repositoryId, final Repository repository) throws Exception{
@@ -99,20 +91,20 @@ public class BranchCommitPublisherThread extends Thread {
 
 			//ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
 
-			this.branchContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,BranchContainerHandler.class);
+			final ContainerSnapshot branchContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,BranchContainerHandler.class);
 			//This is an alternative:
 			//ContainerSnapshot ContainerSnapshot = (ContainerSnapshot)repositorySnapshot.attachmentById(RepositoryHandler.REPOSITORY_BRANCHES).resource();
 
-			if (this.branchContainerSnapshot!=null){
+			if (branchContainerSnapshot!=null){
 				for (final String branchId:repository.getBranches().getBranchIds()){
 					final Name<String> branchName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),branchId);
 					//keeptrack of the branch key and resource name
 					this.controller.getBranchIdentityMap().addKey(new BranchKey(Integer.toString(repository.getId()),branchId), branchName);
 					@SuppressWarnings("unused")
-					final ResourceSnapshot branchSnapshot = this.branchContainerSnapshot.addMember(branchName);
+					final ResourceSnapshot branchSnapshot = branchContainerSnapshot.addMember(branchName);
 				}
 			}
-			session.modify(this.branchContainerSnapshot);
+			session.modify(branchContainerSnapshot);
 			session.saveChanges();
 		}
 	 }
@@ -121,20 +113,19 @@ public class BranchCommitPublisherThread extends Thread {
 		 try( WriteSession session = ctx.createSession() ) {
 			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
 
-			this.commitContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,CommitContainerHandler.class);
+			final ContainerSnapshot commitContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,CommitContainerHandler.class);
 
-			if (this.commitContainerSnapshot!=null){
-
+			if(commitContainerSnapshot!=null){
 				for (final String commitId:repository.getCommits().getCommitIds()){
 					final Name<String> commitName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),commitId);
 					//keeptrack of the branch key and resource name
 					this.controller.getCommitIdentityMap().addKey(new CommitKey(Integer.toString(repository.getId()),commitId), commitName);
 					@SuppressWarnings("unused")
-					final ResourceSnapshot commitSnapshot = this.commitContainerSnapshot.addMember(commitName);
+					final ResourceSnapshot commitSnapshot=commitContainerSnapshot.addMember(commitName);
 				}
 			}
 
-			session.modify(this.commitContainerSnapshot);
+			session.modify(commitContainerSnapshot);
 			session.saveChanges();
 		}
 	}

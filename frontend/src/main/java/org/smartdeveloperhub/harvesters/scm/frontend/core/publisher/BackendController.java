@@ -29,6 +29,7 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,121 +48,104 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityMap;
 
 public class BackendController {
-	
-	private static final Logger LOGGER=LoggerFactory.getLogger(BackendController.class);
-	
-	String scmRestService;
-	
-	IdentityMap<BranchKey> branchIdentityMap;
-	IdentityMap<CommitKey> commitIdentityMap;
-	
-	GitLabHarvester gitLabHarvester;
-	
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(BackendController.class);
+
+	private final String scmRestService;
+
+	private IdentityMap<BranchKey> branchIdentityMap;
+	private IdentityMap<CommitKey> commitIdentityMap;
+
+	private GitLabHarvester gitLabHarvester;
+
 	public BackendController() {
-	  String gitLabEnhancer = System.getenv("GITLAB_ENHANCER");
-	  if (gitLabEnhancer==null){
-		  scmRestService="http://192.168.0.10:5000/api";
-		  LOGGER.info("GITLAB_ENHANCER by default {}",scmRestService);
-	  }
-	  else{		  
-		  LOGGER.info("GITLAB_ENHANCER environment variable {}",gitLabEnhancer);
-		  scmRestService=gitLabEnhancer;		  
-	  }
-		  
-		
-	  branchIdentityMap=new IdentityMap<BranchKey>();
-	  commitIdentityMap=new IdentityMap<CommitKey>();
-	}
-	
-	public IdentityMap<BranchKey> getBranchIdentityMap() {
-		return branchIdentityMap;
+		final String gitLabEnhancer = System.getenv("GITLAB_ENHANCER");
+		if(gitLabEnhancer==null) {
+			this.scmRestService = "http://192.168.0.10:5000/api";
+			LOGGER.info("GITLAB_ENHANCER by default {}", this.scmRestService);
+		} else {
+			LOGGER.info("GITLAB_ENHANCER environment variable {}",gitLabEnhancer);
+			this.scmRestService = gitLabEnhancer;
+		}
+		this.branchIdentityMap = new IdentityMap<BranchKey>();
+		this.commitIdentityMap = new IdentityMap<CommitKey>();
 	}
 
-	public void setBranchIdentityMap(IdentityMap<BranchKey> branchIdentityMap) {
+	public IdentityMap<BranchKey> getBranchIdentityMap() {
+		return this.branchIdentityMap;
+	}
+
+	public void setBranchIdentityMap(final IdentityMap<BranchKey> branchIdentityMap) {
 		this.branchIdentityMap = branchIdentityMap;
 	}
 
 	public IdentityMap<CommitKey> getCommitIdentityMap() {
-		return commitIdentityMap;
+		return this.commitIdentityMap;
 	}
 
-	public void setCommitIdentityMap(IdentityMap<CommitKey> commitIdentityMap) {
+	public void setCommitIdentityMap(final IdentityMap<CommitKey> commitIdentityMap) {
 		this.commitIdentityMap = commitIdentityMap;
 	}
 
-	public GitLabHarvester createGitLabHarvester(String id) throws Exception {
-		
-		RepositoryController repoCtl = new RepositoryController(scmRestService);
-		Repositories repos = repoCtl.getRepositories();
-		
-		gitLabHarvester = new GitLabHarvester();	
-		gitLabHarvester.setId(id);
-		for(Integer repoId:repos.getRepositoryIds())
-			gitLabHarvester.addRepository(repoId);
-		
-		return gitLabHarvester;
-	}
-	
-	public GitLabHarvester getGitLabHarvester() throws Exception {			
-		
-		return gitLabHarvester;
-	}
-	
-	public ArrayList<String> getUsers() throws Exception{
-		HashSet<String> uniqueUsers = new HashSet<String>(); 
-		RepositoryController repoCtl = new RepositoryController(scmRestService);
-		Repositories repos = repoCtl.getRepositories();
-		for(Integer repoId:repos.getRepositoryIds()){
-			Repository repo=repoCtl.getRepositoryWithoutBranchCommit(repoId.toString());
-			List<String> contributors=repo.getContributors();
-			for(String contributorId:contributors)
-				uniqueUsers.add(contributorId);
+	public GitLabHarvester createGitLabHarvester(final String id) throws Exception {
+		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
+		final Repositories repos = repoCtl.getRepositories();
+
+		this.gitLabHarvester = new GitLabHarvester();
+		this.gitLabHarvester.setId(id);
+		for(final Integer repoId : repos.getRepositoryIds()) {
+			this.gitLabHarvester.addRepository(repoId);
 		}
+
+		return this.gitLabHarvester;
+	}
+
+	public GitLabHarvester getGitLabHarvester() throws Exception {
+		return this.gitLabHarvester;
+	}
+
+	public List<String> getUsers() throws Exception {
+		final Set<String> uniqueUsers = new HashSet<String>();
+		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
+		final Repositories repos = repoCtl.getRepositories();
+
+		for(final Integer repoId : repos.getRepositoryIds()) {
+			final Repository repo = repoCtl.getRepositoryWithoutBranchCommit(repoId.toString());
+			final List<String> contributors = repo.getContributors();
+			for(final String contributorId : contributors) {
+				uniqueUsers.add(contributorId);
+			}
+		}
+
 		return new ArrayList<String>(uniqueUsers);
 	}
-	
-	public Repository getRepository(String id) throws Exception {
-		
-		RepositoryController repoCtl = new RepositoryController(scmRestService);
-		Repository repo = repoCtl.getRepository(id);				
-		return repo;
-	}
-	
-	public User getUser(String id) throws Exception {
-		
-		UserController userCtl = new UserController(scmRestService);
-		User user = userCtl.getUser(id);				
-		return user;
-	}
-		
-	public Branch getBranch(String repoId, String branchId) throws Exception {
-		BranchController branchCtl=new BranchController(scmRestService);
-		Branch branch= branchCtl.getBranch(repoId, branchId);
-		return branch;
-	}
-	
 
-	public Commit getCommit(String repoId, String commitId) throws Exception {
-		CommitController commitCtl = new CommitController(scmRestService);
-		Commit commit=commitCtl.getCommit(repoId, commitId);
-		return commit;
-	}
-	
-	public static void main(String[] args) throws Exception {
-		BackendController bkend = new BackendController();
-		//GitLabHarvester gitLabHarvester = bkend.getGitLabHarvester("gitlab");
-		Repository repo = bkend.getRepository("5");
-		System.out.println(repo);
-		System.out.println("*"+repo.getBranches());
-		System.out.println("**"+repo.getCommits());
-		//User user = bkend.getUser("3");
-		//Branch branch = bkend.getBranch("5", "6D6173746572");
-		//Commit commit  = bkend.getCommit("5", "1e1e34cb9cff911d08938a2b145a6687238d5f66");
-		//System.out.println(commit);
+	public Repository getRepository(final String id) throws Exception {
+		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
+		return repoCtl.getRepository(id);
 	}
 
+	public User getUser(final String id) throws Exception {
+		final UserController userCtl = new UserController(this.scmRestService);
+		return userCtl.getUser(id);
+	}
 
+	public Branch getBranch(final String repoId, final String branchId) throws Exception {
+		final BranchController branchCtl = new BranchController(this.scmRestService);
+		return branchCtl.getBranch(repoId, branchId);
+	}
 
+	public Commit getCommit(final String repoId, final String commitId) throws Exception {
+		final CommitController commitCtl = new CommitController(this.scmRestService);
+		return commitCtl.getCommit(repoId, commitId);
+	}
 
+	public static void main(final String[] args) throws Exception {
+		final BackendController bkend = new BackendController();
+		final Repository repo = bkend.getRepository("5");
+		LOGGER.info("{}",repo);
+		LOGGER.info("* {}",repo.getBranches());
+		LOGGER.info("** {} ",repo.getCommits());
+	}
 
 }

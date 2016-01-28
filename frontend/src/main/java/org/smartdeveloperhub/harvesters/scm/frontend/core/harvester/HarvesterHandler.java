@@ -27,7 +27,6 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.harvester;
 
 import java.net.URI;
-import java.util.ArrayList;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
@@ -107,7 +106,7 @@ public class HarvesterHandler implements ResourceHandler, HarvesterVocabulary{
 					withIndividual(harvesterName,HarvesterHandler.ID,VOCABULARY_PATH);
 
 
-		for (final Integer repositoryId:gitLabHarvester.getRepositories()){
+		for(final Integer repositoryId:gitLabHarvester.getRepositories()){
 			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
 			helper.
 			managedIndividual(harvesterName, ID).
@@ -115,8 +114,7 @@ public class HarvesterHandler implements ResourceHandler, HarvesterVocabulary{
 						withIndividual(repositoryName,RepositoryHandler.ID);
 		}
 
-		final ArrayList<String> userIds = this.backendController.getUsers();
-		for (final String userId:userIds){
+		for(final String userId:this.backendController.getUsers()){
 			final Name<String> userName = NamingScheme.getDefault().name(userId);
 			helper.
 			managedIndividual(harvesterName, ID).

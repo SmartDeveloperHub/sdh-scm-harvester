@@ -26,36 +26,71 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.branch;
 
-public class BranchKey implements Comparable<BranchKey> {
+import java.util.Objects;
+
+import com.google.common.base.MoreObjects;
+
+public final class BranchKey implements Comparable<BranchKey> {
+
 	private String branchId;
 	private String repoId;
-	
-	public BranchKey(String repoId, String branchId) {
+
+	public BranchKey(final String repoId, final String branchId) {
 		this.repoId = repoId;
 		this.branchId = branchId;
 	}
 
 	public String getBranchId() {
-		return branchId;
+		return this.branchId;
 	}
 
-	public void setBranchId(String branchId) {
+	public void setBranchId(final String branchId) {
 		this.branchId = branchId;
 	}
 
 	public String getRepoId() {
-		return repoId;
+		return this.repoId;
 	}
 
-	public void setRepoId(String repoId) {
+	public void setRepoId(final String repoId) {
 		this.repoId = repoId;
 	}
 
-	public int compareTo(BranchKey branchId) {
-		if (this.branchId.equals(branchId.branchId))
-			if (this.repoId.equals(branchId.repoId))
-				return 0;
-		return 1;
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.repoId,this.branchId);
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		boolean result=false;
+		if(obj instanceof BranchKey) {
+			final BranchKey that=(BranchKey)obj;
+			result=
+				Objects.equals(this.repoId,that.repoId) &&
+				Objects.equals(this.branchId,that.branchId);
+		}
+		return result;
+	}
+
+	@Override
+	public int compareTo(final BranchKey key) {
+		int result=this.repoId.compareTo(key.repoId);
+		if(result==0) {
+			result=this.branchId.compareTo(key.branchId);
+		}
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return
+			MoreObjects.
+				toStringHelper(getClass()).
+					omitNullValues().
+					add("repoId",this.repoId).
+					add("branchId", this.branchId).
+					toString();
 	}
 
 }

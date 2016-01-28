@@ -27,7 +27,6 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
 import java.net.URI;
-import java.util.ArrayList;
 
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
@@ -48,8 +47,8 @@ public class BackendResourcePublisher {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(BackendResourcePublisher.class);
 
-	WriteSession session;
-	BackendController controller;
+	private final WriteSession session;
+	private final BackendController controller;
 
 	public BackendResourcePublisher(final WriteSession session, final BackendController controller) {
 		this.controller=controller;
@@ -133,8 +132,7 @@ public class BackendResourcePublisher {
 			return;
 		}
 
-		final ArrayList<String> userIds = this.controller.getUsers();
-		for (final String userId:userIds){
+		for(final String userId:this.controller.getUsers()){
 			final Name<String> userName = NamingScheme.getDefault().name(userId);
 			final ResourceSnapshot userSnapshot = userContainerSnapshot.addMember(userName);
 			LOGGER.debug("Published resource for user {} @ {} ({})",userId, userSnapshot.name(),userSnapshot.templateId());

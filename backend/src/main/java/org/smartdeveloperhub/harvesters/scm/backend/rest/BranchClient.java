@@ -63,12 +63,12 @@ public class BranchClient extends ScmClient{
 						LOGGER.info("HTTP GET fail with response code {}",response1.getStatusLine());
 					}
 				} catch(final Exception e){
-					LOGGER.info("Not raised Exception {}",e.getMessage());
+					LOGGER.info("Not raised Exception {}",e);
 				} finally {
 					response1.close();
 				}
 			} catch(final Exception e){
-				LOGGER.info("Not raised Exception {}",e.getMessage());
+				LOGGER.info("Not raised Exception {}",e);
 			} finally {
 				httpclient.close();
 			}
@@ -96,12 +96,12 @@ public class BranchClient extends ScmClient{
 						LOGGER.info("HTTP GET fail with response code {}",response1.getStatusLine());
 					}
 				} catch(final Exception e){
-					LOGGER.info("Not raised Exception {}",e.getMessage());
+					LOGGER.info("Not raised Exception {}",e);
 				} finally {
 					response1.close();
 				}
 			} catch(final Exception e){
-				LOGGER.info("Not raised Exception {}",e.getMessage());
+				LOGGER.info("Not raised Exception {}",e);
 			} finally {
 				httpclient.close();
 			}

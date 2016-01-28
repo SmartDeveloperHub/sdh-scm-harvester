@@ -56,7 +56,7 @@ public class Branch {
 	@JsonProperty("created_at")
 	private Long createdAt;
 	@JsonProperty("protected")
-	private String _protected;
+	private String prot;
 	@JsonProperty("name")
 	private String name;
 	@JsonProperty("contributors")
@@ -101,17 +101,17 @@ public class Branch {
 	 */
 	@JsonProperty("protected")
 	public String getProtected() {
-		return this._protected;
+		return this.prot;
 	}
 
 	/**
 	 *
-	 * @param _protected
+	 * @param prot
 	 *            The protected
 	 */
 	@JsonProperty("protected")
-	public void setProtected(final String _protected) {
-		this._protected = _protected;
+	public void setProtected(final String prot) {
+		this.prot = prot;
 	}
 
 	/**

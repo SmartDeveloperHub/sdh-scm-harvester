@@ -28,8 +28,8 @@ package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
 public class ScmClient {
 
-	String scmRestService;
-	final int maxAttempts=5;
+	protected final String scmRestService;
+	protected final int maxAttempts=5;
 
 	public ScmClient(final String scmRestService) {
 		this.scmRestService=scmRestService;

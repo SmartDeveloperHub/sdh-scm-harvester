@@ -33,39 +33,31 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branches;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commits;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class BranchReader {
+public final class BranchReader {
 
-	ObjectMapper mapper = new ObjectMapper();
-	Branches branches;
-	Branch branch;
+	private final ObjectMapper mapper=new ObjectMapper();
 
-	CommitReader commitReader;
-	Commits commits;
-
-	public Branches readBranches(final String branchesIS) throws JsonParseException, JsonMappingException, IOException {
-		final List<String> list = this.mapper.readValue(branchesIS,
-				  TypeFactory.defaultInstance().constructCollectionType(List.class, String.class));
-		this.branches = new Branches();
-		this.branches.setBranchIds(list);
-		return this.branches;
+	public Branches readBranches(final String branchesIS) throws IOException {
+		final List<String> list =
+			this.mapper.readValue(
+				branchesIS,
+				TypeFactory.
+					defaultInstance().
+						constructCollectionType(List.class,String.class));
+		final Branches branches = new Branches();
+		branches.setBranchIds(list);
+		return branches;
 	}
 
-	public Branch readBranch(final String branchIS, final String commitsIS) throws JsonParseException, JsonMappingException, IOException{
-		this.branch=readBranch(branchIS);
-		this.commitReader = new CommitReader();
-		this.commits = this.commitReader.readCommits(commitsIS);
-		this.branch.setCommits(this.commits);
-		return this.branch;
-	}
-
-	private Branch readBranch(final String branchIS) throws JsonParseException, JsonMappingException, IOException{
-		this.branch=this.mapper.readValue(branchIS, Branch.class);
-		return this.branch;
+	public Branch readBranch(final String branchIS, final String commitsIS) throws IOException{
+		final Branch branch=this.mapper.readValue(branchIS, Branch.class);
+		final CommitReader commitReader = new CommitReader();
+		final Commits commits = commitReader.readCommits(commitsIS);
+		branch.setCommits(commits);
+		return branch;
 	}
 
 }

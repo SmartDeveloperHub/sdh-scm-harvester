@@ -92,7 +92,7 @@ public class Repository {
 	@JsonProperty("last_commit_at")
 	private Long lastCommitAt;
 	@JsonProperty("public")
-	private String _public;
+	private String pub;
 	@JsonProperty("avatar_url")
 	private String avatarUrl;
 
@@ -358,17 +358,17 @@ public class Repository {
 	 */
 	@JsonProperty("public")
 	public String getPublic() {
-		return this._public;
+		return this.pub;
 	}
 
 	/**
 	 *
-	 * @param _public
+	 * @param pub
 	 *            The public
 	 */
 	@JsonProperty("public")
-	public void setPublic(final String _public) {
-		this._public = _public;
+	public void setPublic(final String pub) {
+		this.pub = pub;
 	}
 
 	@JsonProperty("avatar_url")

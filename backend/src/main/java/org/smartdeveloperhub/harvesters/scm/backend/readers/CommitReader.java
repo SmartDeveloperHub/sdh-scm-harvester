@@ -32,27 +32,27 @@ import java.util.List;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commits;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class CommitReader {
+public final class CommitReader {
 
-	ObjectMapper mapper = new ObjectMapper();
-	Commits commits;
-	Commit commit;
+	private final ObjectMapper mapper = new ObjectMapper();
 
-	public Commits readCommits(final String commitsIS) throws JsonParseException, JsonMappingException, IOException{
-		final List<String> list = this.mapper.readValue(commitsIS,
-				  TypeFactory.defaultInstance().constructCollectionType(List.class, String.class));
-		this.commits = new Commits();
-		this.commits.setCommitIds(list);
-		return this.commits;
+	public Commits readCommits(final String commitsIS) throws IOException{
+		final List<String> list =
+			this.mapper.readValue(
+				commitsIS,
+				TypeFactory.
+					defaultInstance().
+						constructCollectionType(List.class, String.class));
+		final Commits commits = new Commits();
+		commits.setCommitIds(list);
+		return commits;
 	}
 
-	public Commit readCommit(final String commitIS) throws JsonParseException, JsonMappingException, IOException{
-		this.commit = this.mapper.readValue(commitIS, Commit.class);
-		return this.commit;
+	public Commit readCommit(final String commitIS) throws IOException{
+		return this.mapper.readValue(commitIS, Commit.class);
 	}
+
 }

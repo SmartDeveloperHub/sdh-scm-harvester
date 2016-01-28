@@ -28,40 +28,34 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSets;
-import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ContainerHandler;
-import org.ldp4j.application.ext.UnknownResourceException;
-import org.ldp4j.application.ext.UnsupportedContentException;
 import org.ldp4j.application.ext.annotations.DirectContainer;
 import org.ldp4j.application.session.ContainerSnapshot;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.ldp4j.application.session.WriteSession;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Serviceable;
 
 @DirectContainer(
 	id = CommitContainerHandler.ID,
 	memberHandler = CommitHandler.class,
 	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasCommit"
 )
-public class CommitContainerHandler implements ContainerHandler {
+public class CommitContainerHandler extends Serviceable implements ContainerHandler {
 
 	public static final String ID="CommitContainerHandler";
 	public static final String path="commits/";
 	public static final String NAME = "CommitContainer";
 
 	@Override
-	public DataSet get(final ResourceSnapshot resource)
-			throws UnknownResourceException, ApplicationRuntimeException {
-		return
-				DataSets.
-					createDataSet(resource.name());
+	public DataSet get(final ResourceSnapshot resource) {
+		// For the time there is nothing to return
+		return DataSets.createDataSet(resource.name());
 	}
 
 	@Override
-	public ResourceSnapshot create(final ContainerSnapshot container,
-			final DataSet representation, final WriteSession session)
-			throws UnknownResourceException, UnsupportedContentException,
-			ApplicationRuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+	public ResourceSnapshot create(final ContainerSnapshot container, final DataSet representation, final WriteSession session) {
+		trace("Requested commit creation from: %n%s",representation);
+		throw super.unexpectedFailure("Commit creation is not supported");
 	}
+
 }

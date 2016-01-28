@@ -28,39 +28,32 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.repository;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSets;
-import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ContainerHandler;
-import org.ldp4j.application.ext.UnknownResourceException;
-import org.ldp4j.application.ext.UnsupportedContentException;
 import org.ldp4j.application.ext.annotations.DirectContainer;
 import org.ldp4j.application.session.ContainerSnapshot;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.ldp4j.application.session.WriteSession;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Serviceable;
 
 @DirectContainer(
 	id = RepositoryContainerHandler.ID,
 	memberHandler = RepositoryHandler.class,
 	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasRepository"
 )
-public class RepositoryContainerHandler  implements ContainerHandler {
+public class RepositoryContainerHandler extends Serviceable implements ContainerHandler {
 
 	public static final String ID="RepositoryContainerHandler";
 
 	@Override
-	public DataSet get(final ResourceSnapshot resource)
-			throws UnknownResourceException, ApplicationRuntimeException {
-		return
-				DataSets.
-					createDataSet(resource.name());
+	public DataSet get(final ResourceSnapshot resource) {
+		// For the time there is nothing to return
+		return DataSets.createDataSet(resource.name());
 	}
 
 	@Override
-	public ResourceSnapshot create(final ContainerSnapshot container,
-			final DataSet representation, final WriteSession session)
-			throws UnknownResourceException, UnsupportedContentException,
-			ApplicationRuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+	public ResourceSnapshot create(final ContainerSnapshot container, final DataSet representation, final WriteSession session) {
+		trace("Requested repository creation from: %n%s",representation);
+		throw super.unexpectedFailure("Repository creation is not supported");
 	}
 
 }

@@ -26,27 +26,21 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import java.util.ArrayList;
-
 import org.ldp4j.application.ApplicationContext;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.session.ContainerSnapshot;
-import org.ldp4j.application.session.ResourceSnapshot;
 import org.ldp4j.application.session.WriteSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.GitLabHarvester;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 
 public class UserPublisherThread extends Thread {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserPublisherThread.class);
+	private static final String THREAD_NAME = "UserPublisherThread";
 
-	private Thread t;
-	private final String threadName = "UserPublisherThread";
-	BackendController controller;
-	GitLabHarvester gitLabHarvester;
+	private final BackendController controller;
 
 	public UserPublisherThread(final BackendController controller) {
 		super();
@@ -55,7 +49,7 @@ public class UserPublisherThread extends Thread {
 
 	@Override
 	public void run() {
-		LOGGER.info(this.threadName + " is running...");
+		LOGGER.info("Running {}...",THREAD_NAME);
 		final long startTime = System.currentTimeMillis();
 
 		try {
@@ -69,16 +63,12 @@ public class UserPublisherThread extends Thread {
 
 		final long stopTime = System.currentTimeMillis();
 		final long elapsedTime = stopTime - startTime;
-		LOGGER.info("- thread elapsed time (ms)..: {}", elapsedTime);
+		LOGGER.info("{} Elapsed time (ms): {}",THREAD_NAME,elapsedTime);
 	}
 
 	@Override
 	public void start() {
-		LOGGER.info("Starting " + this.threadName);
-		if (this.t == null) {
-			this.t = new Thread(this, this.threadName);
-			this.t.start();
-		}
+		LOGGER.info("Starting {}",THREAD_NAME);
 	}
 
 	public void publishUserResources(final ApplicationContext ctx) throws Exception{
@@ -86,22 +76,18 @@ public class UserPublisherThread extends Thread {
 			final Name<String> userContainerName = NamingScheme.getDefault().name(UserContainerHandler.NAME);
 			final ContainerSnapshot userContainerSnapshot = session.find(ContainerSnapshot.class, userContainerName ,UserContainerHandler.class);
 			if(userContainerSnapshot==null) {
-				LOGGER.warn("User Container does not exits");
+				LOGGER.warn("User Container does not exist");
 				return;
 			}
 
-			final ArrayList<String> userIds = this.controller.getUsers();
-			for (final String userId:userIds){
+			for(final String userId:this.controller.getUsers()){
 				final Name<String> userName = NamingScheme.getDefault().name(userId);
-				@SuppressWarnings("unused")
-				final ResourceSnapshot userSnapshot = userContainerSnapshot.addMember(userName);
-				//LOGGER.debug("Published resource for user {} @ {} ({})",userId, userSnapshot.name(),userSnapshot.templateId());
+				userContainerSnapshot.addMember(userName);
 			}
 
 			session.modify(userContainerSnapshot);
 			session.saveChanges();
 		}
-
 	}
 
 }

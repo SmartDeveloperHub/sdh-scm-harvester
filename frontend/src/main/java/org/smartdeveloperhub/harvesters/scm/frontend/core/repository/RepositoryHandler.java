@@ -37,7 +37,6 @@ import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ResourceHandler;
-import org.ldp4j.application.ext.UnknownResourceException;
 import org.ldp4j.application.ext.annotations.Attachment;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
@@ -52,98 +51,94 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Mapper;
 @Resource(
 	id=RepositoryHandler.ID,
 	attachments={
-			@Attachment(
-				id=RepositoryHandler.REPOSITORY_BRANCHES,
-				path="branches/",
-				handler=BranchContainerHandler.class
-			),
-			@Attachment(
-					id=RepositoryHandler.REPOSITORY_COMMITS,
-					path="commits/",
-					handler=CommitContainerHandler.class
-				)
-		}
+		@Attachment(
+			id=RepositoryHandler.REPOSITORY_BRANCHES,
+			path="branches/",
+			handler=BranchContainerHandler.class
+		),
+		@Attachment(
+			id=RepositoryHandler.REPOSITORY_COMMITS,
+			path="commits/",
+			handler=CommitContainerHandler.class
+		)
+	}
 )
-public class RepositoryHandler implements ResourceHandler, RepositoryVocabulary{
+public class RepositoryHandler implements ResourceHandler {
 
 	public static final String ID="RepositoryHandler";
 	public static final String REPOSITORY_BRANCHES="REPOSITORYBRANCHES";
 	public static final String REPOSITORY_COMMITS="REPOSITORYCOMMITS";
-	BackendController backendController;
 
 	private static final URI DEPICTION_PATH = URI.create("#depiction");
+
+	private final BackendController backendController;
 
 	public RepositoryHandler(final BackendController backendController) {
 		this.backendController = backendController;
 	}
 
 	@Override
-	public DataSet get(final ResourceSnapshot resource)
-			throws UnknownResourceException, ApplicationRuntimeException {
-
+	public DataSet get(final ResourceSnapshot resource) {
 		@SuppressWarnings("unchecked")
 		final Name<String> name = (Name<String>)resource.name();
 		try{
 			final Repository repository = this.backendController.getRepository(name.id().toString());
 			return maptoDataSet(repository,name);
-		}
-		catch(final Exception e){
+		} catch(final Exception e){
 			 throw new ApplicationRuntimeException(e);
 		}
 	}
 
 	private DataSet maptoDataSet(final Repository repository, final Name<String> repoName) {
-
 		final DataSet dataSet=DataSets.createDataSet(repoName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
-
 
 		final Name<String> ownerName = NamingScheme.getDefault().name(repository.getOwner().getId());
 
 		helper.
-		managedIndividual(repoName, RepositoryHandler.ID).
-			property(TYPE).
-				withIndividual(SCMREPOSITORY).
-			property(LOCATION).
-				withLiteral(repository.getHttpUrlToRepo()).
-			property(NAME).
-				withLiteral(repository.getName()).
-			property(CREATEDON).
-				withLiteral(Mapper.toLiteral(new DateTime(repository.getCreatedAt()).toDate())).
-			property(FIRSTCOMMIT).
-				withLiteral(Mapper.toLiteral(new DateTime(repository.getFirstCommitAt()).toDate())).
-			property(LASTCOMMIT).
-				withLiteral(Mapper.toLiteral(new DateTime(repository.getLastCommitAt()).toDate())).
-			property(ARCHIVED).
-				withLiteral(new Boolean(repository.getArchived())).
-			property(PUBLIC).
-				withLiteral(new Boolean(repository.getPublic())).
-			property(OWNER).
-				withIndividual(ownerName, UserHandler.ID).
-			property(REPOSITORYID).
-				withLiteral(repository.getId().toString()).
-			property(TAGS).
-				withLiteral(repository.getTags());
+			managedIndividual(repoName, RepositoryHandler.ID).
+				property(RepositoryVocabulary.TYPE).
+					withIndividual(RepositoryVocabulary.SCMREPOSITORY).
+				property(RepositoryVocabulary.LOCATION).
+					withLiteral(repository.getHttpUrlToRepo()).
+				property(RepositoryVocabulary.NAME).
+					withLiteral(repository.getName()).
+				property(RepositoryVocabulary.CREATEDON).
+					withLiteral(Mapper.toLiteral(new DateTime(repository.getCreatedAt()).toDate())).
+				property(RepositoryVocabulary.FIRSTCOMMIT).
+					withLiteral(Mapper.toLiteral(new DateTime(repository.getFirstCommitAt()).toDate())).
+				property(RepositoryVocabulary.LASTCOMMIT).
+					withLiteral(Mapper.toLiteral(new DateTime(repository.getLastCommitAt()).toDate())).
+				property(RepositoryVocabulary.ARCHIVED).
+					withLiteral(new Boolean(repository.getArchived())).
+				property(RepositoryVocabulary.PUBLIC).
+					withLiteral(new Boolean(repository.getPublic())).
+				property(RepositoryVocabulary.OWNER).
+					withIndividual(ownerName, UserHandler.ID).
+				property(RepositoryVocabulary.REPOSITORYID).
+					withLiteral(repository.getId().toString()).
+				property(RepositoryVocabulary.TAGS).
+					withLiteral(repository.getTags());
 
 		for (final String userId:repository.getContributors()){
 			final Name<String> userName = NamingScheme.getDefault().name(userId);
 			helper.
-			managedIndividual(repoName, RepositoryHandler.ID).
-					property(DEVELOPER).
-						withIndividual(userName,UserHandler.ID);
+				managedIndividual(repoName, RepositoryHandler.ID).
+						property(RepositoryVocabulary.DEVELOPER).
+							withIndividual(userName,UserHandler.ID);
 		}
 
-		if ( repository.getAvatarUrl() !=null){
+		if(repository.getAvatarUrl() !=null) {
 			helper.
-			managedIndividual(repoName, RepositoryHandler.ID).
-				property(DEPICTION).
-					withIndividual(repoName, RepositoryHandler.ID,DEPICTION_PATH);
+				managedIndividual(repoName, RepositoryHandler.ID).
+					property(RepositoryVocabulary.DEPICTION).
+						withIndividual(repoName, RepositoryHandler.ID,DEPICTION_PATH);
 			helper.
-			relativeIndividual(repoName,RepositoryHandler.ID,DEPICTION_PATH).
-				property(TYPE).
-					withIndividual(IMAGE).
-				property(DEPICTS).
-					withIndividual(repository.getAvatarUrl());
+				relativeIndividual(repoName,RepositoryHandler.ID,DEPICTION_PATH).
+					property(RepositoryVocabulary.TYPE).
+						withIndividual(RepositoryVocabulary.IMAGE).
+					property(RepositoryVocabulary.DEPICTS).
+						withIndividual(repository.getAvatarUrl());
 		}
 
 		return dataSet;

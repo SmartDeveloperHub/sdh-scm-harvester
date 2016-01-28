@@ -57,7 +57,6 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 
 	private URI target;
 
-
 	private BackendController controller;
 
 	@Override

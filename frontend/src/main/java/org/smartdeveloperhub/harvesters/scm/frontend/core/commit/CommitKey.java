@@ -26,8 +26,11 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
+import java.util.Objects;
 
-public class CommitKey implements Comparable<CommitKey> {
+import com.google.common.base.MoreObjects;
+
+public final class CommitKey implements Comparable<CommitKey> {
 
 	private String repoId;
 	private String commitId;
@@ -54,12 +57,40 @@ public class CommitKey implements Comparable<CommitKey> {
 	}
 
 	@Override
-	public int compareTo(final CommitKey commitId) {
-		if (this.commitId.equals(commitId.commitId))
-			if (this.repoId.equals(commitId.repoId))
-				return 0;
-		return 1;
+	public int hashCode() {
+		return Objects.hash(this.repoId,this.commitId);
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		boolean result=false;
+		if(obj instanceof CommitKey) {
+			final CommitKey that=(CommitKey)obj;
+			result=
+				Objects.equals(this.repoId,that.repoId) &&
+				Objects.equals(this.commitId,that.commitId);
+		}
+		return result;
+	}
+
+	@Override
+	public int compareTo(final CommitKey key) {
+		int result=this.repoId.compareTo(key.repoId);
+		if(result==0) {
+			result=this.commitId.compareTo(key.commitId);
+		}
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return
+			MoreObjects.
+				toStringHelper(getClass()).
+					omitNullValues().
+					add("repoId",this.repoId).
+					add("commitId", this.commitId).
+					toString();
 	}
 
 }
-
