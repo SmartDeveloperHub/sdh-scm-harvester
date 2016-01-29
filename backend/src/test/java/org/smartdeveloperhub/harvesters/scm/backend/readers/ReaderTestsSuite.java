@@ -24,28 +24,18 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.pojos;
+package org.smartdeveloperhub.harvesters.scm.backend.readers;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-public class Commits {
-
-	private List<String> commitIds = new ArrayList<String>();
-
-	public List<String> getCommitIds() {
-		return this.commitIds;
-	}
-
-	public void setCommitIds(final List<String> commitIds) {
-		this.commitIds = commitIds;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
-
+@RunWith(Suite.class)
+@SuiteClasses({
+	UserReaderTest.class,
+	CommitReaderTest.class,
+	BranchReaderTest.class,
+	RepositoryReaderTest.class
+})
+public class ReaderTestsSuite {
 }

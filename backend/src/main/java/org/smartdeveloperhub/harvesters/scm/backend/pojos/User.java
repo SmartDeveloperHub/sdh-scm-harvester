@@ -60,26 +60,36 @@ public class User {
 
 	@JsonProperty("username")
 	private String username;
+
 	@JsonProperty("first_commit_at")
 	private Long firstCommitAt;
+
 	@JsonProperty("name")
 	private String name;
+
 	@JsonProperty("created_at")
 	private Long createdAt;
+
 	@JsonProperty("emails")
-	private List<String> emails = new ArrayList<String>();
+	private List<String> emails = new ArrayList<>();
+
 	@JsonProperty("state")
 	private String state;
+
 	@JsonProperty("avatar_url")
 	private String avatarUrl;
+
 	@JsonProperty("last_commit_at")
 	private Long lastCommitAt;
+
 	@JsonProperty("id")
 	private String id;
+
 	@JsonProperty("external")
 	private boolean external;
+
 	@JsonIgnore
-	private final Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	private final Map<String, Object> additionalProperties = new HashMap<>();
 
 	/**
 	 *
@@ -249,11 +259,6 @@ public class User {
 		this.emails = emails;
 	}
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
-
 	@JsonAnyGetter
 	public Map<String, Object> getAdditionalProperties() {
 		return this.additionalProperties;
@@ -262,6 +267,11 @@ public class User {
 	@JsonAnySetter
 	public void setAdditionalProperty(final String name, final Object value) {
 		this.additionalProperties.put(name, value);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

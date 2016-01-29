@@ -26,26 +26,20 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.pojos;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
 
-public class Commits {
 
-	private List<String> commitIds = new ArrayList<String>();
+public class BranchesTest {
 
-	public List<String> getCommitIds() {
-		return this.commitIds;
-	}
-
-	public void setCommitIds(final List<String> commitIds) {
-		this.commitIds = commitIds;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+	@Test
+	public void verifyHasCustomString() {
+		final Branches object = Fixture.defaultBranches();
+		assertThat(object.toString(),not(equalTo(Utils.defaultToString(object))));
 	}
 
 }

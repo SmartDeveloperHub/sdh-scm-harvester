@@ -61,28 +61,39 @@ public class Commit {
 
 	@JsonProperty("lines_removed")
 	private Integer linesRemoved;
+
 	@JsonProperty("short_id")
 	private String shortId;
+
 	@JsonProperty("author")
 	private String author;
+
 	@JsonProperty("lines_added")
 	private Integer linesAdded;
+
 	@JsonProperty("created_at")
 	private Long createdAt;
+
 	@JsonProperty("title")
 	private String title;
+
 	@JsonProperty("parent_ids")
-	private List<Object> parentIds = new ArrayList<Object>();
+	private List<Object> parentIds = new ArrayList<>();
+
 	@JsonProperty("committed_date")
 	private Long committedDate;
+
 	@JsonProperty("message")
 	private String message;
+
 	@JsonProperty("authored_date")
 	private Long authoredDate;
+
 	@JsonProperty("id")
 	private String id;
+
 	@JsonIgnore
-	private final Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	private final Map<String, Object> additionalProperties = new HashMap<>();
 
 	/**
 	 *
@@ -293,11 +304,6 @@ public class Commit {
 		this.id = id;
 	}
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
-
 	@JsonAnyGetter
 	public Map<String, Object> getAdditionalProperties() {
 		return this.additionalProperties;
@@ -306,6 +312,11 @@ public class Commit {
 	@JsonAnySetter
 	public void setAdditionalProperty(final String name, final Object value) {
 		this.additionalProperties.put(name, value);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

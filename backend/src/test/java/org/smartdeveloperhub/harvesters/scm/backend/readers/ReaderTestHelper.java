@@ -24,28 +24,41 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.pojos;
+package org.smartdeveloperhub.harvesters.scm.backend.readers;
 
-import java.util.ArrayList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+
+import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.junit.Before;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commits;
 
-public class Commits {
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
-	private List<String> commitIds = new ArrayList<String>();
+public class ReaderTestHelper {
 
-	public List<String> getCommitIds() {
-		return this.commitIds;
+	private ObjectMapper mapper;
+
+	@Before
+	public void setUpMapper() {
+		this.mapper=new ObjectMapper();
+		this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
 	}
 
-	public void setCommitIds(final List<String> commitIds) {
-		this.commitIds = commitIds;
+	protected final String serialize(final Object modelObject) throws IOException {
+		return this.mapper.writeValueAsString(modelObject);
 	}
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+	protected final <T> String serializeList(final List<T> values) throws IOException {
+		final String value = this.mapper.writeValueAsString(values);
+		return value;
+	}
+
+	protected final void verifyCommits(final Commits defaultCommits, final Commits readCommits) {
+		assertThat(readCommits.getCommitIds(),equalTo(defaultCommits.getCommitIds()));
 	}
 
 }

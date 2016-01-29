@@ -50,10 +50,12 @@ public class Owner {
 
 	@JsonProperty("type")
 	private String type;
+
 	@JsonProperty("id")
 	private String id;
+
 	@JsonIgnore
-	private final Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	private final Map<String, Object> additionalProperties = new HashMap<>();
 
 	/**
 	 *
@@ -93,11 +95,6 @@ public class Owner {
 		this.id = id;
 	}
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
-
 	@JsonAnyGetter
 	public Map<String, Object> getAdditionalProperties() {
 		return this.additionalProperties;
@@ -106,6 +103,11 @@ public class Owner {
 	@JsonAnySetter
 	public void setAdditionalProperty(final String name, final Object value) {
 		this.additionalProperties.put(name, value);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

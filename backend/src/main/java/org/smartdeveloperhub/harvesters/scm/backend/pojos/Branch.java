@@ -55,16 +55,21 @@ public class Branch {
 
 	@JsonProperty("created_at")
 	private Long createdAt;
+
 	@JsonProperty("protected")
 	private String prot;
+
 	@JsonProperty("name")
 	private String name;
+
 	@JsonProperty("contributors")
-	private List<String> contributors = new ArrayList<String>();
+	private List<String> contributors = new ArrayList<>();
+
 	@JsonProperty("last_commit")
 	private String lastCommit;
+
 	@JsonIgnore
-	private final Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	private final Map<String, Object> additionalProperties = new HashMap<>();
 
 	private Commits commits;
 
@@ -77,14 +82,6 @@ public class Branch {
 		return this.createdAt;
 	}
 
-	public Commits getCommits() {
-		return this.commits;
-	}
-
-	public void setCommits(final Commits commits) {
-		this.commits = commits;
-	}
-
 	/**
 	 *
 	 * @param createdAt
@@ -93,6 +90,14 @@ public class Branch {
 	@JsonProperty("created_at")
 	public void setCreatedAt(final Long createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public Commits getCommits() {
+		return this.commits;
+	}
+
+	public void setCommits(final Commits commits) {
+		this.commits = commits;
 	}
 
 	/**
@@ -171,11 +176,6 @@ public class Branch {
 		this.lastCommit = lastCommit;
 	}
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
-
 	@JsonAnyGetter
 	public Map<String, Object> getAdditionalProperties() {
 		return this.additionalProperties;
@@ -184,6 +184,11 @@ public class Branch {
 	@JsonAnySetter
 	public void setAdditionalProperty(final String name, final Object value) {
 		this.additionalProperties.put(name, value);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

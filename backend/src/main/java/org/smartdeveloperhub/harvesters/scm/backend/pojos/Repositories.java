@@ -29,6 +29,8 @@ package org.smartdeveloperhub.harvesters.scm.backend.pojos;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 public class Repositories {
 
 	private List<Integer> repositoryIds = new ArrayList<Integer>();
@@ -39,6 +41,11 @@ public class Repositories {
 
 	public void setRepositoryIds(final List<Integer> repositoryIds) {
 		this.repositoryIds = repositoryIds;
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

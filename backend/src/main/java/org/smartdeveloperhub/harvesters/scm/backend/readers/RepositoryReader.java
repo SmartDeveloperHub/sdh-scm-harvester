@@ -41,10 +41,6 @@ public final class RepositoryReader {
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
-	private Repository readRepository(final String repositoryIS) throws IOException {
-		return this.mapper.readValue(repositoryIS, Repository.class);
-	}
-
 	public Repositories readReposistories(final String repositoriesIS) throws IOException {
 		final List<Integer> list =
 			this.mapper.readValue(
@@ -57,22 +53,14 @@ public final class RepositoryReader {
 		return repositories;
 	}
 
-	public Repository readRepository(final String repositoryIS, final String branchesIS) throws IOException{
-		final Repository repository = readRepository(repositoryIS);
-		final BranchReader branchReader = new BranchReader();
-		final Branches branches = branchReader.readBranches(branchesIS);
-		repository.setBranches(branches);
-		return repository;
-	}
-
 	public Repository readRepository(final String repositoryIS, final String branchesIS, final String commitsIS) throws IOException {
-		final Repository repository = readRepository(repositoryIS);
-		if (!branchesIS.isEmpty()){
+		final Repository repository = this.mapper.readValue(repositoryIS, Repository.class);
+		if (branchesIS!=null && !branchesIS.isEmpty()){
 			final BranchReader branchReader = new BranchReader();
 			final Branches branches = branchReader.readBranches(branchesIS);
 			repository.setBranches(branches);
 		}
-		if (!commitsIS.isEmpty()){
+		if (commitsIS!=null && !commitsIS.isEmpty()){
 			final CommitReader commitReader = new CommitReader();
 			final Commits commits = commitReader.readCommits(commitsIS);
 			repository.setCommits(commits);

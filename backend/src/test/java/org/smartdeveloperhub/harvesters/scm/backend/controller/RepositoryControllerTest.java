@@ -24,28 +24,28 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.pojos;
+package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 
-public class Commits {
 
-	private List<String> commitIds = new ArrayList<String>();
+public class RepositoryControllerTest {
 
-	public List<String> getCommitIds() {
-		return this.commitIds;
-	}
-
-	public void setCommitIds(final List<String> commitIds) {
-		this.commitIds = commitIds;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+	@Ignore("Need to ensure the test is run if and only if the enhancer is reachable")
+	@Test
+	public void testConnectivity() throws IOException {
+		final RepositoryController sut=new RepositoryController("http://russell.dia.fi.upm.es:5000/api");
+		final Repositories repositories=sut.getRepositories();
+		System.out.println("Repositories: "+repositories.getRepositoryIds());
+		for(final int id:repositories.getRepositoryIds()) {
+			final Repository repository = sut.getRepository(Integer.toString(id));
+			System.out.println("Repository["+id+"]:\n"+repository);
+		}
 	}
 
 }

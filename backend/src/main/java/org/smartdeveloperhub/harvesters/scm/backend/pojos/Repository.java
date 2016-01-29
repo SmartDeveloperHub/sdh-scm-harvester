@@ -65,39 +65,54 @@ public class Repository {
 
 	@JsonProperty("first_commit_at")
 	private Long firstCommitAt;
+
 	@JsonProperty("archived")
 	private String archived;
+
 	@JsonProperty("last_activity_at")
 	private Long lastActivityAt;
+
 	@JsonProperty("name")
 	private String name;
+
 	@JsonProperty("description")
 	private String description;
+
 	@JsonProperty("contributors")
-	private List<String> contributors = new ArrayList<String>();
+	private List<String> contributors = new ArrayList<>();
+
 	@JsonProperty("tags")
-	private List<String> tags = new ArrayList<String>();
+	private List<String> tags = new ArrayList<>();
+
 	@JsonProperty("created_at")
 	private Long createdAt;
+
 	@JsonProperty("default_branch")
 	private String defaultBranch;
+
 	@JsonProperty("id")
 	private Integer id;
+
 	@JsonProperty("http_url_to_repo")
 	private String httpUrlToRepo;
+
 	@JsonProperty("web_url")
 	private String webUrl;
+
 	@JsonProperty("owner")
 	private Owner owner;
+
 	@JsonProperty("last_commit_at")
 	private Long lastCommitAt;
+
 	@JsonProperty("public")
 	private String pub;
+
 	@JsonProperty("avatar_url")
 	private String avatarUrl;
 
 	@JsonIgnore
-	private final Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	private final Map<String,Object> additionalProperties = new HashMap<>();
 
 	@JsonIgnore
 	private Branches branches;
@@ -381,9 +396,13 @@ public class Repository {
 		this.avatarUrl = avatarUrl;
 	}
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+	@JsonAnySetter
+	public void setDescription(final String description) {
+		this.description = description;
+	}
+
+	public String getDescription() {
+		return this.description;
 	}
 
 	@JsonAnyGetter
@@ -394,11 +413,6 @@ public class Repository {
 	@JsonAnySetter
 	public void setAdditionalProperty(final String name, final Object value) {
 		this.additionalProperties.put(name, value);
-	}
-
-	@JsonAnySetter
-	public void setDescription(final String description) {
-		this.description = description;
 	}
 
 	public Branches getBranches() {
@@ -415,6 +429,11 @@ public class Repository {
 
 	public void setCommits(final Commits commits) {
 		this.commits = commits;
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }
