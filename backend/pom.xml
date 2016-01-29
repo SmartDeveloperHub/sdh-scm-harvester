@@ -43,9 +43,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
 	<artifactId>scm-harvester-backend</artifactId>
-
 
 	<!-- =================================================================== -->
 	<!--   MODULE INFORMATION                                                -->
@@ -113,8 +111,20 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ldp4j.commons</groupId>
+			<artifactId>ldp4j-commons-testing</artifactId>
+			<version>${ldp4j.version}</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -128,18 +138,13 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
+			<groupId>org.jmockit</groupId>
+			<artifactId>jmockit</artifactId>
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.ldp4j.commons</groupId>
-			<artifactId>ldp4j-commons-testing</artifactId>
-			<version>${ldp4j.version}</version>
-			<scope>test</scope>
-		</dependency>
 
 	</dependencies>
 

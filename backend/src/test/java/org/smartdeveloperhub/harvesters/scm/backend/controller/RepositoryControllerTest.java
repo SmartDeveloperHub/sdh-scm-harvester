@@ -26,26 +26,83 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
 
-import org.junit.Ignore;
+import mockit.Mock;
+import mockit.MockUp;
+import mockit.integration.junit4.JMockit;
+
 import org.junit.Test;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
+import org.junit.runner.RunWith;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
+import org.smartdeveloperhub.harvesters.scm.backend.rest.BranchClient;
+import org.smartdeveloperhub.harvesters.scm.backend.rest.CommitClient;
+import org.smartdeveloperhub.harvesters.scm.backend.rest.RepositoryClient;
 
+import com.google.common.io.Resources;
 
+@RunWith(JMockit.class)
 public class RepositoryControllerTest {
 
-	@Ignore("Need to ensure the test is run if and only if the enhancer is reachable")
+	private String loadResponse(final String string) throws IOException {
+		final URL resource = Resources.getResource("responses/"+string);
+		return Resources.toString(resource, Charset.forName("UTF-8"));
+
+	}
+
 	@Test
-	public void testConnectivity() throws IOException {
-		final RepositoryController sut=new RepositoryController("http://russell.dia.fi.upm.es:5000/api");
-		final Repositories repositories=sut.getRepositories();
-		System.out.println("Repositories: "+repositories.getRepositoryIds());
-		for(final int id:repositories.getRepositoryIds()) {
-			final Repository repository = sut.getRepository(Integer.toString(id));
-			System.out.println("Repository["+id+"]:\n"+repository);
-		}
+	public void testGetRepository$happyPath() throws IOException {
+		final String source="repoId";
+		new MockUp<RepositoryClient>() {
+			@Mock
+			public String getRepository(final String repoId) throws IOException {
+				assertThat(repoId,equalTo(source));
+				return loadResponse("repository.json");
+			}
+		};
+		new MockUp<BranchClient>() {
+			@Mock
+			public String getBranches(final String repoId) throws IOException {
+				assertThat(repoId,equalTo(source));
+				return loadResponse("repository-branches.json");
+			}
+		};
+		new MockUp<CommitClient>() {
+			@Mock
+			public String getCommits(final String repoId) throws IOException {
+				assertThat(repoId,equalTo(source));
+				return loadResponse("repository-commits.json");
+			}
+		};
+		final RepositoryController sut = new RepositoryController("baseURL");
+		final Repository repository = sut.getRepository(source);
+		assertThat(repository,notNullValue());
+		assertThat(repository.getBranches(),notNullValue());
+		assertThat(repository.getCommits(),notNullValue());
+	}
+
+	@Test
+	public void testGetRepositoryWithoutBranchCommit$happyPath() throws IOException {
+		final String source="repoId";
+		new MockUp<RepositoryClient>() {
+			@Mock
+			public String getRepository(final String repoId) throws IOException {
+				assertThat(repoId,equalTo(source));
+				return loadResponse("repository.json");
+			}
+		};
+		final RepositoryController sut = new RepositoryController("baseURL");
+		final Repository repository = sut.getRepositoryWithoutBranchCommit(source);
+		assertThat(repository,notNullValue());
+		assertThat(repository.getBranches(),nullValue());
+		assertThat(repository.getCommits(),nullValue());
 	}
 
 }
