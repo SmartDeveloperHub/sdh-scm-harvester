@@ -24,21 +24,23 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.pojos;
+package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
 
-public class Branches extends Pojo {
+import com.google.common.io.Resources;
 
-	private List<String> branchIds = new ArrayList<>();
+public class ControllerTestHelper {
 
-	public List<String> getBranchIds() {
-		return this.branchIds;
+	public ControllerTestHelper() {
+		super();
 	}
 
-	public void setBranchIds(final List<String> branchIds) {
-		this.branchIds = branchIds;
+	protected String loadResponse(final String string) throws IOException {
+		final URL resource = Resources.getResource("responses/"+string);
+		return Resources.toString(resource, Charset.forName("UTF-8"));
 	}
 
 }

@@ -26,19 +26,26 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.pojos;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Branches extends Pojo {
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-	private List<String> branchIds = new ArrayList<>();
+public abstract class Extensible extends Pojo {
 
-	public List<String> getBranchIds() {
-		return this.branchIds;
+	@JsonIgnore
+	private final Map<String, Object> additionalProperties = new HashMap<>();
+
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
 	}
 
-	public void setBranchIds(final List<String> branchIds) {
-		this.branchIds = branchIds;
+	@JsonAnySetter
+	public void setAdditionalProperty(final String name, final Object value) {
+		this.additionalProperties.put(name, value);
 	}
 
 }

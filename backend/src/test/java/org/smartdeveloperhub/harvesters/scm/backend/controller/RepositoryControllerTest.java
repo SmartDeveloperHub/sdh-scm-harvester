@@ -32,29 +32,50 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 
 import mockit.Mock;
 import mockit.MockUp;
 import mockit.integration.junit4.JMockit;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
+import org.smartdeveloperhub.harvesters.scm.backend.readers.RepositoryReader;
 import org.smartdeveloperhub.harvesters.scm.backend.rest.BranchClient;
 import org.smartdeveloperhub.harvesters.scm.backend.rest.CommitClient;
 import org.smartdeveloperhub.harvesters.scm.backend.rest.RepositoryClient;
 
-import com.google.common.io.Resources;
-
 @RunWith(JMockit.class)
-public class RepositoryControllerTest {
+public class RepositoryControllerTest extends ControllerTestHelper {
 
-	private String loadResponse(final String string) throws IOException {
-		final URL resource = Resources.getResource("responses/"+string);
-		return Resources.toString(resource, Charset.forName("UTF-8"));
+	private RepositoryController sut;
 
+	@Before
+	public void setUp() {
+		this.sut= new RepositoryController("baseURL");
+	}
+
+	@Test
+	public void testGetRepositories$happyPath() throws IOException {
+		final String response = loadResponse("repositories.json");
+		new MockUp<RepositoryClient>() {
+			@Mock
+			public String getRepositories() throws IOException {
+				return response;
+			}
+		};
+
+		final Repositories processedRepos = this.sut.getRepositories();
+		final Repositories retrievedRepos =
+			new RepositoryReader().
+				readReposistories(response);
+
+		assertThat(processedRepos,notNullValue());
+		assertThat(
+			processedRepos.getRepositoryIds(),
+			equalTo(retrievedRepos.getRepositoryIds()));
 	}
 
 	@Test
@@ -81,8 +102,7 @@ public class RepositoryControllerTest {
 				return loadResponse("repository-commits.json");
 			}
 		};
-		final RepositoryController sut = new RepositoryController("baseURL");
-		final Repository repository = sut.getRepository(source);
+		final Repository repository = this.sut.getRepository(source);
 		assertThat(repository,notNullValue());
 		assertThat(repository.getBranches(),notNullValue());
 		assertThat(repository.getCommits(),notNullValue());
@@ -98,8 +118,7 @@ public class RepositoryControllerTest {
 				return loadResponse("repository.json");
 			}
 		};
-		final RepositoryController sut = new RepositoryController("baseURL");
-		final Repository repository = sut.getRepositoryWithoutBranchCommit(source);
+		final Repository repository = this.sut.getRepositoryWithoutBranchCommit(source);
 		assertThat(repository,notNullValue());
 		assertThat(repository.getBranches(),nullValue());
 		assertThat(repository.getCommits(),nullValue());

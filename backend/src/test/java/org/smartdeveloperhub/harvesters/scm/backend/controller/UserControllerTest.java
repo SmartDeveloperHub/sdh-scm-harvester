@@ -24,21 +24,39 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.pojos;
+package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
-public class Branches extends Pojo {
+import java.io.IOException;
 
-	private List<String> branchIds = new ArrayList<>();
+import mockit.Mock;
+import mockit.MockUp;
+import mockit.integration.junit4.JMockit;
 
-	public List<String> getBranchIds() {
-		return this.branchIds;
-	}
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
+import org.smartdeveloperhub.harvesters.scm.backend.rest.UserClient;
 
-	public void setBranchIds(final List<String> branchIds) {
-		this.branchIds = branchIds;
+@RunWith(JMockit.class)
+public class UserControllerTest extends ControllerTestHelper {
+
+	@Test
+	public void testGetUser$happyPath() throws IOException {
+		final String sourceUserId="repoId";
+		new MockUp<UserClient>() {
+			@Mock
+			public String getUser(final String userId) throws IOException {
+				assertThat(userId,equalTo(sourceUserId));
+				return loadResponse("user.json");
+			}
+		};
+		final UserController sut = new UserController("baseURL");
+		final User user = sut.getUser(sourceUserId);
+		assertThat(user,notNullValue());
 	}
 
 }

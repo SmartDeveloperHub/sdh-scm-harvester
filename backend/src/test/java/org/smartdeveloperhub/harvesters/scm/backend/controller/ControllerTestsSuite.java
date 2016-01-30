@@ -31,7 +31,12 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ RepositoryControllerTest.class })
+@SuiteClasses({
+	UserControllerTest.class,
+	CommitControllerTest.class,
+	BranchControllerTest.class,
+	RepositoryControllerTest.class
+})
 public class ControllerTestsSuite {
 
 }

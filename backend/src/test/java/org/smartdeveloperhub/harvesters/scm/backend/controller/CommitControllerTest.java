@@ -24,21 +24,41 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.pojos;
+package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
-public class Branches extends Pojo {
+import java.io.IOException;
 
-	private List<String> branchIds = new ArrayList<>();
+import mockit.Mock;
+import mockit.MockUp;
+import mockit.integration.junit4.JMockit;
 
-	public List<String> getBranchIds() {
-		return this.branchIds;
-	}
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
+import org.smartdeveloperhub.harvesters.scm.backend.rest.CommitClient;
 
-	public void setBranchIds(final List<String> branchIds) {
-		this.branchIds = branchIds;
+@RunWith(JMockit.class)
+public class CommitControllerTest extends ControllerTestHelper {
+
+	@Test
+	public void testGetCommit$happyPath() throws IOException {
+		final String sourceRepoId="repoId";
+		final String sourceCommitId="branchId";
+		new MockUp<CommitClient>() {
+			@Mock
+			public String getCommit(final String repoId, final String commitId) throws IOException {
+				assertThat(repoId,equalTo(sourceRepoId));
+				assertThat(commitId,equalTo(sourceCommitId));
+				return loadResponse("commit.json");
+			}
+		};
+		final CommitController sut = new CommitController("baseURL");
+		final Commit commit = sut.getCommit(sourceRepoId, sourceCommitId);
+		assertThat(commit,notNullValue());
 	}
 
 }

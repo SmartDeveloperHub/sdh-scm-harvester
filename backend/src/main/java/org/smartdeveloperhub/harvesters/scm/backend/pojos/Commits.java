@@ -29,9 +29,7 @@ package org.smartdeveloperhub.harvesters.scm.backend.pojos;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-public class Commits {
+public class Commits extends Pojo {
 
 	private List<String> commitIds = new ArrayList<String>();
 
@@ -41,11 +39,6 @@ public class Commits {
 
 	public void setCommitIds(final List<String> commitIds) {
 		this.commitIds = commitIds;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

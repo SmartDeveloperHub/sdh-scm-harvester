@@ -26,19 +26,13 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.pojos;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
-public class Branches extends Pojo {
+public abstract class Pojo {
 
-	private List<String> branchIds = new ArrayList<>();
-
-	public List<String> getBranchIds() {
-		return this.branchIds;
-	}
-
-	public void setBranchIds(final List<String> branchIds) {
-		this.branchIds = branchIds;
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

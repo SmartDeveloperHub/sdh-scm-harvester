@@ -29,16 +29,74 @@ package org.smartdeveloperhub.harvesters.scm.backend.pojos;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Branches extends Pojo {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-	private List<String> branchIds = new ArrayList<>();
+public abstract class Contributable extends Extensible {
 
-	public List<String> getBranchIds() {
-		return this.branchIds;
+	@JsonProperty("name")
+	private String name;
+
+	@JsonProperty("contributors")
+	private List<String> contributors = new ArrayList<>();
+
+	@JsonProperty("created_at")
+	private Long createdAt;
+
+	/**
+	 *
+	 * @return The name
+	 */
+	@JsonProperty("name")
+	public String getName() {
+		return this.name;
 	}
 
-	public void setBranchIds(final List<String> branchIds) {
-		this.branchIds = branchIds;
+	/**
+	 *
+	 * @param name
+	 *            The name
+	 */
+	@JsonProperty("name")
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	/**
+	 *
+	 * @return The contributors
+	 */
+	@JsonProperty("contributors")
+	public List<String> getContributors() {
+		return this.contributors;
+	}
+
+	/**
+	 *
+	 * @param contributors
+	 *            The contributors
+	 */
+	@JsonProperty("contributors")
+	public void setContributors(final List<String> contributors) {
+		this.contributors = contributors;
+	}
+
+	/**
+	 *
+	 * @return The createdAt
+	 */
+	@JsonProperty("created_at")
+	public Long getCreatedAt() {
+		return this.createdAt;
+	}
+
+	/**
+	 *
+	 * @param createdAt
+	 *            The created_at
+	 */
+	@JsonProperty("created_at")
+	public void setCreatedAt(final Long createdAt) {
+		this.createdAt = createdAt;
 	}
 
 }

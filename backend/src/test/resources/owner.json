@@ -1,0 +1,9 @@
+{
+  "type":"user",
+  "id":1,
+  "strExtension":"value",
+  "intExtension":2,
+  "objExtension": {
+     "property":"value"
+  }
+}

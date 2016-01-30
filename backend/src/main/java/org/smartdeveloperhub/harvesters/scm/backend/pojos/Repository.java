@@ -27,15 +27,10 @@
 package org.smartdeveloperhub.harvesters.scm.backend.pojos;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Generated;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -61,7 +56,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 	"public",
 	"avatar_url"
 })
-public class Repository {
+public class Repository extends Contributable {
 
 	@JsonProperty("first_commit_at")
 	private Long firstCommitAt;
@@ -72,20 +67,11 @@ public class Repository {
 	@JsonProperty("last_activity_at")
 	private Long lastActivityAt;
 
-	@JsonProperty("name")
-	private String name;
-
 	@JsonProperty("description")
 	private String description;
 
-	@JsonProperty("contributors")
-	private List<String> contributors = new ArrayList<>();
-
 	@JsonProperty("tags")
 	private List<String> tags = new ArrayList<>();
-
-	@JsonProperty("created_at")
-	private Long createdAt;
 
 	@JsonProperty("default_branch")
 	private String defaultBranch;
@@ -110,9 +96,6 @@ public class Repository {
 
 	@JsonProperty("avatar_url")
 	private String avatarUrl;
-
-	@JsonIgnore
-	private final Map<String,Object> additionalProperties = new HashMap<>();
 
 	@JsonIgnore
 	private Branches branches;
@@ -179,44 +162,6 @@ public class Repository {
 
 	/**
 	 *
-	 * @return The name
-	 */
-	@JsonProperty("name")
-	public String getName() {
-		return this.name;
-	}
-
-	/**
-	 *
-	 * @param name
-	 *            The name
-	 */
-	@JsonProperty("name")
-	public void setName(final String name) {
-		this.name = name;
-	}
-
-	/**
-	 *
-	 * @return The contributors
-	 */
-	@JsonProperty("contributors")
-	public List<String> getContributors() {
-		return this.contributors;
-	}
-
-	/**
-	 *
-	 * @param contributors
-	 *            The contributors
-	 */
-	@JsonProperty("contributors")
-	public void setContributors(final List<String> contributors) {
-		this.contributors = contributors;
-	}
-
-	/**
-	 *
 	 * @return The tags
 	 */
 	@JsonProperty("tags")
@@ -232,25 +177,6 @@ public class Repository {
 	@JsonProperty("tags")
 	public void setTags(final List<String> tags) {
 		this.tags = tags;
-	}
-
-	/**
-	 *
-	 * @return The createdAt
-	 */
-	@JsonProperty("created_at")
-	public Long getCreatedAt() {
-		return this.createdAt;
-	}
-
-	/**
-	 *
-	 * @param createdAt
-	 *            The created_at
-	 */
-	@JsonProperty("created_at")
-	public void setCreatedAt(final Long createdAt) {
-		this.createdAt = createdAt;
 	}
 
 	/**
@@ -405,16 +331,6 @@ public class Repository {
 		return this.description;
 	}
 
-	@JsonAnyGetter
-	public Map<String, Object> getAdditionalProperties() {
-		return this.additionalProperties;
-	}
-
-	@JsonAnySetter
-	public void setAdditionalProperty(final String name, final Object value) {
-		this.additionalProperties.put(name, value);
-	}
-
 	public Branches getBranches() {
 		return this.branches;
 	}
@@ -429,11 +345,6 @@ public class Repository {
 
 	public void setCommits(final Commits commits) {
 		this.commits = commits;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

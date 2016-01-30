@@ -26,16 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.pojos;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.annotation.Generated;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -46,19 +38,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 	"type",
 	"id"
 })
-public class Owner {
+public class Owner extends Identifiable<String> {
 
 	@JsonProperty("type")
 	private String type;
 
-	@JsonProperty("id")
-	private String id;
-
-	@JsonIgnore
-	private final Map<String, Object> additionalProperties = new HashMap<>();
-
 	/**
-	 *
+	 * Retrieve the owner type
 	 * @return The type
 	 */
 	@JsonProperty("type")
@@ -67,47 +53,13 @@ public class Owner {
 	}
 
 	/**
-	 *
+	 * Define the owner type
 	 * @param type
 	 *            The type
 	 */
 	@JsonProperty("type")
 	public void setType(final String type) {
 		this.type = type;
-	}
-
-	/**
-	 *
-	 * @return The id
-	 */
-	@JsonProperty("id")
-	public String getId() {
-		return this.id;
-	}
-
-	/**
-	 *
-	 * @param id
-	 *            The id
-	 */
-	@JsonProperty("id")
-	public void setId(final String id) {
-		this.id = id;
-	}
-
-	@JsonAnyGetter
-	public Map<String, Object> getAdditionalProperties() {
-		return this.additionalProperties;
-	}
-
-	@JsonAnySetter
-	public void setAdditionalProperty(final String name, final Object value) {
-		this.additionalProperties.put(name, value);
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
 	}
 
 }
