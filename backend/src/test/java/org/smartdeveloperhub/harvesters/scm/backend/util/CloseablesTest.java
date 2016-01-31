@@ -24,24 +24,54 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend;
+package org.smartdeveloperhub.harvesters.scm.backend.util;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
-import org.smartdeveloperhub.harvesters.scm.backend.controller.ControllerTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.PojosTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.readers.ReaderTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.rest.RestTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.util.UtilTestsSuite;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	UtilTestsSuite.class,
-	RestTestsSuite.class,
-	PojosTestsSuite.class,
-	ReaderTestsSuite.class,
-	ControllerTestsSuite.class
-})
-public class BackendTestsSuite {
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
+
+
+public class CloseablesTest {
+
+	@Test
+	public void verifyIsUtilityClass() {
+		assertThat(Utils.isUtilityClass(Closeables.class),equalTo(true));
+	}
+
+	@Test
+	public void testCloseQuietly$null() {
+		Closeables.closeQuietly(null);
+	}
+
+	@Test
+	public void testCloseQuietly$notNullNoFailure() {
+		Closeables.closeQuietly(new AutoCloseable() {
+			@Override
+			public void close() throws Exception {
+			}
+		});
+	}
+
+	@Test
+	public void testCloseQuietly$notNullCheckedException() {
+		Closeables.closeQuietly(new AutoCloseable() {
+			@Override
+			public void close() throws Exception {
+				throw new Exception("Exception");
+			}
+		});
+	}
+
+	@Test
+	public void testCloseQuietly$notNullUncheckedException() {
+		Closeables.closeQuietly(new AutoCloseable() {
+			@Override
+			public void close() throws Exception {
+				throw new RuntimeException("Exception");
+			}
+		});
+	}
+
 }

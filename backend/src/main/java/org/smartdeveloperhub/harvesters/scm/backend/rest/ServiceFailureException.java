@@ -24,24 +24,31 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend;
+package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
-import org.smartdeveloperhub.harvesters.scm.backend.controller.ControllerTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.PojosTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.readers.ReaderTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.rest.RestTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.util.UtilTestsSuite;
+import java.io.IOException;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	UtilTestsSuite.class,
-	RestTestsSuite.class,
-	PojosTestsSuite.class,
-	ReaderTestsSuite.class,
-	ControllerTestsSuite.class
-})
-public class BackendTestsSuite {
+import org.apache.http.StatusLine;
+
+public final class ServiceFailureException extends IOException {
+
+	private static final long serialVersionUID = 2079023043902094249L;
+
+	private final String resource;
+	private final int status;
+
+	public ServiceFailureException(final String resource, final StatusLine statusLine) {
+		super("Resource '"+resource+"' retrieval failed with status "+statusLine);
+		this.resource=resource;
+		this.status=statusLine.getStatusCode();
+	}
+
+	public String getResource() {
+		return this.resource;
+	}
+
+	public int getStatus() {
+		return this.status;
+	}
+
 }

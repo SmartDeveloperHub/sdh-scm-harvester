@@ -24,24 +24,15 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend;
+package org.smartdeveloperhub.harvesters.scm.backend.util;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-import org.smartdeveloperhub.harvesters.scm.backend.controller.ControllerTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.PojosTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.readers.ReaderTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.rest.RestTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.util.UtilTestsSuite;
 
 @RunWith(Suite.class)
-@SuiteClasses({
-	UtilTestsSuite.class,
-	RestTestsSuite.class,
-	PojosTestsSuite.class,
-	ReaderTestsSuite.class,
-	ControllerTestsSuite.class
+@SuiteClasses({ 
+	CloseablesTest.class
 })
-public class BackendTestsSuite {
+public class UtilTestsSuite {
 }

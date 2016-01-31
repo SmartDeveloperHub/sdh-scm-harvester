@@ -24,24 +24,26 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend;
+package org.smartdeveloperhub.harvesters.scm.backend.util;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
-import org.smartdeveloperhub.harvesters.scm.backend.controller.ControllerTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.PojosTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.readers.ReaderTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.rest.RestTestsSuite;
-import org.smartdeveloperhub.harvesters.scm.backend.util.UtilTestsSuite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	UtilTestsSuite.class,
-	RestTestsSuite.class,
-	PojosTestsSuite.class,
-	ReaderTestsSuite.class,
-	ControllerTestsSuite.class
-})
-public class BackendTestsSuite {
+public final class Closeables {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(Closeables.class);
+
+	private Closeables() {
+	}
+
+	public static void closeQuietly(final AutoCloseable client) {
+		if(client!=null) {
+			try {
+				client.close();
+			} catch (final Exception e) {
+				LOGGER.warn("Swallowed exception",e);
+			}
+		}
+	}
+
 }
