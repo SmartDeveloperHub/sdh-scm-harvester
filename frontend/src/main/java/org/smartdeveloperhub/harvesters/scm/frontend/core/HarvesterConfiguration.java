@@ -26,10 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.util.Properties;
+import java.net.URISyntaxException;
 
 import org.ldp4j.application.ext.Configuration;
 import org.ldp4j.application.ext.Namespaces;
@@ -38,17 +36,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class HarvesterConfiguration extends Configuration {
+public final class HarvesterConfiguration extends Configuration {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER=LoggerFactory.getLogger(HarvesterConfiguration.class);
 
-	//system property
-	@SuppressWarnings("unused")
-	private static final String SCM_HARVESTER_TARGET = "scm.harvester.target";
-	//property file
-	private static final String SCM_HARVESTER_CONFIG_PATH = "Scm.harvester.config";
+	static final String GITLAB_ENHANCER_SYSTEM_PROPERTY      = "scm.harvester.enhancer";
+	static final String GITLAB_ENHANCER_ENVIRONMENT_VARIABLE = "GITLAB_ENHANCER";
 
+	private URI target=null;
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Namespaces namespaces() {
 		return
@@ -59,38 +58,59 @@ public class HarvesterConfiguration extends Configuration {
 				withPrefix("foaf", "http://xmlns.com/foaf/0.1/");
 	}
 
-	// the name of the service you're publishing.
-	public URI target() throws IOException {
-		final String target="http://scmharvester/service/";
-//		LOGGER.info("- Get GitLab enhancer ..");
-		//first try to get the enhancer url from the system property;
-//		String target = System.getProperty(SCM_HARVESTER_TARGET);
-//		if(target==null) {
-//			//if the system property is not set then read the property file
-//			target=getURIfromPropertyFile();
-//			if (target==null){
-//				target="http://192.168.0.10:5000/api/";
-//				LOGGER.info("- Using default enhancer url ..: {}", target);
-//			}
-//			else
-//				LOGGER.info("- Enhancer from property file {}..: {}",SCM_HARVESTER_CONFIG_PATH, target);
-//		}
-//		else{
-//			LOGGER.info("- Enhancer from system property {}..: {}",SCM_HARVESTER_TARGET, target);
-//		}
-		return URI.create(target);
+	/**
+	 * Retrieve the location of the GitLab Enhancer to use. The location is read
+	 * first from the {@value #GITLAB_ENHANCER_SYSTEM_PROPERTY} system property.
+	 * If no valid value is found, then the
+	 * {@value #GITLAB_ENHANCER_ENVIRONMENT_VARIABLE} is tried.
+	 *
+	 * @return The location of the GitLab Enhancer or null if no valid location
+	 *         has been specified
+	 */
+	public URI target() {
+		if(this.target==null) {
+			String gitLabEnhancer = System.getProperty(GITLAB_ENHANCER_SYSTEM_PROPERTY);
+			this.target=verifyEnhancerURI(gitLabEnhancer,true,GITLAB_ENHANCER_SYSTEM_PROPERTY);
+			if(this.target==null) {
+				gitLabEnhancer = System.getenv(GITLAB_ENHANCER_ENVIRONMENT_VARIABLE);
+				this.target=verifyEnhancerURI(gitLabEnhancer,false,GITLAB_ENHANCER_ENVIRONMENT_VARIABLE);
+			}
+		}
+		return this.target;
 	}
 
-	protected String getURIfromPropertyFile() throws IOException{
-		String target=null;
-		final Properties prop = new Properties();
-		final InputStream inputStream = getClass().getClassLoader().getResourceAsStream(SCM_HARVESTER_CONFIG_PATH);
-
-		if (inputStream != null) {
-			prop.load(inputStream);
-			target = prop.getProperty("gitlab.enhancer");
+	private URI verifyEnhancerURI(final String uri, final boolean systemProperty, final String identifier) {
+		URI result = null;
+		if(uri!=null) {
+			try {
+				final URI tmp=new URI(uri);
+				if(!"http".equals(tmp.getScheme())) {
+					logFailure(uri,systemProperty,identifier,null,"unsupported protocol ("+tmp.getScheme()+")");
+				} else {
+					result=tmp;
+				}
+			} catch (final URISyntaxException e) {
+				logFailure(uri,systemProperty,identifier,e,null);
+			}
 		}
-		return target;
+		return result;
+	}
+
+	private void logFailure(
+			final String uri,
+			final boolean systemProperty,
+			final String identifier,
+			final Throwable failure,
+			final String message) {
+		LOGGER.warn(
+			"Invalid GitLab Enhancer URI '{}' configured via {} '{}'{}",
+			uri,
+			systemProperty?
+				"system property":
+				"environment variable",
+			identifier,
+			message!=null?": "+message:"",
+			failure);
 	}
 
 }

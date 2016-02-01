@@ -31,6 +31,7 @@ import java.net.URI;
 import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.ext.Application;
 import org.ldp4j.application.ext.ApplicationInitializationException;
+import org.ldp4j.application.ext.ApplicationSetupException;
 import org.ldp4j.application.session.WriteSession;
 import org.ldp4j.application.setup.Bootstrap;
 import org.ldp4j.application.setup.Environment;
@@ -60,37 +61,35 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 	private BackendController controller;
 
 	@Override
-	public void setup(final Environment environment, final Bootstrap<HarvesterConfiguration> bootstrap){
+	public void setup(final Environment environment, final Bootstrap<HarvesterConfiguration> bootstrap) throws ApplicationSetupException{
 		LOGGER.info("Starting SCM Harvester Application configuration...");
 		final HarvesterConfiguration configuration = bootstrap.configuration();
-		try {
-			LOGGER.info("- Target..: {}",configuration.target());
-			this.target=configuration.target();
-
-			this.controller = new BackendController();
-
-			bootstrap.addHandler(new HarvesterHandler(this.controller));
-			bootstrap.addHandler(new RepositoryHandler(this.controller));
-			bootstrap.addHandler(new UserHandler(this.controller));
-			bootstrap.addHandlerClass(UserContainerHandler.class);
-			bootstrap.addHandler(new BranchHandler(this.controller));
-			bootstrap.addHandlerClass(BranchContainerHandler.class);
-			bootstrap.addHandler(new CommitHandler(this.controller));
-			bootstrap.addHandlerClass(CommitContainerHandler.class);
-
-			environment.
-				publishResource(
-					NamingScheme.
-						getDefault().
-							name(this.target),
-					HarvesterHandler.class,
-					SERVICE_PATH);
-
-			LOGGER.info("SCM Harvester Application configuration completed.");
-		} catch (final Exception e) {
-			final String errorMessage = "SCM Harvester Application Setup failed";
-			LOGGER.warn(errorMessage+". Full stacktrace follows: ",e);
+		this.target=configuration.target();
+		if(this.target==null) {
+			LOGGER.error("No target GitLab Enhancer configured");
+			throw new ApplicationSetupException("No target GitLab Enhancer configured");
 		}
+		LOGGER.info("- Target..: {}",configuration.target());
+		this.controller = new BackendController(this.target);
+
+		bootstrap.addHandler(new HarvesterHandler(this.controller));
+		bootstrap.addHandler(new RepositoryHandler(this.controller));
+		bootstrap.addHandler(new UserHandler(this.controller));
+		bootstrap.addHandlerClass(UserContainerHandler.class);
+		bootstrap.addHandler(new BranchHandler(this.controller));
+		bootstrap.addHandlerClass(BranchContainerHandler.class);
+		bootstrap.addHandler(new CommitHandler(this.controller));
+		bootstrap.addHandlerClass(CommitContainerHandler.class);
+
+		environment.
+			publishResource(
+				NamingScheme.
+					getDefault().
+						name(this.target),
+				HarvesterHandler.class,
+				SERVICE_PATH);
+
+		LOGGER.info("SCM Harvester Application configuration completed.");
 	}
 
 	@Override

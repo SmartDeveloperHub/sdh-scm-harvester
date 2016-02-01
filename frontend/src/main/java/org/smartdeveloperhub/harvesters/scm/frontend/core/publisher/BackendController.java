@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -59,15 +60,8 @@ public class BackendController {
 
 	private GitLabHarvester gitLabHarvester;
 
-	public BackendController() {
-		final String gitLabEnhancer = System.getenv("GITLAB_ENHANCER");
-		if(gitLabEnhancer==null) {
-			this.scmRestService = "http://192.168.0.10:5000/api";
-			LOGGER.info("GITLAB_ENHANCER by default {}", this.scmRestService);
-		} else {
-			LOGGER.info("GITLAB_ENHANCER environment variable {}",gitLabEnhancer);
-			this.scmRestService = gitLabEnhancer;
-		}
+	public BackendController(final URI uri) {
+		this.scmRestService=uri.toString();
 		this.branchIdentityMap = new IdentityMap<BranchKey>();
 		this.commitIdentityMap = new IdentityMap<CommitKey>();
 	}
@@ -142,7 +136,7 @@ public class BackendController {
 	}
 
 	public static void main(final String[] args) throws IOException {
-		final BackendController bkend = new BackendController();
+		final BackendController bkend = new BackendController(URI.create(args[0]));
 		final Repository repo = bkend.getRepository("5");
 		LOGGER.info("{}",repo);
 		LOGGER.info("* {}",repo.getBranches());
