@@ -35,7 +35,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	UserReaderTest.class,
 	CommitReaderTest.class,
 	BranchReaderTest.class,
-	RepositoryReaderTest.class
+	RepositoryReaderTest.class,
+	EventReaderTest.class
 })
 public class ReaderTestsSuite {
 }

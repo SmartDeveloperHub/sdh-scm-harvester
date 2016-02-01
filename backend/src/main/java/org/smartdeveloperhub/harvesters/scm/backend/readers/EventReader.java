@@ -26,52 +26,38 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.readers;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-
 import java.io.IOException;
-import java.util.List;
 
-import org.junit.Before;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commits;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.CommitterCreatedEvent;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.CommitterDeletedEvent;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryCreatedEvent;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryDeletedEvent;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryUpdatedEvent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class ReaderTestHelper {
+public class EventReader {
 
-	private ObjectMapper mapper;
+	private final ObjectMapper mapper=new ObjectMapper();
 
-	private boolean enableLog=false;
-
-	protected final void showSerializations(final boolean enable) {
-		this.enableLog = enable;
+	public CommitterCreatedEvent readCommitterCreatedEvent(final String serialization) throws IOException {
+		return this.mapper.readValue(serialization,CommitterCreatedEvent.class);
 	}
 
-	@Before
-	public void setUpMapper() {
-		this.mapper=new ObjectMapper();
-		this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
+	public CommitterDeletedEvent readCommitterDeletedEvent(final String serialization) throws IOException {
+		return this.mapper.readValue(serialization,CommitterDeletedEvent.class);
 	}
 
-	protected final String serialize(final Object modelObject) throws IOException {
-		final String serialization = this.mapper.writeValueAsString(modelObject);
-		if(this.enableLog) {
-			System.out.println(serialization);
-		}
-		return serialization;
+	public RepositoryCreatedEvent readRepositoryCreatedEvent(final String serialization) throws IOException {
+		return this.mapper.readValue(serialization,RepositoryCreatedEvent.class);
 	}
 
-	protected final <T> String serializeList(final List<T> values) throws IOException {
-		final String serialization = this.mapper.writeValueAsString(values);
-		if(this.enableLog) {
-			System.out.println(serialization);
-		}
-		return serialization;
+	public RepositoryDeletedEvent readRepositoryDeletedEvent(final String serialization) throws IOException {
+		return this.mapper.readValue(serialization,RepositoryDeletedEvent.class);
 	}
 
-	protected final void verifyCommits(final Commits defaultCommits, final Commits readCommits) {
-		assertThat(readCommits.getCommitIds(),equalTo(defaultCommits.getCommitIds()));
+	public RepositoryUpdatedEvent readRepositoryUpdatedEvent(final String serialization) throws IOException {
+		return this.mapper.readValue(serialization,RepositoryUpdatedEvent.class);
 	}
 
 }
