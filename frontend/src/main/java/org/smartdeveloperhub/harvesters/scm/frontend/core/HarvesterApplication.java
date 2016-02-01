@@ -62,9 +62,7 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 	@Override
 	public void setup(final Environment environment, final Bootstrap<HarvesterConfiguration> bootstrap){
 		LOGGER.info("Starting SCM Harvester Application configuration...");
-
 		final HarvesterConfiguration configuration = bootstrap.configuration();
-
 		try {
 			LOGGER.info("- Target..: {}",configuration.target());
 			this.target=configuration.target();
@@ -72,7 +70,7 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 			this.controller = new BackendController();
 
 			bootstrap.addHandler(new HarvesterHandler(this.controller));
-	 	    bootstrap.addHandler(new RepositoryHandler(this.controller));
+			bootstrap.addHandler(new RepositoryHandler(this.controller));
 			bootstrap.addHandler(new UserHandler(this.controller));
 			bootstrap.addHandlerClass(UserContainerHandler.class);
 			bootstrap.addHandler(new BranchHandler(this.controller));
@@ -81,10 +79,14 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 			bootstrap.addHandlerClass(CommitContainerHandler.class);
 
 			environment.
-				publishResource(NamingScheme.getDefault().name(this.target),HarvesterHandler.class, SERVICE_PATH);
+				publishResource(
+					NamingScheme.
+						getDefault().
+							name(this.target),
+					HarvesterHandler.class,
+					SERVICE_PATH);
 
-		LOGGER.info("SCM Harvester Application configuration completed.");
-
+			LOGGER.info("SCM Harvester Application configuration completed.");
 		} catch (final Exception e) {
 			final String errorMessage = "SCM Harvester Application Setup failed";
 			LOGGER.warn(errorMessage+". Full stacktrace follows: ",e);
@@ -95,7 +97,6 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 	public void initialize(final WriteSession session) throws ApplicationInitializationException {
 		LOGGER.info("Initializing SCM Harvester Application...");
 		final BackendResourcePublisher publisher = new BackendResourcePublisher(session, this.controller);
-
 		try {
 			publisher.publishHarvesterResources(this.target);
 			session.saveChanges();
@@ -108,7 +109,6 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 			LOGGER.info("SCM Harvester: Starting thread for registering users.");
 			final UserPublisherThread userPublisher = new UserPublisherThread(this.controller);
 			userPublisher.start();
-
 		} catch (final Exception e) {
 			final String errorMessage = "SCM Harvester Application initialization failed";
 			LOGGER.warn(errorMessage+". Full stacktrace follows: ",e);
