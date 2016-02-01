@@ -26,7 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
-import org.joda.time.DateTime;
+import java.util.Date;
+
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
@@ -40,7 +41,6 @@ import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Mapper;
 
 @Resource(id=CommitHandler.ID)
 public class CommitHandler implements ResourceHandler {
@@ -80,11 +80,11 @@ public class CommitHandler implements ResourceHandler {
 				property(CommitVocabulary.TYPE).
 					withIndividual(CommitVocabulary.ACTION).
 					withIndividual(CommitVocabulary.COMMIT).
-				property(CommitVocabulary.COMMITID).
+				property(CommitVocabulary.COMMIT_ID).
 					withLiteral(commit.getId()).
-				property(CommitVocabulary.CREATEDON).
-					withLiteral(Mapper.toLiteral(new DateTime(commit.getCreatedAt()).toDate())).
-				property(CommitVocabulary.PERFORMEDBY).
+				property(CommitVocabulary.CREATED_ON).
+					withLiteral(new Date(commit.getCreatedAt())).
+				property(CommitVocabulary.PERFORMED_BY).
 					withIndividual(userName, UserHandler.ID );
 
 		return dataSet;

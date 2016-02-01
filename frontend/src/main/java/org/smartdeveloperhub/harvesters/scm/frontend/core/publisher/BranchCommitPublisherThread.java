@@ -89,9 +89,6 @@ public class BranchCommitPublisherThread extends Thread {
 		try(WriteSession session=ctx.createSession()) {
 			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
 			final ContainerSnapshot branchContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,BranchContainerHandler.class);
-			// This is an alternative:
-			// ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
-			// ContainerSnapshot ContainerSnapshot = (ContainerSnapshot)repositorySnapshot.attachmentById(RepositoryHandler.REPOSITORY_BRANCHES).resource();
 			if(branchContainerSnapshot!=null){
 				for (final String branchId:repository.getBranches().getBranchIds()){
 					final Name<String> branchName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),branchId);

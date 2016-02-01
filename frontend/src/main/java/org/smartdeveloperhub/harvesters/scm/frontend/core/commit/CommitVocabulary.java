@@ -26,15 +26,15 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
-abstract class CommitVocabulary {
+final class CommitVocabulary {
 
-	static final String TYPE        = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+	static final String TYPE         = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
-	static final String ACTION      = "http://www.smartdeveloperhub.org/vocabulary/scm#Action";
-	static final String COMMIT      = "http://www.smartdeveloperhub.org/vocabulary/scm#Commit";
-	static final String CREATEDON   = "http://www.smartdeveloperhub.org/vocabulary/scm#createdOn";
-	static final String PERFORMEDBY = "http://www.smartdeveloperhub.org/vocabulary/scm#performedBy";
-	static final String COMMITID    = "http://www.smartdeveloperhub.org/vocabulary/scm#commitId";
+	static final String ACTION       = "http://www.smartdeveloperhub.org/vocabulary/scm#Action";
+	static final String COMMIT       = "http://www.smartdeveloperhub.org/vocabulary/scm#Commit";
+	static final String CREATED_ON   = "http://www.smartdeveloperhub.org/vocabulary/scm#createdOn";
+	static final String PERFORMED_BY = "http://www.smartdeveloperhub.org/vocabulary/scm#performedBy";
+	static final String COMMIT_ID    = "http://www.smartdeveloperhub.org/vocabulary/scm#commitId";
 
 	private CommitVocabulary() {
 	}

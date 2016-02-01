@@ -26,31 +26,31 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.repository;
 
-abstract class RepositoryVocabulary {
+final class RepositoryVocabulary {
 
-	static final String TYPE          = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+	static final String TYPE           = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
-	static final String DEVELOPER     = "http://usefulinc.com/ns/doap#developer";
-	static final String NAME          = "http://usefulinc.com/ns/doap#name";
-	static final String DESCRIPTION   = "http://usefulinc.com/ns/doap#description";
+	static final String DEVELOPER      = "http://usefulinc.com/ns/doap#developer";
+	static final String NAME           = "http://usefulinc.com/ns/doap#name";
+	static final String DESCRIPTION    = "http://usefulinc.com/ns/doap#description";
 
-	static final String DEPICTION     = "http://xmlns.com/foaf/0.1/depiction";
-	static final String IMAGE         = "http://xmlns.com/foaf/0.1/Image";
-	static final String DEPICTS       = "http://xmlns.com/foaf/0.1/depicts";
+	static final String DEPICTION      = "http://xmlns.com/foaf/0.1/depiction";
+	static final String IMAGE          = "http://xmlns.com/foaf/0.1/Image";
+	static final String DEPICTS        = "http://xmlns.com/foaf/0.1/depicts";
 
-	static final String SCMREPOSITORY = "http://www.smartdeveloperhub.org/vocabulary/scm#Repository";
-	static final String LOCATION      = "http://www.smartdeveloperhub.org/vocabulary/scm#location";
-	static final String CREATEDON     = "http://www.smartdeveloperhub.org/vocabulary/scm#createdOn";
-	static final String DEFAULTBRANCH = "http://www.smartdeveloperhub.org/vocabulary/scm#defaultBranch";
-	static final String FIRSTCOMMIT   = "http://www.smartdeveloperhub.org/vocabulary/scm#firstCommit";
-	static final String LASTCOMMIT    = "http://www.smartdeveloperhub.org/vocabulary/scm#lastCommit";
-	static final String HASBRANCH     = "http://www.smartdeveloperhub.org/vocabulary/scm#hasBranch";
-	static final String ARCHIVED      = "http://www.smartdeveloperhub.org/vocabulary/scm#isArchived";
-	static final String PUBLIC        = "http://www.smartdeveloperhub.org/vocabulary/scm#isPublic";
-	static final String OWNER         = "http://www.smartdeveloperhub.org/vocabulary/scm#owner";
-	static final String REPOSITORYID  = "http://www.smartdeveloperhub.org/vocabulary/scm#repositoryId";
-	static final String TAGS          = "http://www.smartdeveloperhub.org/vocabulary/scm#tags";
-	static final String REPOSITORYOF  = "http://www.smartdeveloperhub.org/vocabulary/scm#isRepositoryOf";
+	static final String SCM_REPOSITORY = "http://www.smartdeveloperhub.org/vocabulary/scm#Repository";
+	static final String LOCATION       = "http://www.smartdeveloperhub.org/vocabulary/scm#location";
+	static final String CREATED_ON     = "http://www.smartdeveloperhub.org/vocabulary/scm#createdOn";
+	static final String DEFAULT_BRANCH = "http://www.smartdeveloperhub.org/vocabulary/scm#defaultBranch";
+	static final String FIRST_COMMIT   = "http://www.smartdeveloperhub.org/vocabulary/scm#firstCommit";
+	static final String LAST_COMMIT    = "http://www.smartdeveloperhub.org/vocabulary/scm#lastCommit";
+	static final String HAS_BRANCH     = "http://www.smartdeveloperhub.org/vocabulary/scm#hasBranch";
+	static final String ARCHIVED       = "http://www.smartdeveloperhub.org/vocabulary/scm#isArchived";
+	static final String PUBLIC         = "http://www.smartdeveloperhub.org/vocabulary/scm#isPublic";
+	static final String OWNER          = "http://www.smartdeveloperhub.org/vocabulary/scm#owner";
+	static final String REPOSITORY_ID  = "http://www.smartdeveloperhub.org/vocabulary/scm#repositoryId";
+	static final String TAGS           = "http://www.smartdeveloperhub.org/vocabulary/scm#tags";
+	static final String REPOSITORY_OF  = "http://www.smartdeveloperhub.org/vocabulary/scm#isRepositoryOf";
 
 	private RepositoryVocabulary() {
 	}

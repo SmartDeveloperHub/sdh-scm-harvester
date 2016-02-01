@@ -55,7 +55,9 @@ public final class HarvesterConfiguration extends Configuration {
 				withPrefix("scm", "http://www.smartdeveloperhub.org/vocabulary/scm#").
 				withPrefix("platform", "http://www.smartdeveloperhub.org/vocabulary/platform#").
 				withPrefix("doap", "http://usefulinc.com/ns/doap#").
-				withPrefix("foaf", "http://xmlns.com/foaf/0.1/");
+				withPrefix("foaf", "http://xmlns.com/foaf/0.1/").
+				withPrefix("dctypes","http://purl.org/dc/dcmitype/").
+				withPrefix("dcterms","http://purl.org/dc/terms/");
 	}
 
 	/**

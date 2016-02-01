@@ -26,7 +26,7 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.harvester;
 
-abstract class HarvesterVocabulary {
+final class HarvesterVocabulary {
 
 	static final String TYPE                           = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
@@ -45,8 +45,8 @@ abstract class HarvesterVocabulary {
 	static final String SOURCE                         = "http://www.smartdeveloperhub.org/vocabulary/platform#source";
 	static final String IMPLEMENTS                     = "http://www.smartdeveloperhub.org/vocabulary/platform#implements";
 
-	static final String SCMVOCABULARY                  = "http://www.smartdeveloperhub.org/vocabulary/scm#SCMVocabulary";
-	static final String SCMHARVESTER                   = "http://www.smartdeveloperhub.org/vocabulary/scm#SCMHarvester";
+	static final String SCM_VOCABULARY                  = "http://www.smartdeveloperhub.org/vocabulary/scm#SCMVocabulary";
+	static final String SCM_HARVESTER                   = "http://www.smartdeveloperhub.org/vocabulary/scm#SCMHarvester";
 	static final String REPOSITORY                     = "http://www.smartdeveloperhub.org/vocabulary/scm#hasRepository";
 	static final String COMMITTER                      = "http://www.smartdeveloperhub.org/vocabulary/scm#hasCommitter";
 	static final String SCM_DOMAIN_TYPE                = "http://www.smartdeveloperhub.org/vocabulary/scm#SCMDomain";

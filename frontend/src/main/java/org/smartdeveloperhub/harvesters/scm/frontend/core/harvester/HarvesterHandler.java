@@ -99,7 +99,7 @@ public class HarvesterHandler implements ResourceHandler {
 					withIndividual(HarvesterVocabulary.MICRO_SERVICE_TYPE).
 					withIndividual(HarvesterVocabulary.LINKED_DATA_MICRO_SERVICE_TYPE).
 					withIndividual(HarvesterVocabulary.HARVESTER).
-					withIndividual(HarvesterVocabulary.SCMHARVESTER).
+					withIndividual(HarvesterVocabulary.SCM_HARVESTER).
 				property(HarvesterVocabulary.HARVESTER_VOCABULARY).
 					withIndividual(harvesterName,HarvesterHandler.ID,VOCABULARY_PATH);
 
@@ -123,7 +123,7 @@ public class HarvesterHandler implements ResourceHandler {
 		helper.
 			relativeIndividual(harvesterName,HarvesterHandler.ID,VOCABULARY_PATH).
 				property(HarvesterVocabulary.TYPE).
-					withIndividual(HarvesterVocabulary.SCMVOCABULARY).
+					withIndividual(HarvesterVocabulary.SCM_VOCABULARY).
 					withIndividual(HarvesterVocabulary.VOCABULARY).
 				property(HarvesterVocabulary.SOURCE).
 					withLiteral(URI.create(HarvesterVocabulary.SCM_V1_TTL)).

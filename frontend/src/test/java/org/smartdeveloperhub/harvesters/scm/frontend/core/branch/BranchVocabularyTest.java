@@ -26,18 +26,17 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.branch;
 
-final class BranchVocabulary {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
-	static final String TYPE         = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
 
-	static final String NAME         = "http://usefulinc.com/ns/doap#name";
+public class BranchVocabularyTest {
 
-	static final String BRANCH_TYPE  = "http://www.smartdeveloperhub.org/vocabulary/scm#Branch";
-	static final String CREATED_ON   = "http://www.smartdeveloperhub.org/vocabulary/scm#createdOn";
-	static final String HAS_COMMIT   = "http://www.smartdeveloperhub.org/vocabulary/scm#hasCommit";
-	static final String IS_TARGET_OF = "http://www.smartdeveloperhub.org/vocabulary/scm#isTargetOf";
-
-	private BranchVocabulary() {
+	@Test
+	public void verifyIsUtilityClass() {
+		assertThat(Utils.isUtilityClass(BranchVocabulary.class),equalTo(true));
 	}
 
 }

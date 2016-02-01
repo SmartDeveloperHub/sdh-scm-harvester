@@ -27,8 +27,8 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.repository;
 
 import java.net.URI;
+import java.util.Date;
 
-import org.joda.time.DateTime;
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
@@ -45,7 +45,6 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainer
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Mapper;
 
 
 @Resource(
@@ -98,24 +97,24 @@ public class RepositoryHandler implements ResourceHandler {
 		helper.
 			managedIndividual(repoName, RepositoryHandler.ID).
 				property(RepositoryVocabulary.TYPE).
-					withIndividual(RepositoryVocabulary.SCMREPOSITORY).
+					withIndividual(RepositoryVocabulary.SCM_REPOSITORY).
 				property(RepositoryVocabulary.LOCATION).
 					withLiteral(repository.getHttpUrlToRepo()).
 				property(RepositoryVocabulary.NAME).
 					withLiteral(repository.getName()).
-				property(RepositoryVocabulary.CREATEDON).
-					withLiteral(Mapper.toLiteral(new DateTime(repository.getCreatedAt()).toDate())).
-				property(RepositoryVocabulary.FIRSTCOMMIT).
-					withLiteral(Mapper.toLiteral(new DateTime(repository.getFirstCommitAt()).toDate())).
-				property(RepositoryVocabulary.LASTCOMMIT).
-					withLiteral(Mapper.toLiteral(new DateTime(repository.getLastCommitAt()).toDate())).
+				property(RepositoryVocabulary.CREATED_ON).
+					withLiteral(new Date(repository.getCreatedAt())).
+				property(RepositoryVocabulary.FIRST_COMMIT).
+					withLiteral(new Date(repository.getFirstCommitAt())).
+				property(RepositoryVocabulary.LAST_COMMIT).
+					withLiteral(new Date(repository.getLastCommitAt())).
 				property(RepositoryVocabulary.ARCHIVED).
 					withLiteral(new Boolean(repository.getArchived())).
 				property(RepositoryVocabulary.PUBLIC).
 					withLiteral(new Boolean(repository.getPublic())).
 				property(RepositoryVocabulary.OWNER).
 					withIndividual(ownerName, UserHandler.ID).
-				property(RepositoryVocabulary.REPOSITORYID).
+				property(RepositoryVocabulary.REPOSITORY_ID).
 					withLiteral(repository.getId().toString()).
 				property(RepositoryVocabulary.TAGS).
 					withLiteral(repository.getTags());

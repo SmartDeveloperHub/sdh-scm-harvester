@@ -26,24 +26,24 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.user;
 
-abstract class UserVocabulary {
+final class UserVocabulary {
 
-	static final String TYPE          = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+	static final String TYPE           = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
-	static final String IMG           = "http://xmlns.com/foaf/0.1/img";
-	static final String NAME          = "http://xmlns.com/foaf/0.1/name";
-	static final String NICK          = "http://xmlns.com/foaf/0.1/nick";
-	static final String IMAGE         = "http://xmlns.com/foaf/0.1/Image";
-	static final String DEPICTS       = "http://xmlns.com/foaf/0.1/depicts";
+	static final String IMG            = "http://xmlns.com/foaf/0.1/img";
+	static final String NAME           = "http://xmlns.com/foaf/0.1/name";
+	static final String NICK           = "http://xmlns.com/foaf/0.1/nick";
+	static final String IMAGE          = "http://xmlns.com/foaf/0.1/Image";
+	static final String DEPICTS        = "http://xmlns.com/foaf/0.1/depicts";
 
-	static final String PERSONTYPE    = "http://www.smartdeveloperhub.org/vocabulary/scm#Committer";
-	static final String FIRSTCOMMIT   = "http://www.smartdeveloperhub.org/vocabulary/scm#firstCommit";
-	static final String LASTCOMMIT    = "http://www.smartdeveloperhub.org/vocabulary/scm#lastCommit";
-	static final String MBOX          = "http://www.smartdeveloperhub.org/vocabulary/scm#mbox";
-	static final String COMMITTERID   = "http://www.smartdeveloperhub.org/vocabulary/scm#committerId";
-	static final String EXTERNAL      = "http://www.smartdeveloperhub.org/vocabulary/scm#external";
+	static final String PERSON_TYPE    = "http://www.smartdeveloperhub.org/vocabulary/scm#Committer";
+	static final String FIRST_COMMIT   = "http://www.smartdeveloperhub.org/vocabulary/scm#firstCommit";
+	static final String LAST_COMMIT    = "http://www.smartdeveloperhub.org/vocabulary/scm#lastCommit";
+	static final String MBOX           = "http://www.smartdeveloperhub.org/vocabulary/scm#mbox";
+	static final String COMMITTER_ID   = "http://www.smartdeveloperhub.org/vocabulary/scm#committerId";
+	static final String EXTERNAL       = "http://www.smartdeveloperhub.org/vocabulary/scm#external";
 
-	static final String CORRESPONDSTO = "http://www.smartdeveloperhub.org/vocabulary/platform#correspondsTo";
+	static final String CORRESPONDS_TO = "http://www.smartdeveloperhub.org/vocabulary/platform#correspondsTo";
 
 	private UserVocabulary() {
 	}

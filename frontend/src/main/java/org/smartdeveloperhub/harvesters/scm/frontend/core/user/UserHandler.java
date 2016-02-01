@@ -27,8 +27,8 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.user;
 
 import java.net.URI;
+import java.util.Date;
 
-import org.joda.time.DateTime;
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
@@ -40,7 +40,6 @@ import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.Mapper;
 
 @Resource(id=UserHandler.ID)
 public class UserHandler implements ResourceHandler {
@@ -74,19 +73,19 @@ public class UserHandler implements ResourceHandler {
 		helper.
 			managedIndividual(userName, UserHandler.ID).
 				property(UserVocabulary.TYPE).
-					withIndividual(UserVocabulary.PERSONTYPE).
+					withIndividual(UserVocabulary.PERSON_TYPE).
 				property(UserVocabulary.NAME).
 					withLiteral(user.getName()).
 				property(UserVocabulary.NICK).
 					withLiteral(user.getUsername()).
 				property(UserVocabulary.EXTERNAL).
 					withLiteral(new Boolean(user.isExternal())).
-				property(UserVocabulary.COMMITTERID).
+				property(UserVocabulary.COMMITTER_ID).
 					withLiteral(user.getId()).
-				property(UserVocabulary.FIRSTCOMMIT).
-					withLiteral(Mapper.toLiteral(new DateTime(user.getFirstCommitAt()).toDate())).
-				property(UserVocabulary.LASTCOMMIT).
-					withLiteral(Mapper.toLiteral(new DateTime(user.getLastCommitAt()).toDate()));
+				property(UserVocabulary.FIRST_COMMIT).
+					withLiteral(new Date(user.getFirstCommitAt())).
+				property(UserVocabulary.LAST_COMMIT).
+					withLiteral(new Date(user.getLastCommitAt()));
 
 		for(final String email:user.getEmails()){
 			helper.

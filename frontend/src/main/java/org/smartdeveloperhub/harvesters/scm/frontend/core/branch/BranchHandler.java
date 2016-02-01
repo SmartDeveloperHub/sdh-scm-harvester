@@ -75,19 +75,19 @@ public class BranchHandler implements ResourceHandler {
 		helper.
 			managedIndividual(branchName, BranchHandler.ID).
 				property(BranchVocabulary.TYPE).
-					withIndividual(BranchVocabulary.BRANCHTYPE).
+					withIndividual(BranchVocabulary.BRANCH_TYPE).
 				property(BranchVocabulary.NAME).
 					withLiteral(branch.getName()).
-				property(BranchVocabulary.CREATEDON).
+				property(BranchVocabulary.CREATED_ON).
 					withLiteral(new Date(branch.getCreatedAt()));
 
 		for (final String commitId:branch.getCommits().getCommitIds()){
 			final Name<String> commitName = NamingScheme.getDefault().name(repositoryId,commitId);
 			helper.
 				managedIndividual(branchName, BranchHandler.ID).
-					property(BranchVocabulary.HASCOMMIT).
+					property(BranchVocabulary.HAS_COMMIT).
 						withIndividual(commitName,CommitHandler.ID).
-					property(BranchVocabulary.ISTARGETOF).
+					property(BranchVocabulary.IS_TARGET_OF).
 						withIndividual(commitName,CommitHandler.ID);
 		}
 
