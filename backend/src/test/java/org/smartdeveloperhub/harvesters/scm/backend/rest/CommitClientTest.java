@@ -26,16 +26,43 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import mockit.integration.junit4.JMockit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	UserClientTest.class,
-	CommitClientTest.class,
-	BranchClientTest.class,
-	RepositoryClientTest.class
-})
-public class RestTestsSuite {
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(JMockit.class)
+public class CommitClientTest extends ClientTestHelper {
+
+	private static final String BASE = "http://www.example.org/api";
+
+	private CommitClient sut;
+
+	@Before
+	public void setUp() {
+		this.sut = new CommitClient(BASE);
+	}
+
+	@Test
+	public void testGetCommit$happyPath() throws Exception {
+		setUpHappyPath("result");
+		final String result  = this.sut.getCommit("repoId", "commitId");
+		verifyHappyPath(result,BASE+"/projects/repoId/commits/commitId");
+	}
+
+	@Test
+	public void testGetRepositoryCommits$happyPath() throws Exception {
+		setUpHappyPath("result");
+		final String result  = this.sut.getCommits("repoId");
+		verifyHappyPath(result,BASE+"/projects/repoId/commits");
+	}
+
+	@Test
+	public void testGetBranchCommits$happyPath() throws Exception {
+		setUpHappyPath("result");
+		final String result  = this.sut.getCommits("repoId","branchId");
+		verifyHappyPath(result,BASE+"/projects/repoId/branches/branchId/commits");
+	}
+
 }

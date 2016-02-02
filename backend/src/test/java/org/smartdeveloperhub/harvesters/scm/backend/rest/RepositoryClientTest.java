@@ -26,16 +26,36 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import mockit.integration.junit4.JMockit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	UserClientTest.class,
-	CommitClientTest.class,
-	BranchClientTest.class,
-	RepositoryClientTest.class
-})
-public class RestTestsSuite {
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(JMockit.class)
+public class RepositoryClientTest extends ClientTestHelper {
+
+	private static final String BASE = "http://www.example.org/api";
+
+	private RepositoryClient sut;
+
+	@Before
+	public void setUp() {
+		this.sut = new RepositoryClient(BASE);
+	}
+
+	@Test
+	public void testGetRepository$happyPath() throws Exception {
+		setUpHappyPath("result");
+		final String result  = this.sut.getRepository("repoId");
+		verifyHappyPath(result,BASE+"/projects/repoId");
+	}
+
+	@Test
+	public void testGetRepositories$happyPath() throws Exception {
+		setUpHappyPath("result");
+		final String result  = this.sut.getRepositories();
+		verifyHappyPath(result,BASE+"/projects");
+	}
+
 }
