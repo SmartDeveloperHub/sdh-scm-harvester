@@ -102,6 +102,7 @@ public class EventReaderTest extends ReaderTestHelper {
 		originalEvent.setDeletedBranches(Arrays.asList("feature/new-issue","feature/enhancement"));
 		originalEvent.setNewCommits(Arrays.asList("2ae1d88a46004f5c3c6aa3ddba2cf719452ea005", "afcea4f8ba9cddba9d7a1370d63f0a78601f3973"));
 		originalEvent.setDeletedCommits(Arrays.asList("98f22db350ed82f43ddf2645375d0fabd096aaee", "3fc4bba13432d1f1bebc13ebe54ccafd9fde1224"));
+		originalEvent.setContributors(Arrays.asList("12", "22"));
 		fillInBasicEvent(originalEvent);
 
 		final RepositoryUpdatedEvent readEvent=
@@ -114,6 +115,7 @@ public class EventReaderTest extends ReaderTestHelper {
 		assertThat(readEvent.getDeletedBranches(),equalTo(originalEvent.getDeletedBranches()));
 		assertThat(readEvent.getNewCommits(),equalTo(originalEvent.getNewCommits()));
 		assertThat(readEvent.getDeletedCommits(),equalTo(originalEvent.getDeletedCommits()));
+		assertThat(readEvent.getContributors(),equalTo(originalEvent.getContributors()));
 	}
 
 	@Test

@@ -41,7 +41,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 	RepositoryUpdatedEvent.NEW_BRANCHES,
 	RepositoryUpdatedEvent.DELETED_BRANCHES,
 	RepositoryUpdatedEvent.NEW_COMMITS,
-	RepositoryUpdatedEvent.DELETED_COMMITS
+	RepositoryUpdatedEvent.DELETED_COMMITS,
+	RepositoryUpdatedEvent.CONTRIBUTORS
 })
 public class RepositoryUpdatedEvent extends Event {
 
@@ -50,6 +51,7 @@ public class RepositoryUpdatedEvent extends Event {
 	static final String NEW_COMMITS      = "newCommits";
 	static final String DELETED_BRANCHES = "deletedBranches";
 	static final String DELETED_COMMITS  = "deletedCommits";
+	static final String CONTRIBUTORS     = "contributors";
 
 	@JsonProperty(REPOSITORY)
 	private Integer repository;
@@ -65,6 +67,9 @@ public class RepositoryUpdatedEvent extends Event {
 
 	@JsonProperty(DELETED_COMMITS)
 	private List<String> deletedCommits = new ArrayList<>();
+
+	@JsonProperty(CONTRIBUTORS)
+	private List<String> contributors = new ArrayList<>();
 
 	/**
 	 * Get the identifier of the updated repository
@@ -168,7 +173,30 @@ public class RepositoryUpdatedEvent extends Event {
 	 */
 	@JsonProperty(DELETED_COMMITS)
 	public void setDeletedCommits(final List<String> commitIds) {
-		this.deletedCommits = commitIds;
+		this.deletedCommits= commitIds;
+	}
+
+	/**
+	 * Get the identifiers of the committers that contributed to the repository
+	 * update
+	 *
+	 * @return The identifiers of the contributors
+	 */
+	@JsonProperty(CONTRIBUTORS)
+	public List<String> getContributors() {
+		return this.contributors;
+	}
+
+	/**
+	 * Set the identifiers of the committers that contributed to the repository
+	 * update
+	 *
+	 * @param commiterIds
+	 *            The identifiers of the contributors
+	 */
+	@JsonProperty(CONTRIBUTORS)
+	public void setContributors(final List<String> commiterIds) {
+		this.contributors = commiterIds;
 	}
 
 }
