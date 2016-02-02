@@ -24,20 +24,22 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.readers;
+package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
+import mockit.integration.junit4.JMockit;
+
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	UserReaderTest.class,
-	CommitReaderTest.class,
-	BranchReaderTest.class,
-	RepositoryReaderTest.class,
-	EnhancerReaderTest.class,
-	EventReaderTest.class
-})
-public class ReaderTestsSuite {
+@RunWith(JMockit.class)
+public class EnhancerClientTest extends ClientTestHelper {
+
+	@Test
+	public void testGetEnhancer$happyPath() throws Exception {
+		setUpHappyPath("result");
+		final EnhancerClient sut = new EnhancerClient("http://www.example.org/api");
+		final String result  = sut.getEnhancer();
+		verifyHappyPath(result,"http://www.example.org/api");
+	}
+
 }

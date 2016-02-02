@@ -30,24 +30,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class Identifiable<T> extends Extensible {
 
-	@JsonProperty("id")
+	static final String ID="id";
+
+	@JsonProperty(ID)
 	private T id;
 
 	/**
+	 * Get the identifier of the entity
 	 *
-	 * @return The id
+	 * @return The identifier
 	 */
-	@JsonProperty("id")
+	@JsonProperty(ID)
 	public T getId() {
 		return this.id;
 	}
 
 	/**
+	 * Set the identifier of the entity
 	 *
 	 * @param id
-	 *            The id
+	 *            The identifier of the entity
 	 */
-	@JsonProperty("id")
+	@JsonProperty(ID)
 	public void setId(final T id) {
 		this.id = id;
 	}

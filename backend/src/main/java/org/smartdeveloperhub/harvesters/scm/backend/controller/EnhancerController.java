@@ -24,22 +24,41 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.rest;
+package org.smartdeveloperhub.harvesters.scm.backend.controller;
+
 
 import java.io.IOException;
 
-public class UserClient extends AbstractClient {
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Enhancer;
+import org.smartdeveloperhub.harvesters.scm.backend.readers.EnhancerReader;
+import org.smartdeveloperhub.harvesters.scm.backend.rest.EnhancerClient;
+import org.smartdeveloperhub.harvesters.scm.backend.rest.RepositoryClient;
+import org.smartdeveloperhub.harvesters.scm.backend.rest.UserClient;
 
-	public UserClient(final String scmRestService) {
-		super(scmRestService);
+public class EnhancerController {
+
+	private final EnhancerClient enhancerClient;
+	private final EnhancerReader enhancerReader;
+
+	private final RepositoryClient repositoryClient;
+
+	private final UserClient userClient;
+
+	private final String enhancerEndpoint;
+
+	public EnhancerController(final String enhancerEndpoint){
+		this.enhancerEndpoint = enhancerEndpoint;
+		this.enhancerClient = new EnhancerClient(enhancerEndpoint);
+		this.enhancerReader = new EnhancerReader();
+		this.repositoryClient = new RepositoryClient(enhancerEndpoint);
+		this.userClient = new UserClient(enhancerEndpoint);
 	}
 
-	public String getUsers() throws IOException {
-		return getResource("/users");
-	}
-
-	public String getUser(final String userId) throws IOException {
-		return getResource("/users/%s",userId);
+	public Enhancer getEnhancer() throws IOException {
+		final String enhancerIS = this.enhancerClient.getEnhancer();
+		final String repositoriesIS = this.repositoryClient.getRepositories();
+		final String usersIS = this.userClient.getUsers();
+		return this.enhancerReader.readEnhancer(this.enhancerEndpoint,enhancerIS,repositoriesIS,usersIS);
 	}
 
 }

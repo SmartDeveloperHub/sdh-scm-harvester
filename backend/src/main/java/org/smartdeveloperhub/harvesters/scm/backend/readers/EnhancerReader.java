@@ -26,18 +26,34 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.readers;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.io.IOException;
+import java.util.List;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	UserReaderTest.class,
-	CommitReaderTest.class,
-	BranchReaderTest.class,
-	RepositoryReaderTest.class,
-	EnhancerReaderTest.class,
-	EventReaderTest.class
-})
-public class ReaderTestsSuite {
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Enhancer;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public final class EnhancerReader {
+
+	private final ObjectMapper mapper = new ObjectMapper();
+
+	private final RepositoryReader repositoryReader;
+	private final UserReader userReader;
+
+	public EnhancerReader() {
+		this.repositoryReader = new RepositoryReader();
+		this.userReader = new UserReader();
+	}
+
+	public Enhancer readEnhancer(final String enhancerId, final String enhancerIS, final String repositoriesIS, final String usersIS) throws IOException {
+		final Enhancer enhancer = this.mapper.readValue(enhancerIS, Enhancer.class);
+		final Repositories reposistories = this.repositoryReader.readReposistories(repositoriesIS);
+		final List<String> userIds = this.userReader.readUsers(usersIS);
+		enhancer.setId(enhancerId);
+		enhancer.setRepositories(reposistories.getRepositoryIds());
+		enhancer.setUsers(userIds);
+		return enhancer;
+	}
+
 }

@@ -27,10 +27,12 @@
 package org.smartdeveloperhub.harvesters.scm.backend.readers;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public final class UserReader {
 
@@ -38,6 +40,15 @@ public final class UserReader {
 
 	public User readUser(final String userIS) throws IOException {
 		return this.mapper.readValue(userIS, User.class);
+	}
+
+	public List<String> readUsers(final String usersIS) throws IOException {
+		return
+			this.mapper.readValue(
+				usersIS,
+				TypeFactory.
+					defaultInstance().
+						constructCollectionType(List.class,String.class));
 	}
 
 }

@@ -24,20 +24,18 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.readers;
+package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.io.IOException;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	UserReaderTest.class,
-	CommitReaderTest.class,
-	BranchReaderTest.class,
-	RepositoryReaderTest.class,
-	EnhancerReaderTest.class,
-	EventReaderTest.class
-})
-public class ReaderTestsSuite {
+public class EnhancerClient extends AbstractClient {
+
+	public EnhancerClient(final String scmRestService) {
+		super(scmRestService);
+	}
+
+	public String getEnhancer() throws IOException {
+		return getResource("");
+	}
+
 }

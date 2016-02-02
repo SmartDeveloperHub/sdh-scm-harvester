@@ -49,6 +49,13 @@ public class UserClientTest extends ClientTestHelper {
 	}
 
 	@Test
+	public void testGetUsers$happyPath() throws Exception {
+		setUpHappyPath("result");
+		final String result  = this.sut.getUsers();
+		verifyHappyPath(result,BASE+"/users");
+	}
+
+	@Test
 	public void testGetUser$happyPath() throws Exception {
 		setUpHappyPath("result");
 		final String result  = this.sut.getUser("id");

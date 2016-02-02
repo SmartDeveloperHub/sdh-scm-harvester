@@ -35,7 +35,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	UserControllerTest.class,
 	CommitControllerTest.class,
 	BranchControllerTest.class,
-	RepositoryControllerTest.class
+	RepositoryControllerTest.class,
+	EnhancerControllerTest.class
 })
 public class ControllerTestsSuite {
 

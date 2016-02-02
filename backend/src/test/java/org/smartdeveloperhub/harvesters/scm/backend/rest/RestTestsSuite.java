@@ -35,7 +35,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	UserClientTest.class,
 	CommitClientTest.class,
 	BranchClientTest.class,
-	RepositoryClientTest.class
+	RepositoryClientTest.class,
+	EnhancerClientTest.class
 })
 public class RestTestsSuite {
 }
