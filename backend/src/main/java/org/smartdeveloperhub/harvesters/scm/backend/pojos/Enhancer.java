@@ -42,9 +42,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 })
 public class Enhancer extends Extensible {
 
-	static final String STATUS  = "status";
-	static final String NAME    = "name";
-	static final String VERSION = "version";
+	static final String STATUS  = "Status";
+	static final String NAME    = "Name";
+	static final String VERSION = "Version";
 
 	@JsonIgnore
 	private String id;
