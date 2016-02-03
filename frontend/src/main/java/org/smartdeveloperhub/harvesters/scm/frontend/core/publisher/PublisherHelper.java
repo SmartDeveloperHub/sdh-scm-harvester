@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 final class PublisherHelper {
 
@@ -50,7 +51,7 @@ final class PublisherHelper {
 			repositoryContainer.templateId());
 
 		final Name<Integer> repositoryName=
-			IdentityUtil.repositoryIdentity(repositoryId);
+			IdentityUtil.repositoryName(repositoryId);
 
 		final ResourceSnapshot repository =
 				repositoryContainer.addMember(repositoryName);

@@ -72,7 +72,7 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 		LOGGER.info("- Target..: {}",configuration.target());
 		this.controller = new BackendController(this.target);
 
-		bootstrap.addHandler(new HarvesterHandler(this.controller));
+		bootstrap.addHandler(new HarvesterHandler());
 		bootstrap.addHandler(new RepositoryHandler(this.controller));
 		bootstrap.addHandler(new UserHandler(this.controller));
 		bootstrap.addHandlerClass(UserContainerHandler.class);

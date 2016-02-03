@@ -40,6 +40,7 @@ import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 @Resource(id=UserHandler.ID)
 public class UserHandler implements ResourceHandler {
@@ -56,17 +57,18 @@ public class UserHandler implements ResourceHandler {
 
 	@Override
 	public DataSet get(final ResourceSnapshot resource) {
-		@SuppressWarnings("unchecked")
-		final Name<String> name = (Name<String>)resource.name();
-		try{
-			final User user = this.backendController.getUser(name.id().toString());
-			return maptoDataSet(user,name);
+		final String userId=IdentityUtil.userId(resource);
+		try {
+			final User user = this.backendController.getUser(userId);
+			return maptoDataSet(user);
 		} catch(final Exception e){
 			 throw new ApplicationRuntimeException(e);
 		}
 	}
 
-	private DataSet maptoDataSet(final User user, final Name<String> userName) {
+	private DataSet maptoDataSet(final User user) {
+		final Name<String> userName=IdentityUtil.userName(user.getId());
+
 		final DataSet dataSet=DataSets.createDataSet(userName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 

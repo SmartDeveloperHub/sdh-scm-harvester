@@ -24,37 +24,69 @@
  *   Bundle      : scm-harvester.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
+package org.smartdeveloperhub.harvesters.scm.frontend.core.util;
 
+import static com.google.common.base.Preconditions.checkState;
+
+import java.io.Serializable;
 import java.net.URI;
 
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
+import org.ldp4j.application.session.ResourceSnapshot;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 
-final class IdentityUtil {
+public final class IdentityUtil {
 
 	private IdentityUtil() {
 	}
 
-	static final Name<URI> enhancerIdentity(final URI target) {
+	private static <T> T extractNameId(final Name<?> name, final String entityName, final Class<? extends T> idClazz) {
+		final Serializable id=name.id();
+		checkState(idClazz.isInstance(id),"%s identifier should be a %s not a %s",entityName,idClazz.getName(),id.getClass().getCanonicalName());
+		return idClazz.cast(id);
+	}
+
+	public static Name<URI> enhancerName(final URI target) {
 		return NamingScheme.getDefault().name(target);
 	}
 
-	static Name<Integer> repositoryIdentity(final Integer repositoryId) {
+	public static Name<Integer> repositoryName(final Integer repositoryId) {
 		return NamingScheme.getDefault().name(repositoryId);
 	}
 
-	static Name<String> repositoryMemberIdentity(final Integer repositoryId, final String commitId) {
-		return NamingScheme.getDefault().name(Integer.toString(repositoryId),commitId);
+	public static Integer repositoryId(final ResourceSnapshot resource) {
+		return extractNameId(resource.name(),"Repository", Integer.class);
 	}
 
-	static Name<String> userContainerIdentity() {
+	public static Name<String> userContainerName() {
 		return NamingScheme.getDefault().name(UserContainerHandler.NAME);
 	}
 
-	static Name<String> userIdentity(final String userId) {
+	public static Name<String> userName(final String userId) {
 		return NamingScheme.getDefault().name(userId);
+	}
+
+	public static String userId(final ResourceSnapshot resource) {
+		return extractNameId(resource.name(),"User",String.class);
+	}
+
+	public static Name<BranchKey> branchName(final BranchKey key) {
+		return NamingScheme.getDefault().name(key);
+	}
+
+	public static BranchKey branchId(final ResourceSnapshot resource) {
+		return extractNameId(resource.name(),"Branch",BranchKey.class);
+	}
+
+	public static Name<CommitKey> commitName(final CommitKey key) {
+		return NamingScheme.getDefault().name(key);
+	}
+
+	public static CommitKey commitId(final ResourceSnapshot resource) {
+		return extractNameId(resource.name(),"Commit",CommitKey.class);
 	}
 
 }

@@ -34,7 +34,6 @@ import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
-import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Attachment;
@@ -45,6 +44,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainer
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 
 @Resource(
@@ -78,21 +78,21 @@ public class RepositoryHandler implements ResourceHandler {
 
 	@Override
 	public DataSet get(final ResourceSnapshot resource) {
-		@SuppressWarnings("unchecked")
-		final Name<Integer> name = (Name<Integer>)resource.name();
+		final Integer repositoryId=IdentityUtil.repositoryId(resource);
 		try{
-			final Repository repository = this.backendController.getRepository(name.id());
-			return maptoDataSet(repository,name);
+			final Repository repository = this.backendController.getRepository(repositoryId);
+			return maptoDataSet(repository);
 		} catch(final Exception e){
 			 throw new ApplicationRuntimeException(e);
 		}
 	}
 
-	private DataSet maptoDataSet(final Repository repository, final Name<Integer> repoName) {
+	private DataSet maptoDataSet(final Repository repository) {
+		final Name<Integer> repoName=IdentityUtil.repositoryName(repository.getId());
+		final Name<String> ownerName=IdentityUtil.userName(repository.getOwner().getId());
+
 		final DataSet dataSet=DataSets.createDataSet(repoName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
-
-		final Name<String> ownerName = NamingScheme.getDefault().name(repository.getOwner().getId());
 
 		helper.
 			managedIndividual(repoName, RepositoryHandler.ID).
@@ -120,7 +120,7 @@ public class RepositoryHandler implements ResourceHandler {
 					withLiteral(repository.getTags());
 
 		for (final String userId:repository.getContributors()){
-			final Name<String> userName = NamingScheme.getDefault().name(userId);
+			final Name<String> userName = IdentityUtil.userName(userId);
 			helper.
 				managedIndividual(repoName, RepositoryHandler.ID).
 						property(RepositoryVocabulary.DEVELOPER).

@@ -44,9 +44,6 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityMap;
 
 public class BackendController {
 
@@ -56,34 +53,13 @@ public class BackendController {
 
 	private final String scmRestService;
 
-	private IdentityMap<BranchKey> branchIdentityMap;
-	private IdentityMap<CommitKey> commitIdentityMap;
-
 	public BackendController(final URI uri) {
 		this.target = uri;
 		this.scmRestService=uri.toString();
-		this.branchIdentityMap = new IdentityMap<BranchKey>();
-		this.commitIdentityMap = new IdentityMap<CommitKey>();
 	}
 
 	public URI getTarget() {
 		return this.target;
-	}
-
-	public IdentityMap<BranchKey> getBranchIdentityMap() {
-		return this.branchIdentityMap;
-	}
-
-	public void setBranchIdentityMap(final IdentityMap<BranchKey> branchIdentityMap) {
-		this.branchIdentityMap = branchIdentityMap;
-	}
-
-	public IdentityMap<CommitKey> getCommitIdentityMap() {
-		return this.commitIdentityMap;
-	}
-
-	public void setCommitIdentityMap(final IdentityMap<CommitKey> commitIdentityMap) {
-		this.commitIdentityMap = commitIdentityMap;
 	}
 
 	public List<Integer> getRepositories() throws IOException {

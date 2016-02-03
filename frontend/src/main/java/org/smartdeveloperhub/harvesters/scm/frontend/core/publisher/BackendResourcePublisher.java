@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.ldp4j.application.data.Name;
-import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.session.ContainerSnapshot;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.ldp4j.application.session.WriteSession;
@@ -39,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.harvester.HarvesterHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 public class BackendResourcePublisher {
 
@@ -56,7 +56,7 @@ public class BackendResourcePublisher {
 		LOGGER.info("Publishing SCM Harvester Resource...");
 		final URI target = this.controller.getTarget();
 
-		final Name<URI> harvesterName = IdentityUtil.enhancerIdentity(target);
+		final Name<URI> harvesterName = IdentityUtil.enhancerName(target);
 
 		final ResourceSnapshot harvesterSnapshot=
 			this.session.
@@ -82,7 +82,7 @@ public class BackendResourcePublisher {
 			createAttachedResource(
 				ContainerSnapshot.class,
 				HarvesterHandler.HARVESTER_COMMITTERS,
-				NamingScheme.getDefault().name(UserContainerHandler.NAME),
+				IdentityUtil.userContainerName(),
 				UserContainerHandler.class);
 		LOGGER.debug("Published user container for service {}", harvesterName);
 	}

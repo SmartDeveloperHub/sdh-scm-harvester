@@ -33,14 +33,15 @@ import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
-import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 @Resource(id=BranchHandler.ID)
 public class BranchHandler implements ResourceHandler {
@@ -55,20 +56,18 @@ public class BranchHandler implements ResourceHandler {
 
 	@Override
 	public DataSet get(final ResourceSnapshot resource) {
-		@SuppressWarnings("unchecked")
-		final Name<String> name = (Name<String>)resource.name();
-
-		final BranchKey branchKey=this.backendController.getBranchIdentityMap().getKey(name);
-
+		final BranchKey branchKey=IdentityUtil.branchId(resource);
 		try{
 			final Branch branch= this.backendController.getBranch(branchKey.getRepoId(), branchKey.getBranchId());
-			return maptoDataSet(branchKey.getRepoId(), branch,name);
+			return maptoDataSet(branchKey,branch);
 		} catch(final Exception e){
 			 throw new ApplicationRuntimeException(e);
 		}
 	}
 
-	private DataSet maptoDataSet(final Integer repositoryId, final Branch branch, final Name<String> branchName) {
+	private DataSet maptoDataSet(final BranchKey key, final Branch branch) {
+		final Name<BranchKey> branchName=IdentityUtil.branchName(key);
+
 		final DataSet dataSet=DataSets.createDataSet(branchName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
@@ -82,7 +81,7 @@ public class BranchHandler implements ResourceHandler {
 					withLiteral(new Date(branch.getCreatedAt()));
 
 		for (final String commitId:branch.getCommits().getCommitIds()){
-			final Name<String> commitName = NamingScheme.getDefault().name(repositoryId.toString(),commitId);
+			final Name<CommitKey> commitName = IdentityUtil.commitName(new CommitKey(key.getRepoId(),commitId));
 			helper.
 				managedIndividual(branchName, BranchHandler.ID).
 					property(BranchVocabulary.HAS_COMMIT).

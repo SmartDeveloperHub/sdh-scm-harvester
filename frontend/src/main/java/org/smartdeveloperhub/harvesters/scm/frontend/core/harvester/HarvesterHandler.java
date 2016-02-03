@@ -26,26 +26,18 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.harvester;
 
-import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
-import org.ldp4j.application.data.Name;
-import org.ldp4j.application.data.NamingScheme;
-import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Attachment;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryContainerHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
 
 @Resource(
 	id=HarvesterHandler.ID,
@@ -70,29 +62,13 @@ public class HarvesterHandler implements ResourceHandler {
 
 	private static final URI VOCABULARY_PATH = URI.create("#vocabulary");
 
-	private final BackendController backendController;
-
-	public HarvesterHandler(final BackendController backendController) {
-		this.backendController = backendController;
-	}
-
 	@Override
 	public DataSet get(final ResourceSnapshot resource) {
-		@SuppressWarnings("unchecked")
-		final Name<URI> name = (Name<URI>)resource.name();
-		try{
-			return maptoDataSet(this.backendController.getRepositories(),name);
-		} catch(final Exception e){
-			throw new ApplicationRuntimeException(e);
-		}
-	}
-
-	private DataSet maptoDataSet(final List<Integer> repositories, final Name<URI> harvesterName) throws IOException {
-		final DataSet dataSet=DataSets.createDataSet(harvesterName);
+		final DataSet dataSet=DataSets.createDataSet(resource.name());
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
 		helper.
-			managedIndividual(harvesterName, ID).
+			managedIndividual(resource.name(), ID).
 				property(HarvesterVocabulary.TYPE).
 					withIndividual(HarvesterVocabulary.DC_TYPE_SERVICE_TYPE).
 					withIndividual(HarvesterVocabulary.MICRO_SERVICE_TYPE).
@@ -100,27 +76,10 @@ public class HarvesterHandler implements ResourceHandler {
 					withIndividual(HarvesterVocabulary.HARVESTER).
 					withIndividual(HarvesterVocabulary.SCM_HARVESTER).
 				property(HarvesterVocabulary.HARVESTER_VOCABULARY).
-					withIndividual(harvesterName,HarvesterHandler.ID,VOCABULARY_PATH);
-
-
-		for(final Integer repositoryId:repositories){
-			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
-			helper.
-				managedIndividual(harvesterName, ID).
-						property(HarvesterVocabulary.REPOSITORY).
-							withIndividual(repositoryName,RepositoryHandler.ID);
-		}
-
-		for(final String userId:this.backendController.getCommitters()){
-			final Name<String> userName = NamingScheme.getDefault().name(userId);
-			helper.
-				managedIndividual(harvesterName, ID).
-						property(HarvesterVocabulary.COMMITTER).
-							withIndividual(userName,UserHandler.ID);
-		}
+					withIndividual(resource.name(),HarvesterHandler.ID,VOCABULARY_PATH);
 
 		helper.
-			relativeIndividual(harvesterName,HarvesterHandler.ID,VOCABULARY_PATH).
+			relativeIndividual(resource.name(),HarvesterHandler.ID,VOCABULARY_PATH).
 				property(HarvesterVocabulary.TYPE).
 					withIndividual(HarvesterVocabulary.SCM_VOCABULARY).
 					withIndividual(HarvesterVocabulary.VOCABULARY).

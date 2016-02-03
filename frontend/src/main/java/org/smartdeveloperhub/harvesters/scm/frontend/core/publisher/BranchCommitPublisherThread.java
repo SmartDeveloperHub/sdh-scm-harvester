@@ -40,6 +40,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 public class BranchCommitPublisherThread extends PublisherThread {
 
@@ -84,7 +85,7 @@ public class BranchCommitPublisherThread extends PublisherThread {
 	}
 
 	private ResourceSnapshot findRepositoryResource(final WriteSession session, final Integer repositoryId) {
-		final Name<Integer> repositoryName = IdentityUtil.repositoryIdentity(repositoryId);
+		final Name<Integer> repositoryName = IdentityUtil.repositoryName(repositoryId);
 		ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
 		if(repositorySnapshot==null) {
 			LOGGER.warn("Could not find resource for repository {}",repositoryId);
@@ -92,7 +93,7 @@ public class BranchCommitPublisherThread extends PublisherThread {
 				session.
 					find(
 						ContainerSnapshot.class,
-						IdentityUtil.enhancerIdentity(getController().getTarget()),
+						IdentityUtil.enhancerName(getController().getTarget()),
 						RepositoryContainerHandler.class);
 			repositorySnapshot=PublisherHelper.publishRepository(repositoryContainer, repositoryId);
 		}
@@ -106,10 +107,11 @@ public class BranchCommitPublisherThread extends PublisherThread {
 		}
 		try {
 			for (final String branchId:repository.getBranches().getBranchIds()){
-				final Name<String> branchName = IdentityUtil.repositoryMemberIdentity(repository.getId(),branchId);
-				// Keep track of the branch key and resource name
-				getController().getBranchIdentityMap().addKey(new BranchKey(repository.getId(),branchId), branchName);
-				branchContainer.addMember(branchName);
+				branchContainer.
+					addMember(
+						IdentityUtil.
+							branchName(
+								new BranchKey(repository.getId(),branchId)));
 			}
 		} catch(final Exception e) {
 			throw new IOException("Could not add branches to repository "+repository.getId(),e);
@@ -123,10 +125,11 @@ public class BranchCommitPublisherThread extends PublisherThread {
 		}
 		try {
 			for(final String commitId:repository.getCommits().getCommitIds()){
-				final Name<String> commitName = IdentityUtil.repositoryMemberIdentity(repository.getId(), commitId);
-				// Keep track of the commit key and resource name
-				getController().getCommitIdentityMap().addKey(new CommitKey(repository.getId(),commitId), commitName);
-				commitContainer.addMember(commitName);
+				commitContainer.
+					addMember(
+						IdentityUtil.
+							commitName(
+								new CommitKey(repository.getId(),commitId)));
 			}
 		} catch(final Exception e) {
 			throw new IOException("Could not add commits to repository "+repository.getId(),e);

@@ -36,6 +36,7 @@ import org.ldp4j.application.session.WriteSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 public class UserPublisherThread extends PublisherThread {
 
@@ -68,10 +69,10 @@ public class UserPublisherThread extends PublisherThread {
 			final ContainerSnapshot userContainerSnapshot=
 				session.find(
 					ContainerSnapshot.class,
-					IdentityUtil.userContainerIdentity(),
+					IdentityUtil.userContainerName(),
 					UserContainerHandler.class);
 			for(final String userId:users){
-				final Name<String> userName = IdentityUtil.userIdentity(userId);
+				final Name<String> userName = IdentityUtil.userName(userId);
 				userContainerSnapshot.addMember(userName);
 			}
 			session.saveChanges();

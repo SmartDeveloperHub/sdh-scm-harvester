@@ -33,7 +33,6 @@ import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
-import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Resource;
@@ -41,6 +40,7 @@ import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 @Resource(id=CommitHandler.ID)
 public class CommitHandler implements ResourceHandler {
@@ -55,25 +55,21 @@ public class CommitHandler implements ResourceHandler {
 
 	@Override
 	public DataSet get(final ResourceSnapshot resource) {
-		@SuppressWarnings("unchecked")
-		final
-		Name<String> name = (Name<String>)resource.name();
-
-		final CommitKey commitKey=this.backendController.getCommitIdentityMap().getKey(name);
-
+		final CommitKey commitKey=IdentityUtil.commitId(resource);
 		try{
 			final Commit commit= this.backendController.getCommit(commitKey.getRepoId(), commitKey.getCommitId());
-			return maptoDataSet(commit,name);
+			return maptoDataSet(commit,commitKey);
 		} catch(final Exception e){
 			 throw new ApplicationRuntimeException(e);
 		}
 	}
 
-	private DataSet maptoDataSet(final Commit commit, final Name<String> commitName) {
+	private DataSet maptoDataSet(final Commit commit, final CommitKey key) {
+		final Name<CommitKey> commitName = IdentityUtil.commitName(key);
+		final Name<String> userName = IdentityUtil.userName(commit.getAuthor());
+
 		final DataSet dataSet=DataSets.createDataSet(commitName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
-
-		final Name<String> userName = NamingScheme.getDefault().name(commit.getAuthor());
 
 		helper.
 			managedIndividual(commitName, CommitHandler.ID).
