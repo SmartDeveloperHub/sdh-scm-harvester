@@ -51,7 +51,7 @@
 				<include>**/*</include>
 			</includes>
 			<directory>src${file.separator}main${file.separator}resources</directory>
-			<filtered>false</filtered>
+			<filtered>true</filtered>
 		</fileSet>
 		<fileSet>
 			<outputDirectory></outputDirectory>

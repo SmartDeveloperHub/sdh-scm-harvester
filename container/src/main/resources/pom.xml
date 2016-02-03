@@ -38,7 +38,7 @@
 
 	<groupId>org.smartdeveloperhub.harvester.scm</groupId>
 	<artifactId>scm-harvester-container-bootstrap</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>@project.version@</version>
 	<packaging>war</packaging>
 
 	<!-- =================================================================== -->
@@ -179,6 +179,7 @@
 							<configurationDir>${basedir}${file.separator}.container</configurationDir>
 							<path>/harvester</path>
 							<systemProperties>
+								<scm.harvester.enhancer>${harvester.target}</scm.harvester.enhancer>
 								<scm.harvester.config>${harvester.config}</scm.harvester.config>
 							</systemProperties>
 							<useTestClasspath>false</useTestClasspath>
