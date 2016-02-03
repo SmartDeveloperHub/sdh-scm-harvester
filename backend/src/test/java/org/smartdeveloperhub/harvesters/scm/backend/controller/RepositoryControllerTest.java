@@ -28,10 +28,11 @@ package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 
 import java.io.IOException;
+import java.util.List;
 
 import mockit.Mock;
 import mockit.MockUp;
@@ -80,24 +81,24 @@ public class RepositoryControllerTest extends ControllerTestHelper {
 
 	@Test
 	public void testGetRepository$happyPath() throws IOException {
-		final String source="repoId";
+		final Integer source=1;
 		new MockUp<RepositoryClient>() {
 			@Mock
-			public String getRepository(final String repoId) throws IOException {
+			public String getRepository(final Integer repoId) throws IOException {
 				assertThat(repoId,equalTo(source));
 				return loadResponse("repository.json");
 			}
 		};
 		new MockUp<BranchClient>() {
 			@Mock
-			public String getBranches(final String repoId) throws IOException {
+			public String getBranches(final Integer repoId) throws IOException {
 				assertThat(repoId,equalTo(source));
 				return loadResponse("repository-branches.json");
 			}
 		};
 		new MockUp<CommitClient>() {
 			@Mock
-			public String getCommits(final String repoId) throws IOException {
+			public String getCommits(final Integer repoId) throws IOException {
 				assertThat(repoId,equalTo(source));
 				return loadResponse("repository-commits.json");
 			}
@@ -109,19 +110,17 @@ public class RepositoryControllerTest extends ControllerTestHelper {
 	}
 
 	@Test
-	public void testGetRepositoryWithoutBranchCommit$happyPath() throws IOException {
-		final String source="repoId";
+	public void testGetRepositoryContributors$happyPath() throws IOException {
+		final Integer source=2;
 		new MockUp<RepositoryClient>() {
 			@Mock
-			public String getRepository(final String repoId) throws IOException {
+			public String getRepository(final Integer repoId) throws IOException {
 				assertThat(repoId,equalTo(source));
 				return loadResponse("repository.json");
 			}
 		};
-		final Repository repository = this.sut.getRepositoryWithoutBranchCommit(source);
-		assertThat(repository,notNullValue());
-		assertThat(repository.getBranches(),nullValue());
-		assertThat(repository.getCommits(),nullValue());
+		final List<String> repository = this.sut.getRepositoryContributors(source);
+		assertThat(repository,hasItems("6","4"));
 	}
 
 }

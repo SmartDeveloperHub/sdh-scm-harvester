@@ -47,11 +47,11 @@ public class BranchControllerTest extends ControllerTestHelper {
 
 	@Test
 	public void testGetBranch$happyPath() throws IOException {
-		final String sourceRepoId="repoId";
+		final Integer sourceRepoId=1;
 		final String sourceBranchId="branchId";
 		new MockUp<BranchClient>() {
 			@Mock
-			public String getBranch(final String repoId, final String branchId) throws IOException {
+			public String getBranch(final Integer repoId, final String branchId) throws IOException {
 				assertThat(repoId,equalTo(sourceRepoId));
 				assertThat(branchId,equalTo(sourceBranchId));
 				return loadResponse("branch.json");
@@ -59,7 +59,7 @@ public class BranchControllerTest extends ControllerTestHelper {
 		};
 		new MockUp<CommitClient>() {
 			@Mock
-			public String getCommits(final String repoId, final String branchId) throws IOException {
+			public String getCommits(final Integer repoId, final String branchId) throws IOException {
 				assertThat(repoId,equalTo(sourceRepoId));
 				assertThat(branchId,equalTo(sourceBranchId));
 				return loadResponse("branch-commits.json");

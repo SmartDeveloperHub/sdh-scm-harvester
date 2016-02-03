@@ -81,7 +81,7 @@ public class HarvesterHandler implements ResourceHandler {
 		@SuppressWarnings("unchecked")
 		final Name<URI> name = (Name<URI>)resource.name();
 		try{
-			final GitLabHarvester gitLabHarvester = this.backendController.createGitLabHarvester(name.id().toString());
+			final GitLabHarvester gitLabHarvester = this.backendController.createGitLabHarvester();
 			return maptoDataSet(gitLabHarvester,name);
 		} catch(final Exception e){
 			throw new ApplicationRuntimeException(e);
@@ -112,7 +112,7 @@ public class HarvesterHandler implements ResourceHandler {
 							withIndividual(repositoryName,RepositoryHandler.ID);
 		}
 
-		for(final String userId:this.backendController.getUsers()){
+		for(final String userId:this.backendController.getCommitters()){
 			final Name<String> userName = NamingScheme.getDefault().name(userId);
 			helper.
 				managedIndividual(harvesterName, ID).

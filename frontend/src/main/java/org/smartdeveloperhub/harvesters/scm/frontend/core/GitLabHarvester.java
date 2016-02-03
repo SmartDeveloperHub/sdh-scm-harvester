@@ -31,6 +31,7 @@ import java.util.Set;
 
 import com.google.common.base.MoreObjects;
 
+@Deprecated
 public class GitLabHarvester {
 
 	private String id;

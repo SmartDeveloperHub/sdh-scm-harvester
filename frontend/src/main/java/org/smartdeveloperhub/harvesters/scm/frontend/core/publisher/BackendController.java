@@ -53,6 +53,8 @@ public class BackendController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BackendController.class);
 
+	private final URI target;
+
 	private final String scmRestService;
 
 	private IdentityMap<BranchKey> branchIdentityMap;
@@ -61,9 +63,14 @@ public class BackendController {
 	private GitLabHarvester gitLabHarvester;
 
 	public BackendController(final URI uri) {
+		this.target = uri;
 		this.scmRestService=uri.toString();
 		this.branchIdentityMap = new IdentityMap<BranchKey>();
 		this.commitIdentityMap = new IdentityMap<CommitKey>();
+	}
+
+	public URI getTarget() {
+		return this.target;
 	}
 
 	public IdentityMap<BranchKey> getBranchIdentityMap() {
@@ -82,12 +89,13 @@ public class BackendController {
 		this.commitIdentityMap = commitIdentityMap;
 	}
 
-	public GitLabHarvester createGitLabHarvester(final String id) throws IOException {
+	@Deprecated
+	public GitLabHarvester createGitLabHarvester() throws IOException {
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
 		final Repositories repos = repoCtl.getRepositories();
 
 		this.gitLabHarvester = new GitLabHarvester();
-		this.gitLabHarvester.setId(id);
+		this.gitLabHarvester.setId(this.scmRestService);
 		for(final Integer repoId : repos.getRepositoryIds()) {
 			this.gitLabHarvester.addRepository(repoId);
 		}
@@ -95,27 +103,25 @@ public class BackendController {
 		return this.gitLabHarvester;
 	}
 
+	@Deprecated
 	public GitLabHarvester getGitLabHarvester() {
 		return this.gitLabHarvester;
 	}
 
-	public List<String> getUsers() throws IOException {
+	public List<String> getCommitters() throws IOException {
 		final Set<String> uniqueUsers = new HashSet<String>();
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
 		final Repositories repos = repoCtl.getRepositories();
-
 		for(final Integer repoId : repos.getRepositoryIds()) {
-			final Repository repo = repoCtl.getRepositoryWithoutBranchCommit(repoId.toString());
-			final List<String> contributors = repo.getContributors();
+			final List<String> contributors = repoCtl.getRepositoryContributors(repoId);
 			for(final String contributorId : contributors) {
 				uniqueUsers.add(contributorId);
 			}
 		}
-
 		return new ArrayList<String>(uniqueUsers);
 	}
 
-	public Repository getRepository(final String id) throws IOException {
+	public Repository getRepository(final Integer id) throws IOException {
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
 		return repoCtl.getRepository(id);
 	}
@@ -125,19 +131,19 @@ public class BackendController {
 		return userCtl.getUser(id);
 	}
 
-	public Branch getBranch(final String repoId, final String branchId) throws IOException {
+	public Branch getBranch(final Integer repoId, final String branchId) throws IOException {
 		final BranchController branchCtl = new BranchController(this.scmRestService);
 		return branchCtl.getBranch(repoId, branchId);
 	}
 
-	public Commit getCommit(final String repoId, final String commitId) throws IOException {
+	public Commit getCommit(final Integer repoId, final String commitId) throws IOException {
 		final CommitController commitCtl = new CommitController(this.scmRestService);
 		return commitCtl.getCommit(repoId, commitId);
 	}
 
 	public static void main(final String[] args) throws IOException {
 		final BackendController bkend = new BackendController(URI.create(args[0]));
-		final Repository repo = bkend.getRepository("5");
+		final Repository repo = bkend.getRepository(5);
 		LOGGER.info("{}",repo);
 		LOGGER.info("* {}",repo.getBranches());
 		LOGGER.info("** {} ",repo.getCommits());

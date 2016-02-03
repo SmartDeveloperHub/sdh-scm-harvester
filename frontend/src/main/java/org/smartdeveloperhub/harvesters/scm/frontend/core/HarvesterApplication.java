@@ -97,7 +97,7 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 		LOGGER.info("Initializing SCM Harvester Application...");
 		final BackendResourcePublisher publisher = new BackendResourcePublisher(session, this.controller);
 		try {
-			publisher.publishHarvesterResources(this.target);
+			publisher.publishHarvesterResources();
 			session.saveChanges();
 			LOGGER.info("SCM Harvester Application initialization completed.");
 

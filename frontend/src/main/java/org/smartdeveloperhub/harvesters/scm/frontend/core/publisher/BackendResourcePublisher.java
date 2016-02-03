@@ -56,13 +56,13 @@ public class BackendResourcePublisher {
 		this.session=session;
 	}
 
-	public void publishHarvesterResources(final URI target) throws IOException {
+	public void publishHarvesterResources() throws IOException {
 		LOGGER.info("Publishing SCM Harvester Resource...");
 
 		final Name<URI> harvesterName=
 			NamingScheme.
 				getDefault().
-					name(target);
+					name(this.controller.getTarget());
 
 		final ResourceSnapshot harvesterSnapshot=
 			this.session.
@@ -90,11 +90,11 @@ public class BackendResourcePublisher {
 
 		LOGGER.debug("Published user container for service {}", harvesterName);
 
-		createRepositoryResources(target, repositoryContainer);
+		createRepositoryResources(repositoryContainer);
 	}
 
-	private void createRepositoryResources(final URI target, final ContainerSnapshot repositoryContainer) throws IOException {
-		final GitLabHarvester enhancer=this.controller.createGitLabHarvester(target.toString());
+	private void createRepositoryResources(final ContainerSnapshot repositoryContainer) throws IOException {
+		final GitLabHarvester enhancer=this.controller.createGitLabHarvester();
 		for (final Integer repositoryId:enhancer.getRepositories()){
 			LOGGER.debug(
 				"Starting to publish resource for repository {} @ {} ({})",
@@ -102,10 +102,10 @@ public class BackendResourcePublisher {
 				repositoryContainer.name(),
 				repositoryContainer.templateId());
 
-			final Name<String> repositoryName =
+			final Name<Integer> repositoryName =
 				NamingScheme.
 					getDefault().
-						name(Integer.toString(repositoryId));
+						name(repositoryId);
 
 			final ResourceSnapshot repository =
 					repositoryContainer.addMember(repositoryName);

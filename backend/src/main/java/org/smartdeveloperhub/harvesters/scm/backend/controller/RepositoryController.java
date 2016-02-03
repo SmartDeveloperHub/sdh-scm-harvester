@@ -28,6 +28,7 @@ package org.smartdeveloperhub.harvesters.scm.backend.controller;
 
 
 import java.io.IOException;
+import java.util.List;
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
@@ -55,18 +56,17 @@ public class RepositoryController {
 		return this.repositoryReader.readReposistories(repositoriesIS);
 	}
 
-	public Repository getRepository(final String repoId) throws IOException {
+	public Repository getRepository(final Integer repoId) throws IOException {
 		final String repositoryIS = this.repositoryClient.getRepository(repoId);
 		final String branchesIS = this.branchClient.getBranches(repoId);
 		final String commitsIS = this.commitClient.getCommits(repoId);
 		return this.repositoryReader.readRepository(repositoryIS, branchesIS, commitsIS);
 	}
 
-	public Repository getRepositoryWithoutBranchCommit(final String repoId) throws IOException {
+	public List<String> getRepositoryContributors(final Integer repoId) throws IOException {
 		final String repositoryIS = this.repositoryClient.getRepository(repoId);
-		final String branchesIS="";
-		final String commitsIS="";
-		return this.repositoryReader.readRepository(repositoryIS, branchesIS, commitsIS);
+		final Repository repository=this.repositoryReader.readRepository(repositoryIS,null,null);
+		return repository.getContributors();
 	}
 
 }

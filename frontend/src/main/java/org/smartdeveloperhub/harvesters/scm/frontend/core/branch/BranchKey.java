@@ -32,10 +32,10 @@ import com.google.common.base.MoreObjects;
 
 public final class BranchKey implements Comparable<BranchKey> {
 
+	private Integer repoId;
 	private String branchId;
-	private String repoId;
 
-	public BranchKey(final String repoId, final String branchId) {
+	public BranchKey(final Integer repoId, final String branchId) {
 		this.repoId = repoId;
 		this.branchId = branchId;
 	}
@@ -48,11 +48,11 @@ public final class BranchKey implements Comparable<BranchKey> {
 		this.branchId = branchId;
 	}
 
-	public String getRepoId() {
+	public Integer getRepoId() {
 		return this.repoId;
 	}
 
-	public void setRepoId(final String repoId) {
+	public void setRepoId(final Integer repoId) {
 		this.repoId = repoId;
 	}
 

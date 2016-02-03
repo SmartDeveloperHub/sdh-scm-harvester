@@ -179,7 +179,7 @@ public class Enhancer extends Extensible {
 	/**
 	 * Set the identifiers of the users available in the enhancer
 	 *
-	 * @param repositories
+	 * @param users
 	 *            The identifiers of the available users
 	 */
 	public void setUsers(final List<String> users) {

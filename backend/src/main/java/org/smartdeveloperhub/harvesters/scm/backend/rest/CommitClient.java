@@ -34,16 +34,16 @@ public class CommitClient extends AbstractClient{
 		super(scmRestService);
 	}
 
-	public String getCommits(final String repoId, final String branchId) throws IOException {
-		return getResource("/projects/%s/branches/%s/commits",repoId,branchId);
+	public String getCommits(final Integer repoId, final String branchId) throws IOException {
+		return getResource("/projects/%d/branches/%s/commits",repoId,branchId);
 	}
 
-	public String getCommit(final String repoId, final String commitId) throws IOException {
-		return getResource("/projects/%s/commits/%s",repoId,commitId);
+	public String getCommit(final Integer repoId, final String commitId) throws IOException {
+		return getResource("/projects/%d/commits/%s",repoId,commitId);
 	}
 
-	public String getCommits(final String repoId) throws IOException {
-		return getResource("/projects/%s/commits",repoId);
+	public String getCommits(final Integer repoId) throws IOException {
+		return getResource("/projects/%d/commits",repoId);
 	}
 
 }

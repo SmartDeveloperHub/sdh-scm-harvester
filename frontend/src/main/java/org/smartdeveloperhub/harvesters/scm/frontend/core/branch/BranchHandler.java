@@ -68,7 +68,7 @@ public class BranchHandler implements ResourceHandler {
 		}
 	}
 
-	private DataSet maptoDataSet(final String repositoryId, final Branch branch, final Name<String> branchName) {
+	private DataSet maptoDataSet(final Integer repositoryId, final Branch branch, final Name<String> branchName) {
 		final DataSet dataSet=DataSets.createDataSet(branchName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
@@ -82,7 +82,7 @@ public class BranchHandler implements ResourceHandler {
 					withLiteral(new Date(branch.getCreatedAt()));
 
 		for (final String commitId:branch.getCommits().getCommitIds()){
-			final Name<String> commitName = NamingScheme.getDefault().name(repositoryId,commitId);
+			final Name<String> commitName = NamingScheme.getDefault().name(repositoryId.toString(),commitId);
 			helper.
 				managedIndividual(branchName, BranchHandler.ID).
 					property(BranchVocabulary.HAS_COMMIT).

@@ -46,11 +46,11 @@ public class CommitControllerTest extends ControllerTestHelper {
 
 	@Test
 	public void testGetCommit$happyPath() throws IOException {
-		final String sourceRepoId="repoId";
+		final Integer sourceRepoId=1;
 		final String sourceCommitId="branchId";
 		new MockUp<CommitClient>() {
 			@Mock
-			public String getCommit(final String repoId, final String commitId) throws IOException {
+			public String getCommit(final Integer repoId, final String commitId) throws IOException {
 				assertThat(repoId,equalTo(sourceRepoId));
 				assertThat(commitId,equalTo(sourceCommitId));
 				return loadResponse("commit.json");

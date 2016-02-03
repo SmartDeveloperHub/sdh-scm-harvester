@@ -79,16 +79,16 @@ public class RepositoryHandler implements ResourceHandler {
 	@Override
 	public DataSet get(final ResourceSnapshot resource) {
 		@SuppressWarnings("unchecked")
-		final Name<String> name = (Name<String>)resource.name();
+		final Name<Integer> name = (Name<Integer>)resource.name();
 		try{
-			final Repository repository = this.backendController.getRepository(name.id().toString());
+			final Repository repository = this.backendController.getRepository(name.id());
 			return maptoDataSet(repository,name);
 		} catch(final Exception e){
 			 throw new ApplicationRuntimeException(e);
 		}
 	}
 
-	private DataSet maptoDataSet(final Repository repository, final Name<String> repoName) {
+	private DataSet maptoDataSet(final Repository repository, final Name<Integer> repoName) {
 		final DataSet dataSet=DataSets.createDataSet(repoName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 

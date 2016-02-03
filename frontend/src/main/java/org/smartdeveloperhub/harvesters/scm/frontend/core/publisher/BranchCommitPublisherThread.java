@@ -56,6 +56,13 @@ public class BranchCommitPublisherThread extends Thread {
 	public BranchCommitPublisherThread(final BackendController controller) {
 		super();
 		setName(THREAD_NAME);
+		setUncaughtExceptionHandler(
+			new UncaughtExceptionHandler() {
+				@Override
+				public void uncaughtException(final Thread t, final Throwable e) {
+					LOGGER.error("Branch & Commit Publisher thread died unexpectedly. Full stacktrace follows",e);
+				}
+			});
 		this.controller = controller;
 	}
 
@@ -64,18 +71,18 @@ public class BranchCommitPublisherThread extends Thread {
 		LOGGER.info("Running {}...",THREAD_NAME);
 		final Stopwatch watch = Stopwatch.createStarted();
 		final ApplicationContext ctx = ApplicationContext.getInstance();
-		try {
-			final GitLabHarvester gitLabHarvester=this.controller.getGitLabHarvester();
-			for(final Integer repositoryId:gitLabHarvester.getRepositories()){
-				final Repository repository=this.controller.getRepository(Integer.toString(repositoryId));
+		final GitLabHarvester gitLabHarvester=this.controller.getGitLabHarvester();
+		for(final Integer repositoryId:gitLabHarvester.getRepositories()){
+			try {
+				final Repository repository=this.controller.getRepository(repositoryId);
+				LOGGER.info("Populating repository {}...",repositoryId);
 				addBranchMemberstToRepository(ctx,repositoryId,repository);
 				addCommitMembersToRepository(ctx,repositoryId,repository);
+			} catch (final Exception e) {
+				LOGGER.error("Could not populate repository {}",repositoryId,e);
 			}
-		} catch (final Exception e) {
-			LOGGER.error("Could not update repository members",e);
-		} finally {
-			LOGGER.debug("Finalized repository member update process");
 		}
+		LOGGER.info("Finalized repository population process");
 		watch.stop();
 		LOGGER.info("{} Elapsed time (ms): {}",THREAD_NAME,watch.elapsed(TimeUnit.MILLISECONDS));
 	}
@@ -83,43 +90,56 @@ public class BranchCommitPublisherThread extends Thread {
 	@Override
 	public void start() {
 		LOGGER.info("Starting {}...",THREAD_NAME);
+		super.start();
 	}
 
 	private void addBranchMemberstToRepository(final ApplicationContext ctx, final Integer repositoryId, final Repository repository) throws IOException {
+		if(repository.getBranches().getBranchIds().isEmpty()) {
+			LOGGER.info("No branches available for repository {}",repositoryId);
+			return;
+		}
 		try(WriteSession session=ctx.createSession()) {
-			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
+			final Name<Integer> repositoryName = NamingScheme.getDefault().name(repositoryId);
 			final ContainerSnapshot branchContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,BranchContainerHandler.class);
-			if(branchContainerSnapshot!=null){
-				for (final String branchId:repository.getBranches().getBranchIds()){
-					final Name<String> branchName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),branchId);
-					// Keep track of the branch key and resource name
-					this.controller.getBranchIdentityMap().addKey(new BranchKey(Integer.toString(repository.getId()),branchId), branchName);
-					branchContainerSnapshot.addMember(branchName);
-				}
+			if(branchContainerSnapshot==null) {
+				LOGGER.error("Could not find branch container for repository {}",repositoryId);
+				return;
+			}
+			for (final String branchId:repository.getBranches().getBranchIds()){
+				final Name<String> branchName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),branchId);
+				// Keep track of the branch key and resource name
+				this.controller.getBranchIdentityMap().addKey(new BranchKey(repository.getId(),branchId), branchName);
+				branchContainerSnapshot.addMember(branchName);
 			}
 			session.modify(branchContainerSnapshot);
 			session.saveChanges();
 		} catch(final Exception e) {
-			throw new IOException("Could not add branch members to repository "+repositoryId,e);
+			throw new IOException("Could not add branches to repository "+repositoryId,e);
 		}
 	}
 
 	private void addCommitMembersToRepository(final ApplicationContext ctx, final Integer repositoryId, final Repository repository) throws IOException {
+		if(repository.getCommits().getCommitIds().isEmpty()) {
+			LOGGER.info("No commits available for repository {}",repositoryId);
+			return;
+		}
 		try(WriteSession session = ctx.createSession()) {
-			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
+			final Name<Integer> repositoryName = NamingScheme.getDefault().name(repositoryId);
 			final ContainerSnapshot commitContainerSnapshot = session.find(ContainerSnapshot.class,repositoryName,CommitContainerHandler.class);
-			if(commitContainerSnapshot!=null){
-				for(final String commitId:repository.getCommits().getCommitIds()){
-					final Name<String> commitName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),commitId);
-					// Keep track of the branch key and resource name
-					this.controller.getCommitIdentityMap().addKey(new CommitKey(Integer.toString(repository.getId()),commitId), commitName);
-					commitContainerSnapshot.addMember(commitName);
-				}
+			if(commitContainerSnapshot==null) {
+				LOGGER.error("Could not find commit container for repository {}",repositoryId);
+				return;
+			}
+			for(final String commitId:repository.getCommits().getCommitIds()){
+				final Name<String> commitName = NamingScheme.getDefault().name(Integer.toString(repository.getId()),commitId);
+				// Keep track of the branch key and resource name
+				this.controller.getCommitIdentityMap().addKey(new CommitKey(repository.getId(),commitId), commitName);
+				commitContainerSnapshot.addMember(commitName);
 			}
 			session.modify(commitContainerSnapshot);
 			session.saveChanges();
 		} catch(final Exception e) {
-			throw new IOException("Could not add commit members to repository "+repositoryId,e);
+			throw new IOException("Could not add commits to repository "+repositoryId,e);
 		}
 	}
 

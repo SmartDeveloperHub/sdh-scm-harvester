@@ -96,7 +96,7 @@ public class ControllersITest {
 		System.out.printf("Exploring repositories...%n");
 		final RepositoryController rController=new RepositoryController(GITLAB_ENHANCER);
 		for(final Integer repositoryId:enhancer.getRepositories()) {
-			final Repository repository = rController.getRepository(Integer.toString(repositoryId));
+			final Repository repository = rController.getRepository(repositoryId);
 			traverseRepository(repository);
 		}
 	}
@@ -118,14 +118,14 @@ public class ControllersITest {
 		serialize(repository);
 		final BranchController bController=new BranchController(GITLAB_ENHANCER);
 		for(final String branchId:repository.getBranches().getBranchIds()) {
-			final Branch branch = bController.getBranch(Integer.toString(repository.getId()),branchId);
+			final Branch branch = bController.getBranch(repository.getId(),branchId);
 			LOGGER.info("Branch[{}:{}]: {}",repository.getId(),branchId,branch);
 			serialize(branch);
 		}
 		final CommitController cController=new CommitController(GITLAB_ENHANCER);
 		int i=3;
 		for(final String commitId:repository.getCommits().getCommitIds()) {
-			final Commit commit = cController.getCommit(Integer.toString(repository.getId()),commitId);
+			final Commit commit = cController.getCommit(repository.getId(),commitId);
 			LOGGER.info("Commit[{}:{}]: {}",repository.getId(),commitId,commit);
 			serialize(commit);
 			if(--i==0) {

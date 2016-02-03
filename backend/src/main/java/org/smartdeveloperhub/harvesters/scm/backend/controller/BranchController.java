@@ -45,7 +45,7 @@ public class BranchController {
 		this.commitClient = new CommitClient(scmRestService);
 	}
 
-	public Branch getBranch(final String repoId, final String branchId) throws IOException {
+	public Branch getBranch(final Integer repoId, final String branchId) throws IOException {
 		final String branchIS=this.branchClient.getBranch(repoId, branchId);
 		final String commitsIS=this.commitClient.getCommits(repoId, branchId);
 		return this.branchReader.readBranch(branchIS,commitsIS);

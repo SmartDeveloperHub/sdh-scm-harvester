@@ -38,8 +38,8 @@ public class RepositoryClient extends AbstractClient {
 		return getResource("/projects");
 	}
 
-	public String getRepository(final String repoId) throws IOException {
-		return getResource("/projects/%s",repoId);
+	public String getRepository(final Integer repoId) throws IOException {
+		return getResource("/projects/%d",repoId);
 	}
 
 }

@@ -32,19 +32,19 @@ import com.google.common.base.MoreObjects;
 
 public final class CommitKey implements Comparable<CommitKey> {
 
-	private String repoId;
+	private Integer repoId;
 	private String commitId;
 
-	public CommitKey(final String repoId, final String commitId) {
+	public CommitKey(final Integer repoId, final String commitId) {
 		this.repoId=repoId;
 		this.commitId=commitId;
 	}
 
-	public String getRepoId() {
+	public Integer getRepoId() {
 		return this.repoId;
 	}
 
-	public void setRepoId(final String repoId) {
+	public void setRepoId(final Integer repoId) {
 		this.repoId = repoId;
 	}
 

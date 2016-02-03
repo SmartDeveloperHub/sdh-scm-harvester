@@ -50,6 +50,14 @@ public class UserPublisherThread extends Thread {
 
 	public UserPublisherThread(final BackendController controller) {
 		super();
+		setName(THREAD_NAME);
+		setUncaughtExceptionHandler(
+			new UncaughtExceptionHandler() {
+				@Override
+				public void uncaughtException(final Thread t, final Throwable e) {
+					LOGGER.error("User Publisher thread died unexpectedly. Full stacktrace follows",e);
+				}
+			});
 		this.controller = controller;
 	}
 
@@ -60,9 +68,9 @@ public class UserPublisherThread extends Thread {
 		try {
 			publishUserResources(ApplicationContext.getInstance());
 		} catch (final Exception e) {
-			LOGGER.error("Could not update repository users", e);
+			LOGGER.error("Could not populate users", e);
 		} finally {
-			LOGGER.debug("Finalized repository users update process");
+			LOGGER.info("Finalized repository users update process");
 		}
 		watch.stop();
 		LOGGER.info("{} Elapsed time (ms): {}",THREAD_NAME,watch.elapsed(TimeUnit.MILLISECONDS));
@@ -71,25 +79,28 @@ public class UserPublisherThread extends Thread {
 	@Override
 	public void start() {
 		LOGGER.info("Starting {}",THREAD_NAME);
+		super.start();
 	}
 
 	private void publishUserResources(final ApplicationContext ctx) throws IOException {
+		final List<String> users = this.controller.getCommitters();
+		if(users.isEmpty()) {
+			LOGGER.info("No committers available");
+			return;
+		}
 		try(WriteSession session = ctx.createSession()){
 			final Name<String> userContainerName = NamingScheme.getDefault().name(UserContainerHandler.NAME);
 			final ContainerSnapshot userContainerSnapshot = session.find(ContainerSnapshot.class,userContainerName,UserContainerHandler.class);
 			if(userContainerSnapshot==null) {
-				LOGGER.warn("User container does not exist");
+				LOGGER.error("User container does not exist");
 				return;
 			}
-			final List<String> users = this.controller.getUsers();
-			if(!users.isEmpty()) {
-				for(final String userId:users){
-					final Name<String> userName = NamingScheme.getDefault().name(userId);
-					userContainerSnapshot.addMember(userName);
-				}
-				session.modify(userContainerSnapshot);
-				session.saveChanges();
+			for(final String userId:users){
+				final Name<String> userName = NamingScheme.getDefault().name(userId);
+				userContainerSnapshot.addMember(userName);
 			}
+			session.modify(userContainerSnapshot);
+			session.saveChanges();
 		} catch(final Exception e) {
 			throw new IOException("Could not publish member resources",e);
 		}
