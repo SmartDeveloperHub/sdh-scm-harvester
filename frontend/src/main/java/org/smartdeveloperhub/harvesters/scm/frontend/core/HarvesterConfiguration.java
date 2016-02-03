@@ -40,8 +40,8 @@ public final class HarvesterConfiguration extends Configuration {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(HarvesterConfiguration.class);
 
-	static final String GITLAB_ENHANCER_SYSTEM_PROPERTY      = "scm.harvester.enhancer";
-	static final String GITLAB_ENHANCER_ENVIRONMENT_VARIABLE = "GITLAB_ENHANCER";
+	public static final String GITLAB_ENHANCER_SYSTEM_PROPERTY      = "scm.harvester.enhancer";
+	public static final String GITLAB_ENHANCER_ENVIRONMENT_VARIABLE = "GITLAB_ENHANCER";
 
 	private URI target=null;
 

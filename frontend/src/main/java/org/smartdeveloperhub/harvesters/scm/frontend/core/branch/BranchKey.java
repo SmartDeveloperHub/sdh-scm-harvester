@@ -26,11 +26,14 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.branch;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import com.google.common.base.MoreObjects;
 
-public final class BranchKey implements Comparable<BranchKey> {
+public final class BranchKey implements Comparable<BranchKey>, Serializable {
+
+	private static final long serialVersionUID = 786423257542885122L;
 
 	private Integer repoId;
 	private String branchId;

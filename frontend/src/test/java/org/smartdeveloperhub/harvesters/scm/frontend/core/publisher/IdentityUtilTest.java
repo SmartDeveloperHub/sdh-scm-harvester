@@ -24,48 +24,19 @@
  *   Bundle      : scm-harvester.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.frontend.core;
+package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import java.util.HashSet;
-import java.util.Set;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
-import com.google.common.base.MoreObjects;
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
 
-@Deprecated
-public class GitLabHarvester {
+public class IdentityUtilTest {
 
-	private String id;
-	private Set<Integer> repositoryIds;
-
-	public String getId() {
-		return this.id;
-	}
-	public void setId(final String id) {
-		this.id = id;
-	}
-	public Set<Integer> getRepositories() {
-		return this.repositoryIds;
-	}
-	public void setRepositories(final Set<Integer> repositoryIds) {
-		this.repositoryIds = repositoryIds;
-	}
-
-	public void addRepository(final Integer repositoryId){
-		if (this.repositoryIds == null) {
-			this.repositoryIds = new HashSet<Integer>();
-		}
-		this.repositoryIds.add(repositoryId);
-	}
-
-	@Override
-	public String toString() {
-		return
-			MoreObjects.
-				toStringHelper(getClass()).
-					omitNullValues().
-					add("id",this.id).
-					add("repositoryIds", this.repositoryIds).
-					toString();
+	@Test
+	public void verifyIsUtilityClass() {
+		assertThat(Utils.isUtilityClass(IdentityUtil.class),equalTo(true));
 	}
 
 }

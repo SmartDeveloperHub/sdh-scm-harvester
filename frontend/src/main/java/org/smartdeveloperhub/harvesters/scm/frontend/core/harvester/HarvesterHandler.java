@@ -28,6 +28,7 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.harvester;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
@@ -40,7 +41,6 @@ import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Attachment;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.GitLabHarvester;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
@@ -81,14 +81,13 @@ public class HarvesterHandler implements ResourceHandler {
 		@SuppressWarnings("unchecked")
 		final Name<URI> name = (Name<URI>)resource.name();
 		try{
-			final GitLabHarvester gitLabHarvester = this.backendController.createGitLabHarvester();
-			return maptoDataSet(gitLabHarvester,name);
+			return maptoDataSet(this.backendController.getRepositories(),name);
 		} catch(final Exception e){
 			throw new ApplicationRuntimeException(e);
 		}
 	}
 
-	private DataSet maptoDataSet(final GitLabHarvester gitLabHarvester, final Name<URI> harvesterName) throws IOException {
+	private DataSet maptoDataSet(final List<Integer> repositories, final Name<URI> harvesterName) throws IOException {
 		final DataSet dataSet=DataSets.createDataSet(harvesterName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
@@ -104,7 +103,7 @@ public class HarvesterHandler implements ResourceHandler {
 					withIndividual(harvesterName,HarvesterHandler.ID,VOCABULARY_PATH);
 
 
-		for(final Integer repositoryId:gitLabHarvester.getRepositories()){
+		for(final Integer repositoryId:repositories){
 			final Name<String> repositoryName = NamingScheme.getDefault().name(Integer.toString(repositoryId));
 			helper.
 				managedIndividual(harvesterName, ID).
@@ -134,6 +133,5 @@ public class HarvesterHandler implements ResourceHandler {
 
 		return dataSet;
 	}
-
 
 }

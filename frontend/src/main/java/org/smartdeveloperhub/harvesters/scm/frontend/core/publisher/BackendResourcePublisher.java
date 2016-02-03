@@ -36,12 +36,8 @@ import org.ldp4j.application.session.ResourceSnapshot;
 import org.ldp4j.application.session.WriteSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.GitLabHarvester;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainerHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.harvester.HarvesterHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryContainerHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 
 public class BackendResourcePublisher {
@@ -58,11 +54,9 @@ public class BackendResourcePublisher {
 
 	public void publishHarvesterResources() throws IOException {
 		LOGGER.info("Publishing SCM Harvester Resource...");
+		final URI target = this.controller.getTarget();
 
-		final Name<URI> harvesterName=
-			NamingScheme.
-				getDefault().
-					name(this.controller.getTarget());
+		final Name<URI> harvesterName = IdentityUtil.enhancerIdentity(target);
 
 		final ResourceSnapshot harvesterSnapshot=
 			this.session.
@@ -71,64 +65,44 @@ public class BackendResourcePublisher {
 					harvesterName,
 					HarvesterHandler.class);
 
+		publishAttachedUserContainer(harvesterName, harvesterSnapshot);
+
 		final ContainerSnapshot repositoryContainer =
-				harvesterSnapshot.
-					createAttachedResource(
-						ContainerSnapshot.class,
-						HarvesterHandler.HARVESTER_REPOSITORIES,
-						harvesterName,
-						RepositoryContainerHandler.class);
+			publishAttachedRepositoryContainer(
+				harvesterName,
+				harvesterSnapshot);
 
-		LOGGER.debug("Published repository container for service {}", harvesterName);
+		createRepositoryResources(repositoryContainer);
 
+		LOGGER.info("Published SCM Harvester Resource");
+	}
+
+	private void publishAttachedUserContainer(final Name<URI> harvesterName, final ResourceSnapshot harvesterSnapshot) {
 		harvesterSnapshot.
 			createAttachedResource(
 				ContainerSnapshot.class,
 				HarvesterHandler.HARVESTER_COMMITTERS,
 				NamingScheme.getDefault().name(UserContainerHandler.NAME),
 				UserContainerHandler.class);
-
 		LOGGER.debug("Published user container for service {}", harvesterName);
+	}
 
-		createRepositoryResources(repositoryContainer);
+	private ContainerSnapshot publishAttachedRepositoryContainer(final Name<URI> harvesterName, final ResourceSnapshot harvesterSnapshot) {
+		final ContainerSnapshot repositoryContainer =
+			harvesterSnapshot.
+				createAttachedResource(
+					ContainerSnapshot.class,
+					HarvesterHandler.HARVESTER_REPOSITORIES,
+					harvesterName,
+					RepositoryContainerHandler.class);
+
+		LOGGER.debug("Published repository container for service {}", harvesterName);
+		return repositoryContainer;
 	}
 
 	private void createRepositoryResources(final ContainerSnapshot repositoryContainer) throws IOException {
-		final GitLabHarvester enhancer=this.controller.createGitLabHarvester();
-		for (final Integer repositoryId:enhancer.getRepositories()){
-			LOGGER.debug(
-				"Starting to publish resource for repository {} @ {} ({})",
-				repositoryId,
-				repositoryContainer.name(),
-				repositoryContainer.templateId());
-
-			final Name<Integer> repositoryName =
-				NamingScheme.
-					getDefault().
-						name(repositoryId);
-
-			final ResourceSnapshot repository =
-					repositoryContainer.addMember(repositoryName);
-
-			repository.
-				createAttachedResource(
-					ContainerSnapshot.class,
-					RepositoryHandler.REPOSITORY_BRANCHES,
-					repositoryName,
-					BranchContainerHandler.class);
-
-			repository.
-				createAttachedResource(
-					ContainerSnapshot.class,
-					RepositoryHandler.REPOSITORY_COMMITS,
-					repositoryName,
-					CommitContainerHandler.class);
-
-			LOGGER.debug(
-				"Published resource for repository {} @ {} ({})",
-				repositoryId,
-				repositoryContainer.name(),
-				repositoryContainer.templateId());
+		for(final Integer repositoryId:this.controller.getRepositories()){
+			PublisherHelper.publishRepository(repositoryContainer, repositoryId);
 		}
 	}
 

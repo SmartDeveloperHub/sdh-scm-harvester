@@ -26,58 +26,56 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.ldp4j.application.ApplicationContext;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.session.ContainerSnapshot;
-import org.ldp4j.application.session.WriteSession;
+import org.ldp4j.application.session.ResourceSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainerHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 
-public class UserPublisherThread extends PublisherThread {
+final class PublisherHelper {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(UserPublisherThread.class);
+	private static final Logger LOGGER=LoggerFactory.getLogger(BackendResourcePublisher.class);
 
-	public UserPublisherThread(final BackendController controller) {
-		super("User",controller);
+	private PublisherHelper() {
 	}
 
-	@Override
-	protected final void doPublish() {
-		LOGGER.info("Started user population process...");
-		try {
-			final List<String> users = getController().getCommitters();
-			if(users.isEmpty()) {
-				LOGGER.info("No committers available");
-				return;
-			}
-			publishUserResources(users);
-		} catch (final Exception e) {
-			LOGGER.error("Could not populate users", e);
-		} finally {
-			LOGGER.info("Finalized user population process");
-		}
-	}
+	static final ResourceSnapshot publishRepository(final ContainerSnapshot repositoryContainer, final Integer repositoryId) {
+		LOGGER.debug(
+			"Started publishing resource for repository {} @ {} ({})...",
+			repositoryId,
+			repositoryContainer.name(),
+			repositoryContainer.templateId());
 
-	private void publishUserResources(final List<String> users) throws IOException {
-		final ApplicationContext ctx = ApplicationContext.getInstance();
-		try(WriteSession session = ctx.createSession()){
-			final ContainerSnapshot userContainerSnapshot=
-				session.find(
-					ContainerSnapshot.class,
-					IdentityUtil.userContainerIdentity(),
-					UserContainerHandler.class);
-			for(final String userId:users){
-				final Name<String> userName = IdentityUtil.userIdentity(userId);
-				userContainerSnapshot.addMember(userName);
-			}
-			session.saveChanges();
-		} catch(final Exception e) {
-			throw new IOException("Could not publish user resources",e);
-		}
+		final Name<Integer> repositoryName=
+			IdentityUtil.repositoryIdentity(repositoryId);
+
+		final ResourceSnapshot repository =
+				repositoryContainer.addMember(repositoryName);
+
+		repository.
+			createAttachedResource(
+				ContainerSnapshot.class,
+				RepositoryHandler.REPOSITORY_BRANCHES,
+				repositoryName,
+				BranchContainerHandler.class);
+
+		repository.
+			createAttachedResource(
+				ContainerSnapshot.class,
+				RepositoryHandler.REPOSITORY_COMMITS,
+				repositoryName,
+				CommitContainerHandler.class);
+
+		LOGGER.debug(
+			"Published resource for repository {} @ {} ({})",
+			repositoryId,
+			repositoryContainer.name(),
+			repositoryContainer.templateId());
+
+		return repository;
 	}
 
 }

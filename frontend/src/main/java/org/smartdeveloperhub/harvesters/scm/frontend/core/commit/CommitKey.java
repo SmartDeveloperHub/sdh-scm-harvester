@@ -26,11 +26,14 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import com.google.common.base.MoreObjects;
 
-public final class CommitKey implements Comparable<CommitKey> {
+public final class CommitKey implements Comparable<CommitKey>, Serializable {
+
+	private static final long serialVersionUID = 2202896370472505527L;
 
 	private Integer repoId;
 	private String commitId;

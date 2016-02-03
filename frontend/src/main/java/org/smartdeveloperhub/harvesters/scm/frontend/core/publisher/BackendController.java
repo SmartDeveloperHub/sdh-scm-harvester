@@ -44,7 +44,6 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.GitLabHarvester;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityMap;
@@ -59,8 +58,6 @@ public class BackendController {
 
 	private IdentityMap<BranchKey> branchIdentityMap;
 	private IdentityMap<CommitKey> commitIdentityMap;
-
-	private GitLabHarvester gitLabHarvester;
 
 	public BackendController(final URI uri) {
 		this.target = uri;
@@ -89,23 +86,9 @@ public class BackendController {
 		this.commitIdentityMap = commitIdentityMap;
 	}
 
-	@Deprecated
-	public GitLabHarvester createGitLabHarvester() throws IOException {
+	public List<Integer> getRepositories() throws IOException {
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
-		final Repositories repos = repoCtl.getRepositories();
-
-		this.gitLabHarvester = new GitLabHarvester();
-		this.gitLabHarvester.setId(this.scmRestService);
-		for(final Integer repoId : repos.getRepositoryIds()) {
-			this.gitLabHarvester.addRepository(repoId);
-		}
-
-		return this.gitLabHarvester;
-	}
-
-	@Deprecated
-	public GitLabHarvester getGitLabHarvester() {
-		return this.gitLabHarvester;
+		return repoCtl.getRepositories().getRepositoryIds();
 	}
 
 	public List<String> getCommitters() throws IOException {
