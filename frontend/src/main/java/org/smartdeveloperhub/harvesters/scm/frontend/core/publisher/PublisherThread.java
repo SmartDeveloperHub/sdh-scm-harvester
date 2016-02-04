@@ -30,14 +30,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 
 import com.google.common.base.Stopwatch;
 
 abstract class PublisherThread extends Thread {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(PublisherThread.class);
-
-	private static final String THREAD_NAME = "BranchCommitPublisher";
 
 	private final BackendController controller;
 
@@ -56,13 +55,13 @@ abstract class PublisherThread extends Thread {
 
 	@Override
 	public final void run(){
-		LOGGER.info("Running {}...",THREAD_NAME);
+		LOGGER.info("Running {}...",getName());
 		final Stopwatch watch = Stopwatch.createStarted();
 		try {
 			doPublish();
 		} finally {
 			watch.stop();
-			LOGGER.info("{} Elapsed time (ms): {}",THREAD_NAME,watch.elapsed(TimeUnit.MILLISECONDS));
+			LOGGER.info("{} Elapsed time (ms): {}",getName(),watch.elapsed(TimeUnit.MILLISECONDS));
 		}
 	}
 

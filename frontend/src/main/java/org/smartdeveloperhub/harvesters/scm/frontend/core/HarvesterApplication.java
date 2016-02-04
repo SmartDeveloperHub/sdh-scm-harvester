@@ -28,7 +28,6 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core;
 
 import java.net.URI;
 
-import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.ext.Application;
 import org.ldp4j.application.ext.ApplicationInitializationException;
 import org.ldp4j.application.ext.ApplicationSetupException;
@@ -37,18 +36,19 @@ import org.ldp4j.application.setup.Bootstrap;
 import org.ldp4j.application.setup.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.harvester.HarvesterHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendResourcePublisher;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BranchCommitPublisherThread;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.UserPublisherThread;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 public final class HarvesterApplication extends Application<HarvesterConfiguration> {
 
@@ -83,9 +83,7 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 
 		environment.
 			publishResource(
-				NamingScheme.
-					getDefault().
-						name(this.target),
+				IdentityUtil.enhancerName(this.target),
 				HarvesterHandler.class,
 				SERVICE_PATH);
 

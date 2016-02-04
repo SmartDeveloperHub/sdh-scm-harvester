@@ -20,11 +20,11 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
- *   Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-frontend:0.3.0-SNAPSHOT
- *   Bundle      : scm-harvester.war
+ *   Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-backend:0.3.0-SNAPSHOT
+ *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
+package org.smartdeveloperhub.harvesters.scm.backend;
 
 import java.io.IOException;
 import java.net.URI;
@@ -33,8 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.controller.BranchController;
 import org.smartdeveloperhub.harvesters.scm.backend.controller.CommitController;
 import org.smartdeveloperhub.harvesters.scm.backend.controller.RepositoryController;
@@ -47,10 +45,7 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
 
 public class BackendController {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(BackendController.class);
-
 	private final URI target;
-
 	private final String scmRestService;
 
 	public BackendController(final URI uri) {
@@ -98,14 +93,6 @@ public class BackendController {
 	public Commit getCommit(final Integer repoId, final String commitId) throws IOException {
 		final CommitController commitCtl = new CommitController(this.scmRestService);
 		return commitCtl.getCommit(repoId, commitId);
-	}
-
-	public static void main(final String[] args) throws IOException {
-		final BackendController bkend = new BackendController(URI.create(args[0]));
-		final Repository repo = bkend.getRepository(5);
-		LOGGER.info("{}",repo);
-		LOGGER.info("* {}",repo.getBranches());
-		LOGGER.info("** {} ",repo.getCommits());
 	}
 
 }

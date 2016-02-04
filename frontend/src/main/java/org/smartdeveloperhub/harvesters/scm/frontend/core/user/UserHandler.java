@@ -38,8 +38,8 @@ import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
+import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 @Resource(id=UserHandler.ID)
