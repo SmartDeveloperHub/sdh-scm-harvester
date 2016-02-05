@@ -39,12 +39,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 	Enhancer.NAME,
 	Enhancer.VERSION,
 	Enhancer.STATUS,
+	Enhancer.COLLECTORS
 })
 public class Enhancer extends Extensible {
 
-	static final String STATUS  = "Status";
-	static final String NAME    = "Name";
-	static final String VERSION = "Version";
+	static final String STATUS     = "Status";
+	static final String NAME       = "Name";
+	static final String VERSION    = "Version";
+	static final String COLLECTORS = "Collectors";
 
 	@JsonIgnore
 	private String id;
@@ -57,6 +59,9 @@ public class Enhancer extends Extensible {
 
 	@JsonProperty(VERSION)
 	private String version;
+
+	@JsonProperty(COLLECTORS)
+	private List<Collector> collectors = new ArrayList<>();
 
 	@JsonIgnore
 	private List<Integer> repositories = new ArrayList<>();
@@ -145,6 +150,27 @@ public class Enhancer extends Extensible {
 	@JsonProperty(VERSION)
 	public void setVersion(final String version) {
 		this.version = version;
+	}
+
+	/**
+	 * Get the configurations of the collectors used by the enhancer
+	 *
+	 * @return The collectors' configuration
+	 */
+	@JsonProperty(COLLECTORS)
+	public List<Collector> getCollectors() {
+		return this.collectors;
+	}
+
+	/**
+	 * Set the configurations of the collectors used by the enhancer
+	 *
+	 * @param collectors
+	 *            The collectors' configuration
+	 */
+	@JsonProperty(COLLECTORS)
+	public void setCollectors(final List<Collector> collectors) {
+		this.collectors = collectors;
 	}
 
 	/**
