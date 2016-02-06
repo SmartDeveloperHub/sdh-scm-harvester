@@ -143,7 +143,7 @@ final class CollectorController {
 	}
 
 	void publishEvent(final Event event) throws IOException {
-		publishEvent(EventUtil.serializeEvent(event), event.getClass().getSimpleName());
+		publishEvent(EventUtil.marshall(event), event.getClass().getSimpleName());
 	}
 
 	void publishEvent(final String event, final String eventType) throws IOException {

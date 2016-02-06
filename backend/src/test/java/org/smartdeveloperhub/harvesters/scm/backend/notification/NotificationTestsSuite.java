@@ -26,28 +26,14 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import java.io.IOException;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-final class EventUtil {
-
-	private EventUtil() {
-	}
-
-	private static ObjectMapper newMapper() {
-		final ObjectMapper mapper = new ObjectMapper();
-		mapper.enable(SerializationFeature.INDENT_OUTPUT);
-		return mapper;
-	}
-
-	static String marshall(final Event event) throws IOException {
-		return newMapper().writeValueAsString(event);
-	}
-
-	static <T extends Event> T unmarshall(final String payload, final Class<? extends T> clazz) throws IOException {
-		return newMapper().readValue(payload,clazz);
-	}
-
+@RunWith(Suite.class)
+@SuiteClasses({
+	EventUtilTest.class,
+	NotificationsTest.class
+})
+public class NotificationTestsSuite {
 }

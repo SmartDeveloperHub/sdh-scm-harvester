@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 import org.smartdeveloperhub.harvesters.scm.backend.controller.ControllerTestsSuite;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.NotificationTestsSuite;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.PojosTestsSuite;
 import org.smartdeveloperhub.harvesters.scm.backend.readers.ReaderTestsSuite;
 import org.smartdeveloperhub.harvesters.scm.backend.rest.RestTestsSuite;
@@ -41,7 +42,8 @@ import org.smartdeveloperhub.harvesters.scm.backend.util.UtilTestsSuite;
 	RestTestsSuite.class,
 	PojosTestsSuite.class,
 	ReaderTestsSuite.class,
-	ControllerTestsSuite.class
+	ControllerTestsSuite.class,
+	NotificationTestsSuite.class
 })
 public class BackendTestsSuite {
 }

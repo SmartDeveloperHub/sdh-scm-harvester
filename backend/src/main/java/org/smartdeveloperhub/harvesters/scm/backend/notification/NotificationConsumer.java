@@ -36,7 +36,6 @@ import java.util.concurrent.BlockingQueue;
 import org.apache.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smartdeveloperhub.harvesters.scm.backend.readers.EventReader;
 
 import com.google.common.collect.ImmutableList;
 import com.rabbitmq.client.AMQP.BasicProperties;
@@ -105,8 +104,10 @@ final class NotificationConsumer extends DefaultConsumer {
 	private abstract static class CustomNotificationHandler<T extends Event> implements NotificationHandler {
 
 		private final String acceptedKey;
+		private final Class<? extends T> clazz;
 
 		protected CustomNotificationHandler(final Class<? extends T> clazz) {
+			this.clazz = clazz;
 			this.acceptedKey=Notifications.routingKey(clazz);
 		}
 
@@ -123,12 +124,13 @@ final class NotificationConsumer extends DefaultConsumer {
 		 */
 		@Override
 		public final SuspendedNotification suspend(final AcknowledgeableNotification notification, final String payload) throws IOException {
-			return createPropagator(notification,parseNotification(payload));
+			return
+				createPropagator(
+					notification,
+					EventUtil.unmarshall(payload, this.clazz));
 		}
 
 		protected abstract CustomSuspendedNotification<T> createPropagator(AcknowledgeableNotification notification, T event);
-
-		protected abstract T parseNotification(String payload) throws IOException;
 
 	}
 
@@ -149,14 +151,6 @@ final class NotificationConsumer extends DefaultConsumer {
 					listener.onCommitterCreation(this, super.getEvent());
 				}
 			};
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected CommitterCreatedEvent parseNotification(final String payload) throws IOException {
-			return new EventReader().readCommitterCreatedEvent(payload);
 		}
 
 	}
@@ -180,14 +174,6 @@ final class NotificationConsumer extends DefaultConsumer {
 			};
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected CommitterDeletedEvent parseNotification(final String payload) throws IOException {
-			return new EventReader().readCommitterDeletedEvent(payload);
-		}
-
 	}
 	private static final class RepositoryCreatedNotificationHandler extends CustomNotificationHandler<RepositoryCreatedEvent> {
 
@@ -207,15 +193,6 @@ final class NotificationConsumer extends DefaultConsumer {
 				}
 			};
 		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected RepositoryCreatedEvent parseNotification(final String payload) throws IOException {
-			return new EventReader().readRepositoryCreatedEvent(payload);
-		}
-
 	}
 
 	private static final class RepositoryDeletedNotificationHandler extends CustomNotificationHandler<RepositoryDeletedEvent> {
@@ -236,16 +213,8 @@ final class NotificationConsumer extends DefaultConsumer {
 				}
 			};
 		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected RepositoryDeletedEvent parseNotification(final String payload) throws IOException {
-			return new EventReader().readRepositoryDeletedEvent(payload);
-		}
-
 	}
+
 	private static final class RepositoryUpdatedNotificationHandler extends CustomNotificationHandler<RepositoryUpdatedEvent> {
 
 		protected RepositoryUpdatedNotificationHandler() {
@@ -263,14 +232,6 @@ final class NotificationConsumer extends DefaultConsumer {
 					listener.onRepositoryUpdate(this,super.getEvent());
 				}
 			};
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected RepositoryUpdatedEvent parseNotification(final String payload) throws IOException {
-			return new EventReader().readRepositoryUpdatedEvent(payload);
 		}
 
 	}
