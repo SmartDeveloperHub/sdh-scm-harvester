@@ -33,6 +33,9 @@ final class Notifications {
 	static final String ROUTING_KEY_BASE    = "gitcollector.notification.";
 	static final String ROUTING_KEY_PATTERN = ROUTING_KEY_BASE+"*";
 
+	private Notifications() {
+	}
+
 	static <T extends Event> String routingKey(final Class<? extends T> clazz) {
 		return routingKey(clazz.getSimpleName());
 	}

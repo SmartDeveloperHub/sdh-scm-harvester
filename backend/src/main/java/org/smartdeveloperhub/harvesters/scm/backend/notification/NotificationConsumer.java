@@ -236,7 +236,7 @@ final class NotificationConsumer extends DefaultConsumer {
 
 	}
 
-	private static Logger LOGGER=LoggerFactory.getLogger(NotificationConsumer.class);
+	private static final Logger LOGGER=LoggerFactory.getLogger(NotificationConsumer.class);
 
 	private final BlockingQueue<SuspendedNotification> notifications;
 	private final List<NotificationHandler> handlers;

@@ -26,6 +26,9 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+
 import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
@@ -33,6 +36,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Collector;
@@ -41,6 +45,11 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Collector;
 public class NotificationsTest {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(NotificationsTest.class);
+
+	@Test
+	public void verifyIsUtilityClass() {
+		assertThat(Utils.isUtilityClass(Notifications.class),equalTo(true));
+	}
 
 	@Test
 	public void testNotifications() throws ControllerException, IOException, InterruptedException {
