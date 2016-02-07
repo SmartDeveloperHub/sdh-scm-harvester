@@ -26,53 +26,120 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
+import static com.google.common.base.Preconditions.checkState;
+
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class NotificationPump extends Thread {
+final class NotificationPump {
+
+	private static final class PumpExceptionHandler implements UncaughtExceptionHandler {
+
+		@Override
+		public void uncaughtException(final Thread t, final Throwable e) {
+			LOGGER.error("Notification pump thread died unexpectedly. Full stacktrace follows",e);
+
+		}
+
+	}
+
+	private static final class PumpWorker implements Runnable {
+
+		private final BlockingQueue<SuspendedNotification> notifications;
+		private final NotificationListener listener;
+
+		PumpWorker(final BlockingQueue<SuspendedNotification> notifications, final NotificationListener listener) {
+			this.notifications = notifications;
+			this.listener = listener;
+		}
+
+		@Override
+		public void run() {
+			boolean stopped=false;
+			LOGGER.info("Started pumping notifications");
+			while(!stopped) {
+				try {
+					final SuspendedNotification notification=this.notifications.poll(QUEUE_POLL_TIMEOUT,QUEUE_POLL_TIMEUNIT);
+					if(notification!=null) {
+						notification.resume(this.listener);
+					}
+				} catch (final InterruptedException e) {
+					stopped=true;
+					LOGGER.info("Notification pumping interrupted.");
+				}
+			}
+			final List<SuspendedNotification> discarded=new ArrayList<>();
+			this.notifications.drainTo(discarded);
+			if(!discarded.isEmpty()) {
+				LOGGER.warn("{} notifications were dropped",discarded.size());
+			}
+			LOGGER.info("Notification pumping finished");
+		}
+
+	}
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(NotificationPump.class);
 
+	private static final TimeUnit QUEUE_POLL_TIMEUNIT = TimeUnit.MILLISECONDS;
+	private static final int QUEUE_POLL_TIMEOUT       = 1000;
+
+	private final Lock lock;
 	private final BlockingQueue<SuspendedNotification> notifications;
 
 	private final NotificationListener listener;
 
-	private volatile boolean stopped=false;
+	private Thread thread;
 
-	public NotificationPump(final BlockingQueue<SuspendedNotification> notifications, final NotificationListener listener) {
+	NotificationPump(final BlockingQueue<SuspendedNotification> notifications, final NotificationListener listener) {
 		this.notifications = notifications;
 		this.listener = listener;
+		this.lock=new ReentrantLock();
 	}
 
-	@Override
-	public void run() {
-		LOGGER.info("Started pumping notifications");
-		while(!this.stopped) {
-			try {
-				final SuspendedNotification notification=this.notifications.poll(1000, TimeUnit.MILLISECONDS);
-				if(notification!=null) {
-					notification.resume(this.listener);
+	void start() {
+		final Thread workerThread = createWorkerThread();
+		this.lock.lock();
+		try {
+			checkState(this.thread==null,"Pump already started");
+			this.thread=workerThread;
+			this.thread.start();
+		} finally {
+			this.lock.unlock();
+		}
+	}
+
+	void stop() {
+		this.lock.lock();
+		try {
+			checkState(this.thread!=null,"Pump not started");
+			if(this.thread.isAlive()) {
+				this.thread.interrupt();
+				try {
+					this.thread.join();
+				} catch (final InterruptedException e) {
+					LOGGER.warn("Interrupted while awaiting the termination of the worker thread",e);
 				}
-			} catch (final InterruptedException e) {
-				this.stopped=true;
-				LOGGER.info("Notification pumping interrupted.");
 			}
+			this.thread=null;
+		} finally {
+			this.lock.unlock();
 		}
-		final List<SuspendedNotification> discarded=new ArrayList<>();
-		this.notifications.drainTo(discarded);
-		if(!discarded.isEmpty()) {
-			LOGGER.warn("{} notifications were dropped",discarded.size());
-		}
-		LOGGER.info("Notification pumping finished");
 	}
 
-	void shutdown() {
-		this.stopped=true;
+	private Thread createWorkerThread() {
+		final Thread result=new Thread(new PumpWorker(this.notifications,this.listener),"NotificationPump");
+		result.setUncaughtExceptionHandler(new PumpExceptionHandler());
+		result.setDaemon(true);
+		result.setPriority(Thread.MAX_PRIORITY);
+		return result;
 	}
 
 }

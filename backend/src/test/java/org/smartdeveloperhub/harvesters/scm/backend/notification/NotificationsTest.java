@@ -97,8 +97,6 @@ public class NotificationsTest {
 						try {
 							TimeUnit.MILLISECONDS.sleep(this.random.nextInt(10));
 						} catch (final Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
 						}
 					}
 				}
@@ -114,12 +112,8 @@ public class NotificationsTest {
 			}
 			TimeUnit.SECONDS.sleep(5);
 		} finally {
-			try {
-				pump.shutdown();
-				pump.join();
-			} finally {
-				controller.disconnect();
-			}
+			pump.stop();
+			controller.disconnect();
 		}
 	}
 

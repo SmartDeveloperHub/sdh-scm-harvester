@@ -28,8 +28,6 @@ package org.smartdeveloperhub.harvesters.scm.backend;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +40,9 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repositories;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
 public class BackendController {
 
@@ -63,7 +64,7 @@ public class BackendController {
 	}
 
 	public List<String> getCommitters() throws IOException {
-		final Set<String> uniqueUsers = new HashSet<String>();
+		final Set<String> uniqueUsers = Sets.newHashSet();
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
 		final Repositories repos = repoCtl.getRepositories();
 		for(final Integer repoId : repos.getRepositoryIds()) {
@@ -72,7 +73,7 @@ public class BackendController {
 				uniqueUsers.add(contributorId);
 			}
 		}
-		return new ArrayList<String>(uniqueUsers);
+		return ImmutableList.copyOf(uniqueUsers);
 	}
 
 	public Repository getRepository(final Integer id) throws IOException {
