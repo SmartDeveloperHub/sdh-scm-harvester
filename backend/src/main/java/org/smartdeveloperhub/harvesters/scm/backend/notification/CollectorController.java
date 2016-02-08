@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import java.io.IOException;
 import java.util.Deque;
@@ -83,7 +84,7 @@ final class CollectorController {
 
 	private final String queueName;
 	private final Collector collector;
-	private final BlockingQueue<SuspendedNotification> propagationQueue;
+	private final BlockingQueue<SuspendedNotification> notificationQueue;
 
 	private final Lock write;
 
@@ -98,11 +99,10 @@ final class CollectorController {
 
 	private CollectorController(final Collector collector, final String queueName, final BlockingQueue<SuspendedNotification> notificationQueue) {
 		checkNotNull(collector,"Collector cannot be null");
-		checkNotNull(notificationQueue,"Notification queue cannot be null");
 		this.collector=collector;
 		this.manager=new ConnectionManager(collector.getInstance(),collector.getBrokerHost(),collector.getBrokerPort(),collector.getVirtualHost());
 		this.queueName=queueName;
-		this.propagationQueue=notificationQueue;
+		this.notificationQueue=notificationQueue;
 		final ReadWriteLock lock=new ReentrantReadWriteLock();
 		this.write=lock.writeLock();
 		this.cleaners=Lists.newLinkedList();
@@ -119,15 +119,25 @@ final class CollectorController {
 	}
 
 	String actualQueueName() {
-		return this.actualQueueName;
+		this.write.lock();
+		try {
+			checkState(this.manager.isConnected(),"Not connected");
+			return this.actualQueueName;
+		} finally {
+			this.write.unlock();
+		}
 	}
 
 	void connect() throws ControllerException {
 		this.write.lock();
 		try {
+			checkState(!this.manager.isConnected(),"Already connected");
 			this.manager.connect();
 			declareExchange();
 			prepareQueue();
+		} catch(final ControllerException e) {
+			disconnectGracefully();
+			throw e;
 		} finally {
 			this.write.unlock();
 		}
@@ -136,11 +146,7 @@ final class CollectorController {
 	void disconnect() {
 		this.write.lock();
 		try {
-			if(this.manager.isConnected()) {
-				cleanUp();
-				this.callbacks.clear();
-				this.manager.disconnect();
-			}
+			disconnectGracefully();
 		} finally {
 			this.write.unlock();
 		}
@@ -151,12 +157,24 @@ final class CollectorController {
 	}
 
 	void publishEvent(final String event, final String eventType) throws IOException {
-		final String exchangeName=this.collector.getExchangeName();
-		final String routingKey=Notifications.ROUTING_KEY_BASE+eventType;
-		final Channel aChannel = this.manager.currentChannel();
-		aChannel.addReturnListener(new LoggingReturnListener());
+		this.write.lock();
 		try {
-			LOGGER.debug("Publishing message to exchange '{}' and routing key '{}'. Payload: \n{}",exchangeName,routingKey,event);
+			checkState(this.manager.isConnected(),"Not connected");
+			final Channel aChannel = this.manager.currentChannel();
+			aChannel.addReturnListener(new LoggingReturnListener());
+			publish(
+				aChannel,
+				this.collector.getExchangeName(),
+				Notifications.routingKey(eventType),
+				event);
+		} finally {
+			this.write.unlock();
+		}
+	}
+
+	private void publish(final Channel aChannel, final String exchangeName, final String routingKey, final String payload) throws IOException {
+		try {
+			LOGGER.trace("Publishing message to exchange '{}' and routing key '{}'. Payload: \n{}",exchangeName,routingKey,payload);
 			final Map<String, Object> headers=Maps.newLinkedHashMap();
 			headers.put(GITCOLLECTOR_CONTROLLER_MESSAGE,this.messageCounter.incrementAndGet());
 			headers.put(HttpHeaders.CONTENT_TYPE,Notifications.MIME);
@@ -166,26 +184,26 @@ final class CollectorController {
 					routingKey,
 					true,
 					MessageProperties.MINIMAL_PERSISTENT_BASIC.builder().headers(headers).build(),
-					event.getBytes());
+					payload.getBytes());
 		} catch (final IOException e) {
 			this.manager.discardChannel(aChannel);
-			LOGGER.warn("Could not publish message [{}] to exchange '{}' and routing key '{}': {}",event,exchangeName,routingKey,e.getMessage());
+			LOGGER.warn("Could not publish message [{}] to exchange '{}' and routing key '{}': {}",payload,exchangeName,routingKey,e.getMessage());
 			throw e;
 		} catch (final Exception e) {
 			this.manager.discardChannel(aChannel);
-			final String errorMessage = String.format("Unexpected failure while publishing message [%s] to exchange '%s' and routing key '%s' using broker %s:%s%s: %s",event,exchangeName,routingKey,this.collector.getBrokerHost(),this.collector.getBrokerPort(),this.collector.getVirtualHost(),e.getMessage());
+			final String errorMessage = String.format("Unexpected failure while publishing message [%s] to exchange '%s' and routing key '%s' using broker %s:%s%s: %s",payload,exchangeName,routingKey,this.collector.getBrokerHost(),this.collector.getBrokerPort(),this.collector.getVirtualHost(),e.getMessage());
 			LOGGER.error(errorMessage);
 			throw new IOException(errorMessage,e);
 		}
 	}
 
 	private void prepareQueue() throws ControllerException {
-		if(this.propagationQueue!=null) {
+		if(this.notificationQueue!=null) {
 			this.actualQueueName = declareQueue();
 			bindQueue(this.actualQueueName);
 			try {
 				final Channel currentChannel = this.manager.channel();
-				final NotificationConsumer callback = new NotificationConsumer(currentChannel,this.propagationQueue);
+				final NotificationConsumer callback = new NotificationConsumer(currentChannel,this.notificationQueue);
 				currentChannel.
 					basicConsume(
 						this.actualQueueName,
@@ -207,7 +225,7 @@ final class CollectorController {
 			this.manager.channel().exchangeDeclare(this.collector.getExchangeName(),EXCHANGE_TYPE,true);
 		} catch (final IOException e) {
 			if(!FailureAnalyzer.isExchangeDeclarationRecoverable(e)) {
-				throw new ControllerException("Could not create "+this.queueName+" exchange named '"+this.collector.getExchangeName()+"'",e);
+				throw new ControllerException("Could not create exchange named '"+this.collector.getExchangeName()+"'",e);
 			}
 		}
 	}
@@ -238,7 +256,16 @@ final class CollectorController {
 			this.manager.channel().queueBind(queueName,this.collector.getExchangeName(),Notifications.ROUTING_KEY_PATTERN);
 			this.cleaners.push(CleanerFactory.queueUnbind(this.collector.getExchangeName(),queueName,Notifications.ROUTING_KEY_PATTERN));
 		} catch (final IOException e) {
-			throw new ControllerException("Could not bind "+this.queueName+" queue '"+queueName+"' to exchange '"+this.collector.getExchangeName()+"' using routing key '"+Notifications.ROUTING_KEY_PATTERN+"'",e);
+			throw new ControllerException("Could not bind queue '"+queueName+"' to exchange '"+this.collector.getExchangeName()+"' using routing key '"+Notifications.ROUTING_KEY_PATTERN+"'",e);
+		}
+	}
+
+	private void disconnectGracefully() {
+		if(this.manager.isConnected()) {
+			cleanUp();
+			this.callbacks.clear();
+			this.actualQueueName=null;
+			this.manager.disconnect();
 		}
 	}
 
@@ -261,6 +288,7 @@ final class CollectorController {
 	}
 
 	static CollectorController createAnonymousReceiver(final Collector collector, final BlockingQueue<SuspendedNotification> queue) {
+		checkNotNull(queue,"Notification queue cannot be null");
 		return new CollectorController(collector,null,queue);
 	}
 
@@ -269,6 +297,7 @@ final class CollectorController {
 	 */
 	static CollectorController createNamedReceiver(final Collector collector, final String queueName, final BlockingQueue<SuspendedNotification> queue) {
 		checkNotNull(queueName,"Queue name cannot be null");
+		checkNotNull(queue,"Notification queue cannot be null");
 		return new CollectorController(collector,queueName,queue);
 	}
 

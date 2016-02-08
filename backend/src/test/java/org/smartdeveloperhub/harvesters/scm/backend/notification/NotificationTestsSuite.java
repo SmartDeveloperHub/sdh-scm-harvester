@@ -33,6 +33,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 	EventUtilTest.class,
+	CollectorControllerTest.class,
 	CollectorAggregatorTest.class,
 	CollectorAggregatorITest.class,
 	NotificationsTest.class

@@ -29,8 +29,9 @@ package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
 final class Notifications {
 
+	private static final String ROUTING_KEY_BASE= "gitcollector.notification.";
+
 	static final String MIME                = "application/psr.sdh.gitcollector+json";
-	static final String ROUTING_KEY_BASE    = "gitcollector.notification.";
 	static final String ROUTING_KEY_PATTERN = ROUTING_KEY_BASE+"*";
 
 	private Notifications() {
