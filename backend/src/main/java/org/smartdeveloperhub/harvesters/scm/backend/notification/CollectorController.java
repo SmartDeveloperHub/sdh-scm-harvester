@@ -34,7 +34,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -48,11 +47,9 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.AMQP.Queue.DeclareOk;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.MessageProperties;
-import com.rabbitmq.client.ReturnListener;
 
 final class CollectorController {
 
@@ -62,25 +59,9 @@ final class CollectorController {
 
 	}
 
-	private final class LoggingReturnListener implements ReturnListener {
-
-		@Override
-		public void handleReturn(final int replyCode, final String replyText, final String exchange, final String routingKey, final BasicProperties properties, final byte[] body) throws IOException {
-			LOGGER.warn(
-				"Message {} publication in {}:{} failed ({}): {}",
-				properties.getHeaders().get(GITCOLLECTOR_CONTROLLER_MESSAGE),
-				exchange,
-				routingKey,
-				replyCode,
-				replyText);
-		}
-
-	}
-
 	private static final Logger LOGGER=LoggerFactory.getLogger(CollectorController.class);
 
 	private static final String EXCHANGE_TYPE="topic";
-	private static final String GITCOLLECTOR_CONTROLLER_MESSAGE = "X-CollectorController-Message";
 
 	private final String queueName;
 	private final Collector collector;
@@ -90,8 +71,6 @@ final class CollectorController {
 
 	private final Deque<Cleaner> cleaners;
 	private final List<NotificationConsumer> callbacks;
-
-	private final AtomicLong messageCounter;
 
 	private String actualQueueName;
 
@@ -107,7 +86,6 @@ final class CollectorController {
 		this.write=lock.writeLock();
 		this.cleaners=Lists.newLinkedList();
 		this.callbacks=Lists.newArrayList();
-		this.messageCounter=new AtomicLong();
 	}
 
 	Collector collector() {
@@ -176,14 +154,17 @@ final class CollectorController {
 		try {
 			LOGGER.trace("Publishing message to exchange '{}' and routing key '{}'. Payload: \n{}",exchangeName,routingKey,payload);
 			final Map<String, Object> headers=Maps.newLinkedHashMap();
-			headers.put(GITCOLLECTOR_CONTROLLER_MESSAGE,this.messageCounter.incrementAndGet());
 			headers.put(HttpHeaders.CONTENT_TYPE,Notifications.MIME);
 			aChannel.
 				basicPublish(
 					exchangeName,
 					routingKey,
 					true,
-					MessageProperties.MINIMAL_PERSISTENT_BASIC.builder().headers(headers).build(),
+					MessageProperties.
+						MINIMAL_PERSISTENT_BASIC.
+							builder().
+								headers(headers).
+								build(),
 					payload.getBytes());
 		} catch (final IOException e) {
 			this.manager.discardChannel(aChannel);
@@ -192,7 +173,7 @@ final class CollectorController {
 		} catch (final Exception e) {
 			this.manager.discardChannel(aChannel);
 			final String errorMessage = String.format("Unexpected failure while publishing message [%s] to exchange '%s' and routing key '%s' using broker %s:%s%s: %s",payload,exchangeName,routingKey,this.collector.getBrokerHost(),this.collector.getBrokerPort(),this.collector.getVirtualHost(),e.getMessage());
-			LOGGER.error(errorMessage);
+			LOGGER.error(errorMessage,e);
 			throw new IOException(errorMessage,e);
 		}
 	}

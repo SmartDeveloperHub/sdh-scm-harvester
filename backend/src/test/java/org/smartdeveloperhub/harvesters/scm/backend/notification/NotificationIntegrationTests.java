@@ -32,8 +32,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	NotificationUnitTests.class,
-	NotificationIntegrationTests.class
+	CollectorAggregatorITest.class
 })
-public class NotificationTestsSuite {
+public class NotificationIntegrationTests {
 }

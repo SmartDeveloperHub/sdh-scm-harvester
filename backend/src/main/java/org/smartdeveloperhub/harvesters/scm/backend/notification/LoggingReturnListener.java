@@ -26,14 +26,28 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	NotificationUnitTests.class,
-	NotificationIntegrationTests.class
-})
-public class NotificationTestsSuite {
+import com.rabbitmq.client.AMQP.BasicProperties;
+import com.rabbitmq.client.ReturnListener;
+
+final class LoggingReturnListener implements ReturnListener {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(LoggingReturnListener.class);
+
+	LoggingReturnListener() {
+	}
+
+	@Override
+	public void handleReturn(final int replyCode, final String replyText, final String exchange, final String routingKey, final BasicProperties properties, final byte[] body) {
+		LOGGER.warn(
+			"Message {} publication in {}:{} failed ({}): {}",
+			new String(body),
+			exchange,
+			routingKey,
+			replyCode,
+			replyText);
+	}
+
 }

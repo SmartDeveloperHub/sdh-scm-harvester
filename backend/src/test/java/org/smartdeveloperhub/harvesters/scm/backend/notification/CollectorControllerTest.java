@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
@@ -35,6 +36,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -42,15 +44,19 @@ import mockit.Expectations;
 import mockit.Mock;
 import mockit.MockUp;
 import mockit.Mocked;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 
+import org.apache.http.HttpHeaders;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Collector;
 
+import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.AMQP.Queue;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.MessageProperties;
 
 @RunWith(JMockit.class)
 public class CollectorControllerTest extends NotificationTestHelper {
@@ -397,6 +403,39 @@ public class CollectorControllerTest extends NotificationTestHelper {
 		sut.disconnect();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testDisconnect$ignoreCleanerFailures(@Mocked final Channel channel, @Mocked final Queue.DeclareOk ok) throws Exception {
+		new MockUp<ConnectionManager>() {
+			private boolean connected=false;
+			@Mock(invocations=1)
+			void connect() {
+				this.connected=true;
+			}
+			@Mock(invocations=1)
+			void disconnect() {
+			}
+			@Mock
+			boolean isConnected() {
+				return this.connected;
+			}
+			@Mock
+			Channel channel() {
+				return channel;
+			}
+		};
+		final Collector defaultCollector=defaultCollector();
+		final CollectorController sut = collectorController(defaultCollector);
+		new Expectations() {{
+			channel.queueDeclare((String)this.any,true,true,true,(Map<String,Object>)this.any);this.result=ok;
+			ok.getQueue();this.result="actualQueueName";
+			channel.basicConsume("actualQueueName",false,(Consumer)this.any);
+			channel.queueUnbind("actualQueueName",defaultCollector.getExchangeName(), (String)this.any);this.result=new IOException("failure");
+		}};
+		sut.connect();
+		sut.disconnect();
+	}
+
 	@Test
 	public void testPublishEvent$requiresBeingConnected() throws ControllerException, IOException {
 		final CollectorController sut = CollectorController.createPublisher(defaultCollector());
@@ -405,6 +444,182 @@ public class CollectorControllerTest extends NotificationTestHelper {
 			fail("Should not publishing events without being connected");
 		} catch (final IllegalStateException e) {
 			assertThat(e.getMessage(),equalTo("Not connected"));
+		}
+	}
+
+	@Test
+	public void testPublishEvent$usesCurrentChannelAndImplementsNotificationProtocol(@Mocked final Channel channel) throws Exception {
+		new MockUp<ConnectionManager>() {
+			private boolean connected=false;
+			@Mock(invocations=1)
+			void connect() {
+				this.connected=true;
+			}
+			@Mock(invocations=1)
+			void disconnect() {
+			}
+			@Mock
+			boolean isConnected() {
+				return this.connected;
+			}
+			@Mock
+			Channel channel() {
+				return channel;
+			}
+			@Mock(invocations=1)
+			Channel currentChannel() {
+				return channel;
+			}
+			@Mock(invocations=0)
+			void discardChannel(final Channel aChannel) {
+			}
+		};
+		final Collector defaultCollector = defaultCollector();
+		new Expectations() {{
+			channel.
+				basicPublish(
+					defaultCollector.getExchangeName(),
+					Notifications.routingKey(RepositoryCreatedEvent.class),
+					true,
+					(BasicProperties)this.any,
+					(byte[])this.any);
+		}};
+		final CollectorController sut = CollectorController.createPublisher(defaultCollector);
+		final RepositoryCreatedEvent event = new RepositoryCreatedEvent();
+		event.setInstance(defaultCollector.getInstance());
+		event.setNewRepositories(Arrays.asList(1,2));
+		sut.connect();
+		try {
+			sut.publishEvent(event);
+		} finally {
+			sut.disconnect();
+		}
+		new Verifications() {{
+			BasicProperties props;
+			byte[] body;
+			channel.
+				basicPublish(
+					defaultCollector.getExchangeName(),
+					Notifications.routingKey(RepositoryCreatedEvent.class),
+					true,
+					props=withCapture(),
+					body=withCapture());
+			assertThat(new String(body),equalTo(EventUtil.marshall(event)));
+			assertThat(props.getHeaders().get(HttpHeaders.CONTENT_TYPE),equalTo((Object)Notifications.MIME));
+			assertThat(props.getDeliveryMode(),equalTo(MessageProperties.MINIMAL_PERSISTENT_BASIC.builder().build().getDeliveryMode()));
+		}};
+	}
+
+	@Test
+	public void testPublishEvent$discardsCurrentChannelOnCheckedException(@Mocked final Channel channel) throws Exception {
+		new MockUp<ConnectionManager>() {
+			private boolean connected=false;
+			@Mock(invocations=1)
+			void connect() {
+				this.connected=true;
+			}
+			@Mock(invocations=1)
+			void disconnect() {
+			}
+			@Mock
+			boolean isConnected() {
+				return this.connected;
+			}
+			@Mock
+			Channel channel() {
+				return channel;
+			}
+			@Mock(invocations=1)
+			Channel currentChannel() {
+				return channel;
+			}
+			@Mock(invocations=1)
+			void discardChannel(final Channel aChannel) {
+				assertThat(aChannel,sameInstance(channel));
+			}
+		};
+		final Collector defaultCollector = defaultCollector();
+		new Expectations() {{
+			channel.
+				basicPublish(
+					defaultCollector.getExchangeName(),
+					Notifications.routingKey(RepositoryCreatedEvent.class),
+					true,
+					(BasicProperties)this.any,
+					(byte[])this.any);this.result=new IOException("Failure");
+		}};
+		final CollectorController sut = CollectorController.createPublisher(defaultCollector);
+		final RepositoryCreatedEvent event = new RepositoryCreatedEvent();
+		event.setInstance(defaultCollector.getInstance());
+		event.setNewRepositories(Arrays.asList(1,2));
+		sut.connect();
+		try {
+			sut.publishEvent(event);
+			fail("Should fail to publish an event if the RabbitMQ client fails");
+		} catch (final IOException e) {
+			assertThat(e.getMessage(),equalTo("Failure"));
+		} finally {
+			sut.disconnect();
+		}
+	}
+
+	@Test
+	public void testPublishEvent$discardsCurrentChannelOnRuntimeException(@Mocked final Channel channel) throws Exception {
+		new MockUp<ConnectionManager>() {
+			private boolean connected=false;
+			@Mock(invocations=1)
+			void connect() {
+				this.connected=true;
+			}
+			@Mock(invocations=1)
+			void disconnect() {
+			}
+			@Mock
+			boolean isConnected() {
+				return this.connected;
+			}
+			@Mock
+			Channel channel() {
+				return channel;
+			}
+			@Mock(invocations=1)
+			Channel currentChannel() {
+				return channel;
+			}
+			@Mock(invocations=1)
+			void discardChannel(final Channel aChannel) {
+				assertThat(aChannel,sameInstance(channel));
+			}
+		};
+		final Collector defaultCollector = defaultCollector();
+		new Expectations() {{
+			channel.
+				basicPublish(
+					defaultCollector.getExchangeName(),
+					Notifications.routingKey(RepositoryCreatedEvent.class),
+					true,
+					(BasicProperties)this.any,
+					(byte[])this.any);this.result=new RuntimeException("Failure");
+		}};
+		final CollectorController sut = CollectorController.createPublisher(defaultCollector);
+		final RepositoryCreatedEvent event = new RepositoryCreatedEvent();
+		event.setInstance(defaultCollector.getInstance());
+		event.setNewRepositories(Arrays.asList(1,2));
+		sut.connect();
+		try {
+			sut.publishEvent(event);
+			fail("Should fail to publish an event if the RabbitMQ client fails");
+		} catch (final IOException e) {
+			assertThat(e.getMessage(),containsString(EventUtil.marshall(event)));
+			assertThat(e.getMessage(),containsString(defaultCollector.getExchangeName()));
+			assertThat(e.getMessage(),containsString(Notifications.routingKey(RepositoryCreatedEvent.class)));
+			assertThat(e.getMessage(),containsString(defaultCollector.getBrokerHost()));
+			assertThat(e.getMessage(),containsString(":"+defaultCollector.getBrokerPort()));
+			assertThat(e.getMessage(),containsString(defaultCollector.getVirtualHost()));
+			assertThat(e.getCause(),instanceOf(RuntimeException.class));
+			assertThat(e.getCause().getMessage(),equalTo("Failure"));
+		} finally {
+			sut.disconnect();
 		}
 	}
 

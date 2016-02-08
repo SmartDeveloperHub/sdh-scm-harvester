@@ -31,13 +31,9 @@ import static org.hamcrest.Matchers.equalTo;
 
 import org.junit.Test;
 import org.ldp4j.commons.testing.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class NotificationsTest {
-
-	private static final Logger LOGGER=LoggerFactory.getLogger(NotificationsTest.class);
 
 	@Test
 	public void verifyIsUtilityClass() {

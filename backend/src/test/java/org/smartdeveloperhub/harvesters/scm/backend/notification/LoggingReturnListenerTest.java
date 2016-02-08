@@ -26,14 +26,37 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.sameInstance;
+import mockit.Mock;
+import mockit.MockUp;
+import mockit.integration.junit4.JMockit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	NotificationUnitTests.class,
-	NotificationIntegrationTests.class
-})
-public class NotificationTestsSuite {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+
+
+@RunWith(JMockit.class)
+public class LoggingReturnListenerTest {
+
+	@Test
+	public void testHandleReturn() throws Exception {
+		new MockUp<Logger>() {
+			@Mock
+			void error(final String message, final Object... args) {
+				assertThat(args.length,equalTo(5));
+				assertThat(args[0],equalTo((Object)"body"));
+				assertThat(args[1],equalTo((Object)"exchange"));
+				assertThat(args[2],sameInstance((Object)"routingKey"));
+				assertThat(args[3],sameInstance((Object)0));
+				assertThat(args[4],sameInstance((Object)"replyText"));
+			}
+		};
+		final LoggingReturnListener sut = new LoggingReturnListener();
+		sut.handleReturn(0, "replyText", "exchange", "routingKey", null, "body".getBytes());
+
+	}
+
 }
