@@ -26,16 +26,35 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Collector;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	EventUtilTest.class,
-	CollectorAggregatorTest.class,
-	CollectorAggregatorITest.class,
-	NotificationsTest.class
-})
-public class NotificationTestsSuite {
+public class NotificationTestHelper {
+
+	public NotificationTestHelper() {
+		super();
+	}
+
+	protected Collector defaultCollector() {
+		final String instance = "http://russell.dia.fi.upm.es:5000/api";
+		final Collector collector = instanceCollector(instance);
+		return collector;
+	}
+
+	protected Collector instanceCollector(final String instance) {
+		final String virtualHost = "/";
+		final String exchangeName = "sdh";
+		final Collector collector = customCollector(instance, virtualHost,exchangeName);
+		return collector;
+	}
+
+	protected Collector customCollector(final String instance, final String virtualHost, final String exchangeName) {
+		final Collector collector=new Collector();
+		collector.setInstance(instance);
+		collector.setBrokerHost("localhost");
+		collector.setBrokerPort(5672);
+		collector.setVirtualHost(virtualHost);
+		collector.setExchangeName(exchangeName);
+		return collector;
+	}
+
 }

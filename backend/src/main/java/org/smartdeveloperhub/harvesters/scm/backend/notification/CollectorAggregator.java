@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.util.Deque;
@@ -41,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Collector;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -50,46 +52,57 @@ final class CollectorAggregator {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(CollectorAggregator.class);
 
+	private final String name;
 	private final NotificationListener listener;
-	private final Multimap<String,Collector> collectors;
-	private final Map<String,CollectorController> controllers;
-	private final Multimap<String,String> instances;
-	private final Map<String,String> queues;
-	private final BlockingQueue<SuspendedNotification> queue;
 
-	private final Deque<CollectorController> connected;
+	private final Multimap<String,Collector> brokerCollectors;
+	private final Multimap<String,String> brokerInstances;
+	private final Map<String,CollectorController> brokerController;
+	private final Map<String,String> instanceBroker;
+
+	private final BlockingQueue<SuspendedNotification> notificationQueue;
+	private final Deque<CollectorController> connectedControllers;
 
 	private NotificationPump pump;
 
-	private final String name;
-
 	private CollectorAggregator(final String name, final NotificationListener listener) {
-		this.name       =name;
-		this.listener   =listener;
-		this.collectors =LinkedListMultimap.create();
-		this.instances  =LinkedListMultimap.create();
-		this.queues     =Maps.newLinkedHashMap();
-		this.controllers=Maps.newLinkedHashMap();
-		this.queue      =new LinkedBlockingQueue<>();
-		this.connected  =Lists.newLinkedList();
+		this.name=name;
+		this.listener=listener;
+		this.brokerCollectors=LinkedListMultimap.create();
+		this.brokerInstances=LinkedListMultimap.create();
+		this.instanceBroker=Maps.newLinkedHashMap();
+		this.brokerController=Maps.newLinkedHashMap();
+		this.notificationQueue=new LinkedBlockingQueue<>();
+		this.connectedControllers=Lists.newLinkedList();
 	}
 
 	void connect(final List<Collector> collectors) throws IOException {
 		LOGGER.info("Setting up collector aggregator for {}...",this.name);
 		startNotificationPump();
 		for(final Collector collector:collectors) {
+			verifyCollectorIsNotConfigured(collector);
 			addCollector(collector, queueName(collector));
 		}
 		LOGGER.info("Collector aggregator for {} connected",this.name);
 	}
 
+	List<String> instances() {
+		return ImmutableList.copyOf(this.instanceBroker.keySet());
+	}
+
+	List<String> brokers() {
+		return ImmutableList.copyOf(this.brokerController.keySet());
+	}
+
+	List<String> brokerInstances(final String brokerId) {
+		return ImmutableList.copyOf(this.brokerInstances.get(brokerId));
+	}
+
 	CollectorController controller(final String instance) {
-		CollectorController result=null;
-		final String queueName = this.queues.get(instance);
-		if(queueName!=null) {
-			result=this.controllers.get(queueName);
-		}
-		return result;
+		checkNotNull(instance,"Instance cannot be null");
+		final String queueName = this.instanceBroker.get(instance);
+		checkArgument(queueName!=null,"Unknown instance '%s'",instance);
+		return this.brokerController.get(queueName);
 	}
 
 	void disconnect() {
@@ -99,18 +112,26 @@ final class CollectorAggregator {
 	}
 
 	private void addCollector(final Collector collector, final String queueName) throws IOException {
-		checkArgument(!this.instances.containsValue(collector.getInstance()));
-		this.instances.put(queueName,collector.getInstance());
-		this.queues.put(collector.getInstance(),queueName);
-		if(this.collectors.put(queueName,collector)) {
+		final boolean isNew=!this.brokerCollectors.containsKey(queueName);
+		this.brokerInstances.put(queueName,collector.getInstance());
+		this.instanceBroker.put(collector.getInstance(),queueName);
+		this.brokerCollectors.put(queueName,collector);
+		if(isNew) {
 			final CollectorController controller=startController(collector,queueName);
-			this.controllers.put(queueName, controller);
-			this.connected.add(controller);
+			this.brokerController.put(queueName, controller);
+			this.connectedControllers.add(controller);
+		}
+	}
+
+	private void verifyCollectorIsNotConfigured(final Collector collector) {
+		if(this.brokerInstances.containsValue(collector.getInstance())) {
+			shutdownGracefully();
+			throw new IllegalArgumentException("Multiple configurations found for collector "+collector.getInstance());
 		}
 	}
 
 	private CollectorController startController(final Collector collector, final String queueName) throws IOException {
-		final CollectorController controller = new CollectorController(collector,queueName,this.queue);
+		final CollectorController controller = CollectorController.createNamedReceiver(collector,queueName,this.notificationQueue);
 		LOGGER.info("Connecting controller for collector {}...",collector.getInstance());
 		try {
 			controller.connect();
@@ -118,12 +139,12 @@ final class CollectorAggregator {
 		} catch (final ControllerException e) {
 			LOGGER.warn("Could not connect controller for collector {}. Full stacktrace follows",collector.getInstance(),e);
 			shutdownGracefully();
-			throw new IOException("Could not connect to controller "+collector.getInstance()+" broker ("+collector+")",e);
+			throw new IOException("Could not connect controller for collector "+collector.getInstance()+" ("+collector+")",e);
 		}
 	}
 
 	private void startNotificationPump() {
-		this.pump=new NotificationPump(this.queue,this.listener);
+		this.pump=new NotificationPump(this.notificationQueue,this.listener);
 		this.pump.start();
 	}
 
@@ -139,9 +160,9 @@ final class CollectorAggregator {
 
 	private void shutdownGracefully() {
 		disconnectControllers();
-		this.instances.clear();
-		this.collectors.clear();
-		this.queue.clear();
+		this.brokerInstances.clear();
+		this.brokerCollectors.clear();
+		this.notificationQueue.clear();
 		stopNotificationPump();
 	}
 
@@ -151,15 +172,16 @@ final class CollectorAggregator {
 	}
 
 	private void disconnectControllers() {
-		final Iterator<CollectorController> iterator = this.connected.descendingIterator();
+		final Iterator<CollectorController> iterator = this.connectedControllers.descendingIterator();
 		while(iterator.hasNext()) {
 			iterator.next().disconnect();
 		}
-		this.connected.clear();
-		this.controllers.clear();
+		this.connectedControllers.clear();
+		this.brokerController.clear();
 	}
 
 	static CollectorAggregator newInstance(final String name, final NotificationListener listener) {
 		return new CollectorAggregator(name,listener);
 	}
+
 }

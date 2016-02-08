@@ -26,6 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.IOException;
 import java.util.Deque;
 import java.util.List;
@@ -94,11 +96,13 @@ final class CollectorController {
 
 	private final ConnectionManager manager;
 
-	CollectorController(final Collector collector, final String queueName, final BlockingQueue<SuspendedNotification> propagationQueue) {
+	private CollectorController(final Collector collector, final String queueName, final BlockingQueue<SuspendedNotification> notificationQueue) {
+		checkNotNull(collector,"Collector cannot be null");
+		checkNotNull(notificationQueue,"Notification queue cannot be null");
 		this.collector=collector;
 		this.manager=new ConnectionManager(collector.getInstance(),collector.getBrokerHost(),collector.getBrokerPort(),collector.getVirtualHost());
 		this.queueName=queueName;
-		this.propagationQueue=propagationQueue;
+		this.propagationQueue=notificationQueue;
 		final ReadWriteLock lock=new ReentrantReadWriteLock();
 		this.write=lock.writeLock();
 		this.cleaners=Lists.newLinkedList();
@@ -250,6 +254,22 @@ final class CollectorController {
 			}
 		}
 		LOGGER.debug("Broker clean-up completed.",this.cleaners.size());
+	}
+
+	static CollectorController createPublisher(final Collector collector) {
+		return new CollectorController(collector,null,null);
+	}
+
+	static CollectorController createAnonymousReceiver(final Collector collector, final BlockingQueue<SuspendedNotification> queue) {
+		return new CollectorController(collector,null,queue);
+	}
+
+	/**
+	 * TODO: Ensure that the queueName is AMQP valid (see CuratorConnector)
+	 */
+	static CollectorController createNamedReceiver(final Collector collector, final String queueName, final BlockingQueue<SuspendedNotification> queue) {
+		checkNotNull(queueName,"Queue name cannot be null");
+		return new CollectorController(collector,queueName,queue);
 	}
 
 }

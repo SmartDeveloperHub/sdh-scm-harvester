@@ -29,17 +29,10 @@ package org.smartdeveloperhub.harvesters.scm.backend.notification;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import java.io.IOException;
-import java.util.Random;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Test;
 import org.ldp4j.commons.testing.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Collector;
 
 
 public class NotificationsTest {
@@ -49,72 +42,6 @@ public class NotificationsTest {
 	@Test
 	public void verifyIsUtilityClass() {
 		assertThat(Utils.isUtilityClass(Notifications.class),equalTo(true));
-	}
-
-	@Test
-	public void testNotifications() throws ControllerException, IOException, InterruptedException {
-		final Collector collector=new Collector();
-		collector.setInstance("http://russell.dia.fi.upm.es:5000/api");
-		collector.setBrokerHost("localhost");
-		collector.setBrokerPort(5672);
-		collector.setVirtualHost("/");
-		collector.setExchangeName("sdh");
-
-		final BlockingQueue<SuspendedNotification> notifications=new LinkedBlockingQueue<SuspendedNotification>();
-		final CollectorController controller=new CollectorController(collector,"client",notifications);
-		final NotificationPump pump=
-			new NotificationPump(
-				notifications,
-				new NotificationListener() {
-					@Override
-					public void onRepositoryUpdate(final Notification notification, final RepositoryUpdatedEvent event) {
-						LOGGER.debug("Received {}",event);
-						consume(notification);
-					}
-					@Override
-					public void onRepositoryDeletion(final Notification notification, final RepositoryDeletedEvent event) {
-						LOGGER.debug("Received {}",event);
-						consume(notification);
-					}
-					@Override
-					public void onRepositoryCreation(final Notification notification, final RepositoryCreatedEvent event) {
-						LOGGER.debug("Received {}",event);
-						consume(notification);
-					}
-					@Override
-					public void onCommitterDeletion(final Notification notification, final CommitterDeletedEvent event) {
-						LOGGER.debug("Received {}",event);
-						consume(notification);
-					}
-					@Override
-					public void onCommitterCreation(final Notification notification, final CommitterCreatedEvent event) {
-						LOGGER.debug("Received {}",event);
-						consume(notification);
-					}
-					private final Random random = new Random(System.currentTimeMillis());
-					private void consume(final Notification notification) {
-						notification.consume();
-						try {
-							TimeUnit.MILLISECONDS.sleep(this.random.nextInt(10));
-						} catch (final Exception e) {
-						}
-					}
-				}
-			);
-		pump.start();
-		controller.connect();
-		try {
-			for(long i=0;i<1000;i++) {
-				final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
-				event.setInstance("138.100.10.216");
-				event.setTimestamp(i);
-				controller.publishEvent(event);
-			}
-			TimeUnit.SECONDS.sleep(5);
-		} finally {
-			pump.stop();
-			controller.disconnect();
-		}
 	}
 
 }
