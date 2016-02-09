@@ -26,21 +26,33 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import mockit.Mocked;
+import mockit.integration.junit4.JMockit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	EventUtilTest.class,
-	FailureAnalyzerTest.class,
-	CleanerFactoryTest.class,
-	CollectorControllerTest.class,
-	LoggingReturnListenerTest.class,
-	NotificationPumpTest.class,
-	CollectorAggregatorTest.class,
-	ConnectionManagerExceptionHandlerTest.class,
-	NotificationsTest.class
-})
-public class NotificationUnitTests {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.ldp4j.commons.testing.Utils;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.CollectorController.Cleaner;
+
+import com.rabbitmq.client.Channel;
+
+
+@RunWith(JMockit.class)
+public class CleanerFactoryTest {
+
+	@Test
+	public void testIsUtilityClass() throws Exception {
+		assertThat(Utils.isUtilityClass(CleanerFactory.class),equalTo(true));
+	}
+
+	@Mocked Channel channel;
+
+	@Test
+	public void testQueueCleanerHasCustomizedToString() {
+		final Cleaner sut = CleanerFactory.queueDelete("queueName");
+		assertThat(sut.toString(),equalTo("Delete queue 'queueName'"));
+	}
+
 }

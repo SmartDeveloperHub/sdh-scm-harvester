@@ -46,7 +46,6 @@ final class NotificationPump {
 		@Override
 		public void uncaughtException(final Thread t, final Throwable e) {
 			LOGGER.error("Notification pump thread died unexpectedly. Full stacktrace follows",e);
-
 		}
 
 	}
@@ -55,6 +54,7 @@ final class NotificationPump {
 
 		private final BlockingQueue<SuspendedNotification> notifications;
 		private final NotificationListener listener;
+		private volatile boolean stopped;
 
 		PumpWorker(final BlockingQueue<SuspendedNotification> notifications, final NotificationListener listener) {
 			this.notifications = notifications;
@@ -63,25 +63,32 @@ final class NotificationPump {
 
 		@Override
 		public void run() {
-			boolean stopped=false;
+			this.stopped=false;
 			LOGGER.info("Started pumping notifications");
-			while(!stopped) {
+			while(!this.stopped) {
 				try {
 					final SuspendedNotification notification=this.notifications.poll(QUEUE_POLL_TIMEOUT,QUEUE_POLL_TIMEUNIT);
 					if(notification!=null) {
+						LOGGER.trace("Resuming {}...",notification);
 						notification.resume(this.listener);
+						// Stop if interrupted while resuming a notification,
+						// and the notification propagates the interruption.
+						this.stopped|=Thread.currentThread().isInterrupted();
 					}
 				} catch (final InterruptedException e) {
-					stopped=true;
+					// Stop if interrupted on the queue
+					this.stopped=true;
 					LOGGER.info("Notification pumping interrupted.");
 				}
 			}
-			final List<SuspendedNotification> discarded=new ArrayList<>();
-			this.notifications.drainTo(discarded);
-			if(!discarded.isEmpty()) {
-				LOGGER.warn("{} notifications were dropped",discarded.size());
-			}
 			LOGGER.info("Notification pumping finished");
+		}
+
+		/**
+		 * Signal external shutdown request
+		 */
+		private void stop() {
+			this.stopped=true;
 		}
 
 	}
@@ -91,6 +98,9 @@ final class NotificationPump {
 	private static final TimeUnit QUEUE_POLL_TIMEUNIT = TimeUnit.MILLISECONDS;
 	private static final int QUEUE_POLL_TIMEOUT       = 1000;
 
+	private static final TimeUnit SHUTDOWN_TIMEUNIT = TimeUnit.MILLISECONDS;
+	private static final int SHUTDOWN_TIMEOUT       = 5000;
+
 	private final Lock lock;
 	private final BlockingQueue<SuspendedNotification> notifications;
 
@@ -98,9 +108,12 @@ final class NotificationPump {
 
 	private Thread thread;
 
+	private final PumpWorker worker;
+
 	NotificationPump(final BlockingQueue<SuspendedNotification> notifications, final NotificationListener listener) {
-		this.notifications = notifications;
-		this.listener = listener;
+		this.notifications=notifications;
+		this.listener=listener;
+		this.worker=new PumpWorker(this.notifications,this.listener);
 		this.lock=new ReentrantLock();
 	}
 
@@ -120,22 +133,39 @@ final class NotificationPump {
 		this.lock.lock();
 		try {
 			checkState(this.thread!=null,"Pump not started");
-			if(this.thread.isAlive()) {
-				this.thread.interrupt();
-				try {
-					this.thread.join();
-				} catch (final InterruptedException e) {
-					LOGGER.warn("Interrupted while awaiting the termination of the worker thread",e);
-				}
-			}
+			stopWorkerThreadGracefully();
+			drainPendingNotifications();
 			this.thread=null;
 		} finally {
 			this.lock.unlock();
 		}
 	}
 
+	private void drainPendingNotifications() {
+		final List<SuspendedNotification> discarded=new ArrayList<>();
+		this.notifications.drainTo(discarded);
+		if(!discarded.isEmpty()) {
+			LOGGER.warn("{} notifications were dropped",discarded.size());
+		}
+	}
+
+	private void stopWorkerThreadGracefully() {
+		if(!this.thread.isAlive()) {
+			return;
+		}
+		// Request shutdown
+		this.worker.stop();
+		// Force shutdown
+		this.thread.interrupt();
+		try {
+			this.thread.join(SHUTDOWN_TIMEUNIT.toMillis(SHUTDOWN_TIMEOUT));
+		} catch (final InterruptedException e) {
+			LOGGER.warn("Interrupted while awaiting the termination of the worker thread",e);
+		}
+	}
+
 	private Thread createWorkerThread() {
-		final Thread result=new Thread(new PumpWorker(this.notifications,this.listener),"NotificationPump");
+		final Thread result=new Thread(this.worker,"NotificationPump");
 		result.setUncaughtExceptionHandler(new PumpExceptionHandler());
 		result.setDaemon(true);
 		result.setPriority(Thread.MAX_PRIORITY);
