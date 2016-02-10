@@ -30,6 +30,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
@@ -160,16 +161,23 @@ final class CollectorAggregator {
 
 	private void shutdownGracefully() {
 		disconnectControllers();
+		stopNotificationPump();
 		this.brokerInstances.clear();
 		this.brokerCollectors.clear();
-		this.notificationQueue.clear();
-		stopNotificationPump();
+		drainPendingNotifications();
 	}
 
 	private void stopNotificationPump() {
 		this.pump.stop();
 		this.pump=null;
 	}
+	private void drainPendingNotifications() {
+		final List<SuspendedNotification> discarded=new ArrayList<>();
+		if(this.notificationQueue.drainTo(discarded)>0) {
+			LOGGER.warn("{} notifications were dropped",discarded.size());
+		}
+	}
+
 
 	private void disconnectControllers() {
 		final Iterator<CollectorController> iterator = this.connectedControllers.descendingIterator();

@@ -29,8 +29,6 @@ package org.smartdeveloperhub.harvesters.scm.backend.notification;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -134,18 +132,9 @@ final class NotificationPump {
 		try {
 			checkState(this.thread!=null,"Pump not started");
 			stopWorkerThreadGracefully();
-			drainPendingNotifications();
 			this.thread=null;
 		} finally {
 			this.lock.unlock();
-		}
-	}
-
-	private void drainPendingNotifications() {
-		final List<SuspendedNotification> discarded=new ArrayList<>();
-		this.notifications.drainTo(discarded);
-		if(!discarded.isEmpty()) {
-			LOGGER.warn("{} notifications were dropped",discarded.size());
 		}
 	}
 

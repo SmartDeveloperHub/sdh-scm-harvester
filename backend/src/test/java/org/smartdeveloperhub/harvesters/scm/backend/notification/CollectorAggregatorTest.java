@@ -40,6 +40,8 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import mockit.Invocation;
@@ -50,12 +52,16 @@ import mockit.integration.junit4.JMockit;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Collector;
 
 import com.google.common.collect.Iterables;
 
 @RunWith(JMockit.class)
 public class CollectorAggregatorTest extends NotificationTestHelper {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(CollectorAggregatorTest.class);
 
 	private AtomicReference<CollectorController> setUpController() {
 		final AtomicReference<CollectorController> reference=new AtomicReference<>();
@@ -168,6 +174,44 @@ public class CollectorAggregatorTest extends NotificationTestHelper {
 		} finally {
 			sut.disconnect();
 		}
+	}
+
+	@Test
+	public void testDrainsPendingNotificationsWhenDisconnected() throws Exception {
+		final CountDownLatch latch=new CountDownLatch(1);
+		final CollectorAggregator sut =
+			CollectorAggregator.
+				newInstance(
+					"example",
+					new NullNotificationListener() {
+						@Override
+						public void onCommitterCreation(final Notification notification, final CommitterCreatedEvent event) {
+							LOGGER.info("Received notification {}...",notification);
+							latch.countDown();
+							try {
+								LOGGER.info("Suspending listener...");
+								TimeUnit.SECONDS.sleep(10);
+							} catch (final InterruptedException e) {
+								LOGGER.info("Listener interrupted. Suspending listener again...");
+								try {
+									TimeUnit.SECONDS.sleep(10);
+								} catch (final InterruptedException e1) {
+									LOGGER.info("Listener interrupted again");
+								}
+							}
+						}
+					});
+		final Collector collector = defaultCollector();
+		sut.connect(Arrays.asList(collector));
+		final CollectorController controller = sut.controller(collector.getInstance());
+		final CommitterCreatedEvent event = new CommitterCreatedEvent();
+		event.setInstance(collector.getInstance());
+		event.setTimestamp(System.nanoTime());
+		controller.publishEvent(event);
+		latch.await();
+		controller.publishEvent(event);
+		controller.publishEvent(event);
+		sut.disconnect();
 	}
 
 }

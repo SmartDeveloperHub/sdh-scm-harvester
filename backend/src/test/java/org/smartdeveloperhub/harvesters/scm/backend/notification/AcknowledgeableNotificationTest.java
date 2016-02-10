@@ -26,23 +26,54 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.fail;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	EventUtilTest.class,
-	FailureAnalyzerTest.class,
-	CleanerFactoryTest.class,
-	CollectorControllerTest.class,
-	LoggingReturnListenerTest.class,
-	AcknowledgeableNotificationTest.class,
-	NotificationPumpTest.class,
-	NotificationConsumerTest.class,
-	CollectorAggregatorTest.class,
-	ConnectionManagerExceptionHandlerTest.class,
-	NotificationsTest.class
-})
-public class NotificationUnitTests {
+import java.io.IOException;
+
+import mockit.Expectations;
+import mockit.Mocked;
+import mockit.integration.junit4.JMockit;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import com.rabbitmq.client.Channel;
+
+@RunWith(JMockit.class)
+public class AcknowledgeableNotificationTest {
+
+	@Mocked Channel channel;
+
+	private final long deliveryTag=1000;
+
+	private AcknowledgeableNotification sut;
+
+	@Before
+	public void setUp() {
+		this.sut=new AcknowledgeableNotification(this.channel, this.deliveryTag);
+	}
+
+	@Test
+	public void testOnlyAcknowledgesOnce() {
+		this.sut.acknowledge();
+		try {
+			this.sut.acknowledge();
+			fail("Should only acknowledge once");
+		} catch(final IllegalStateException e) {
+			assertThat(e.getMessage(),equalTo("Notification for message 1000 has been already acknowledged"));
+		}
+	}
+
+	@Test
+	public void testOnAcknowledgeFailureAllowsRetrying() throws IOException {
+		new Expectations() {{
+			AcknowledgeableNotificationTest.this.channel.basicAck(AcknowledgeableNotificationTest.this.deliveryTag, false);this.result=new IOException("Failure");
+		}};
+		this.sut.acknowledge();
+		assertThat(this.sut.isAcknowledged(),equalTo(false));
+	}
+
 }

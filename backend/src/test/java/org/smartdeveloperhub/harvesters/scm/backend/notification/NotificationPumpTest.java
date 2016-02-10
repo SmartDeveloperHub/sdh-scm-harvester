@@ -50,19 +50,6 @@ import com.google.common.base.MoreObjects;
 @RunWith(JMockit.class)
 public class NotificationPumpTest {
 
-	private static class CustomListener implements NotificationListener {
-		@Override
-		public void onCommitterCreation(final Notification notification, final CommitterCreatedEvent event) {}
-		@Override
-		public void onCommitterDeletion(final Notification notification, final CommitterDeletedEvent event) {}
-		@Override
-		public void onRepositoryCreation(final Notification notification, final RepositoryCreatedEvent event) {}
-		@Override
-		public void onRepositoryDeletion(final Notification notification, final RepositoryDeletedEvent event) {}
-		@Override
-		public void onRepositoryUpdate(final Notification notification, final RepositoryUpdatedEvent event) {}
-	}
-
 	private final class NaiveSuspendedNotification implements SuspendedNotification {
 		boolean resumed=false;
 		private final String id;
@@ -97,10 +84,14 @@ public class NotificationPumpTest {
 	private static final Logger LOGGER=LoggerFactory.getLogger(NotificationPumpTest.class);
 
 	private BlockingQueue<SuspendedNotification> queue;
+	private NaiveSuspendedNotification n1;
+	private NaiveSuspendedNotification n2;
 
 	@Before
 	public void setUp() {
 		this.queue = new LinkedBlockingQueue<>();
+		this.n1 = new NaiveSuspendedNotification("n1");
+		this.n2 = new NaiveSuspendedNotification("n2");
 	}
 
 	@Test
@@ -129,10 +120,18 @@ public class NotificationPumpTest {
 	}
 
 	@Test
-	public void testPendingMessagesAreDrained() throws Exception {
+	public void testPumpStopsWhenNoNotificationsAreAvailable() throws Exception {
+		final NotificationPump sut = new NotificationPump(this.queue,new NullNotificationListener());
+		sut.start();
+		TimeUnit.SECONDS.sleep(5);
+		sut.stop();
+	}
+
+	@Test
+	public void testPumpStopsWhenTheListenerRespectsInterruptions() throws Exception {
 		final CountDownLatch latch=new CountDownLatch(1);
 		final NotificationListener listener=
-			new CustomListener() {
+			new NullNotificationListener() {
 				@Override
 				public void onCommitterCreation(final Notification notification, final CommitterCreatedEvent event) {
 					LOGGER.info("Received notification {}...",notification);
@@ -146,35 +145,21 @@ public class NotificationPumpTest {
 					}
 				}
 			};
-		final NaiveSuspendedNotification n1 = new NaiveSuspendedNotification("n1");
-		final NaiveSuspendedNotification n2 = new NaiveSuspendedNotification("n2");
-		this.queue.offer(n1);
-		this.queue.offer(n2);
+		queueNotifications();
 		final NotificationPump sut = new NotificationPump(this.queue,listener);
 		sut.start();
 		LOGGER.info("Pump started. Awaiting consumption of first notification...");
 		latch.await();
 		LOGGER.info("First notification received. Stopping pump...");
 		sut.stop();
-		LOGGER.info("Pump stopped. Checking notification and queue status...");
-		assertThat(this.queue,hasSize(0));
-		assertThat(n1.isResumed(),equalTo(true));
-		assertThat(n2.isResumed(),equalTo(false));
+		verifyQueueAndNotifications();
 	}
 
 	@Test
-	public void testPumpStopsNormallyOnEmptyQueue() throws Exception {
-		final NotificationPump sut = new NotificationPump(this.queue,new CustomListener());
-		sut.start();
-		Thread.sleep(5000);
-		sut.stop();
-	}
-
-	@Test
-	public void testPumpStopsEvenIfListenerDoesNotWantTo() throws Exception {
+	public void testPumpStopsWhenTheListenerDoesNotRespectInterruptions() throws Exception {
 		final CountDownLatch latch=new CountDownLatch(1);
 		final NotificationListener listener=
-			new CustomListener() {
+			new NullNotificationListener() {
 				@Override
 				public void onCommitterCreation(final Notification notification, final CommitterCreatedEvent event) {
 					LOGGER.info("Received notification {}...",notification);
@@ -192,27 +177,21 @@ public class NotificationPumpTest {
 					}
 				}
 			};
-		final NaiveSuspendedNotification n1 = new NaiveSuspendedNotification("n1");
-		final NaiveSuspendedNotification n2 = new NaiveSuspendedNotification("n2");
-		this.queue.offer(n1);
-		this.queue.offer(n2);
+		queueNotifications();
 		final NotificationPump sut = new NotificationPump(this.queue,listener);
 		sut.start();
 		LOGGER.info("Pump started. Awaiting consumption of first notification...");
 		latch.await();
 		LOGGER.info("First notification received. Stopping pump...");
 		sut.stop();
-		LOGGER.info("Pump stopped. Checking notification and queue status...");
-		assertThat(this.queue,hasSize(0));
-		assertThat(n1.isResumed(),equalTo(true));
-		assertThat(n2.isResumed(),equalTo(false));
+		verifyQueueAndNotifications();
 	}
 
 	@Test
-	public void testPumpStopsEvenIfListenerDoesNotWantToAnInterruptionHappens() throws Exception {
+	public void testPumpStopsWhenTheListenerDoesNotRespectInterruptionsAndPumpsThreadIsIterrupted() throws Exception {
 		final CountDownLatch latch=new CountDownLatch(1);
 		final NotificationListener listener=
-			new CustomListener() {
+			new NullNotificationListener() {
 				@Override
 				public void onCommitterCreation(final Notification notification, final CommitterCreatedEvent event) {
 					LOGGER.info("Received notification {}...",notification);
@@ -230,10 +209,7 @@ public class NotificationPumpTest {
 					}
 				}
 			};
-		final NaiveSuspendedNotification n1 = new NaiveSuspendedNotification("n1");
-		final NaiveSuspendedNotification n2 = new NaiveSuspendedNotification("n2");
-		this.queue.offer(n1);
-		this.queue.offer(n2);
+		queueNotifications();
 		final NotificationPump sut = new NotificationPump(this.queue,listener);
 		sut.start();
 		LOGGER.info("Pump started. Awaiting consumption of first notification...");
@@ -244,22 +220,19 @@ public class NotificationPumpTest {
 				@Override
 				public void run() {
 					sut.stop();
-					LOGGER.info("Pump stopped. Checking notification and queue status...");
 				}
 			},"PumpStopper");
 		thread.start();
 		thread.interrupt();
 		thread.join();
-		assertThat(this.queue,hasSize(0));
-		assertThat(n1.isResumed(),equalTo(true));
-		assertThat(n2.isResumed(),equalTo(false));
+		verifyQueueAndNotifications();
 	}
 
 	@Test
 	public void testPumpStopsEvenIfListenerMadeWorkerFail() throws Exception {
 		final CountDownLatch latch=new CountDownLatch(1);
 		final NotificationListener listener=
-			new CustomListener() {
+			new NullNotificationListener() {
 				@Override
 				public void onCommitterCreation(final Notification notification, final CommitterCreatedEvent event) {
 					LOGGER.info("Received notification {}...",notification);
@@ -268,10 +241,7 @@ public class NotificationPumpTest {
 					throw new RuntimeException("Failure");
 				}
 			};
-		final NaiveSuspendedNotification n1 = new NaiveSuspendedNotification("n1");
-		final NaiveSuspendedNotification n2 = new NaiveSuspendedNotification("n2");
-		this.queue.offer(n1);
-		this.queue.offer(n2);
+		queueNotifications();
 		final NotificationPump sut = new NotificationPump(this.queue,listener);
 		sut.start();
 		LOGGER.info("Pump started. Awaiting consumption of first notification...");
@@ -280,10 +250,19 @@ public class NotificationPumpTest {
 		TimeUnit.SECONDS.sleep(2);
 		LOGGER.info("Stopping pump...");
 		sut.stop();
+		verifyQueueAndNotifications();
+	}
+
+	private void queueNotifications() {
+		this.queue.offer(this.n1);
+		this.queue.offer(this.n2);
+	}
+
+	private void verifyQueueAndNotifications() {
 		LOGGER.info("Pump stopped. Checking notification and queue status...");
-		assertThat(this.queue,hasSize(0));
-		assertThat(n1.isResumed(),equalTo(true));
-		assertThat(n2.isResumed(),equalTo(false));
+		assertThat(this.queue,hasSize(1));
+		assertThat(this.n1.isResumed(),equalTo(true));
+		assertThat(this.n2.isResumed(),equalTo(false));
 	}
 
 }

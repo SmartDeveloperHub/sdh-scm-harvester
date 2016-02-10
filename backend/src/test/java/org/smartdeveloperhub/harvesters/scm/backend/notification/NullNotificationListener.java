@@ -26,23 +26,15 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
-
-@RunWith(Suite.class)
-@SuiteClasses({
-	EventUtilTest.class,
-	FailureAnalyzerTest.class,
-	CleanerFactoryTest.class,
-	CollectorControllerTest.class,
-	LoggingReturnListenerTest.class,
-	AcknowledgeableNotificationTest.class,
-	NotificationPumpTest.class,
-	NotificationConsumerTest.class,
-	CollectorAggregatorTest.class,
-	ConnectionManagerExceptionHandlerTest.class,
-	NotificationsTest.class
-})
-public class NotificationUnitTests {
+class NullNotificationListener implements NotificationListener {
+	@Override
+	public void onCommitterCreation(final Notification notification, final CommitterCreatedEvent event) {}
+	@Override
+	public void onCommitterDeletion(final Notification notification, final CommitterDeletedEvent event) {}
+	@Override
+	public void onRepositoryCreation(final Notification notification, final RepositoryCreatedEvent event) {}
+	@Override
+	public void onRepositoryDeletion(final Notification notification, final RepositoryDeletedEvent event) {}
+	@Override
+	public void onRepositoryUpdate(final Notification notification, final RepositoryUpdatedEvent event) {}
 }
