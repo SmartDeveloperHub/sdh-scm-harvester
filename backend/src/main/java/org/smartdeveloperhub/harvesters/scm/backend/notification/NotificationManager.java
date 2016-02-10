@@ -51,8 +51,13 @@ public final class NotificationManager {
 	public void connect() throws IOException {
 		LOGGER.info("Setting up notification manager for {}...",this.target);
 		final List<Collector> usedCollectors = getEnhancerCollectorConfiguration();
-		this.aggregator.connect(usedCollectors);
-		LOGGER.info("Notification notification manager for {} connected",this.target);
+		try {
+			this.aggregator.connect(usedCollectors);
+			LOGGER.info("Notification notification manager for {} connected",this.target);
+		} catch (final ControllerException e) {
+			LOGGER.warn("Could not connect to collectors of {}. Full stacktrace follows",this.target,this.target);
+			throw new IOException("Could not connect to collectors of "+this.target,e);
+		}
 	}
 
 	public void disconnect() {

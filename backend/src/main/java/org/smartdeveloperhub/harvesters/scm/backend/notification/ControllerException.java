@@ -26,12 +26,49 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
+
 public class ControllerException extends Exception {
 
 	private static final long serialVersionUID = 7249473927408663886L;
 
-	public ControllerException(final String message, final Throwable cause) {
+	private final String brokerHost;
+	private final int brokerPort;
+	private final String virtualHost;
+
+	public ControllerException(final String brokerHost, final int brokerPort, final String virtualHost, final String message, final Throwable cause) {
 		super(message, cause);
+		this.brokerHost = brokerHost;
+		this.brokerPort = brokerPort;
+		this.virtualHost = virtualHost;
 	}
+
+	/**
+	 * Get the host IP or name of the broker that caused the failure.
+	 *
+	 * @return the broker host
+	 */
+	public String getBrokerHost() {
+		return this.brokerHost;
+	}
+
+	/**
+	 * Get the port of the broker that caused the failure.
+	 *
+	 * @return the broker port
+	 */
+	public int getBrokerPort() {
+		return this.brokerPort;
+	}
+
+	/**
+	 * Get the virtual host of the broker that caused the failure.
+	 *
+	 * @return the virtual host
+	 */
+	public String getVirtualHost() {
+		return this.virtualHost;
+	}
+
+
 
 }

@@ -437,6 +437,31 @@ public class CollectorControllerTest extends NotificationTestHelper {
 	}
 
 	@Test
+	public void testPublishEvent$failsIfCannotSerializeEvent() throws ControllerException {
+		new MockUp<EventUtil>() {
+			@Mock
+			String marshall(final Event e) throws IOException {
+				throw new IOException("Failure");
+			}
+		};
+		final Collector collector = defaultCollector();
+		final RepositoryCreatedEvent event = new RepositoryCreatedEvent();
+		final CollectorController sut = CollectorController.createPublisher(collector);
+		sut.connect();
+		try {
+			sut.publishEvent(event);
+			fail("Should not publishing null events");
+		} catch (final ControllerException e) {
+			assertThat(e.getMessage(),equalTo("Could not serialize event "+event));
+			assertThat(e.getBrokerHost(),equalTo(collector.getBrokerHost()));
+			assertThat(e.getBrokerPort(),equalTo(collector.getBrokerPort()));
+			assertThat(e.getVirtualHost(),equalTo(collector.getVirtualHost()));
+			assertThat(e.getCause(),instanceOf(IOException.class));
+			assertThat(e.getCause().getMessage(),equalTo("Failure"));
+		}
+	}
+
+	@Test
 	public void testPublishEvent$requiresBeingConnected() throws ControllerException, IOException {
 		final CollectorController sut = CollectorController.createPublisher(defaultCollector());
 		try {
@@ -471,7 +496,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 				return channel;
 			}
 			@Mock(invocations=0)
-			void discardChannel(final Channel aChannel) {
+			void discardChannel() {
 			}
 		};
 		final Collector defaultCollector = defaultCollector();
@@ -534,8 +559,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 				return channel;
 			}
 			@Mock(invocations=1)
-			void discardChannel(final Channel aChannel) {
-				assertThat(aChannel,sameInstance(channel));
+			void discardChannel() {
 			}
 		};
 		final Collector defaultCollector = defaultCollector();
@@ -556,8 +580,15 @@ public class CollectorControllerTest extends NotificationTestHelper {
 		try {
 			sut.publishEvent(event);
 			fail("Should fail to publish an event if the RabbitMQ client fails");
-		} catch (final IOException e) {
-			assertThat(e.getMessage(),equalTo("Failure"));
+		} catch (final ControllerException e) {
+			assertThat(e.getMessage(),containsString(EventUtil.marshall(event)));
+			assertThat(e.getMessage(),containsString(defaultCollector.getExchangeName()));
+			assertThat(e.getMessage(),containsString(Notifications.routingKey(RepositoryCreatedEvent.class)));
+			assertThat(e.getMessage(),containsString(defaultCollector.getBrokerHost()));
+			assertThat(e.getMessage(),containsString(":"+defaultCollector.getBrokerPort()));
+			assertThat(e.getMessage(),containsString(defaultCollector.getVirtualHost()));
+			assertThat(e.getCause(),instanceOf(IOException.class));
+			assertThat(e.getCause().getMessage(),equalTo("Failure"));
 		} finally {
 			sut.disconnect();
 		}
@@ -587,8 +618,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 				return channel;
 			}
 			@Mock(invocations=1)
-			void discardChannel(final Channel aChannel) {
-				assertThat(aChannel,sameInstance(channel));
+			void discardChannel() {
 			}
 		};
 		final Collector defaultCollector = defaultCollector();
@@ -609,7 +639,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 		try {
 			sut.publishEvent(event);
 			fail("Should fail to publish an event if the RabbitMQ client fails");
-		} catch (final IOException e) {
+		} catch (final ControllerException e) {
 			assertThat(e.getMessage(),containsString(EventUtil.marshall(event)));
 			assertThat(e.getMessage(),containsString(defaultCollector.getExchangeName()));
 			assertThat(e.getMessage(),containsString(Notifications.routingKey(RepositoryCreatedEvent.class)));

@@ -143,11 +143,6 @@
 			<artifactId>hamcrest-integration</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.jmockit</groupId>
@@ -155,7 +150,26 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>jmockit-coverage</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.jmockit</groupId>
+					<artifactId>jmockit-coverage</artifactId>
+					<version>${jmockit.version}</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 
 </project>

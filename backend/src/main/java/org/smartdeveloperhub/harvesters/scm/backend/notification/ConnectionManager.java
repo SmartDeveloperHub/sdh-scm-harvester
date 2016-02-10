@@ -26,10 +26,10 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Map;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeoutException;
@@ -60,8 +60,6 @@ final class ConnectionManager {
 	private final Lock lock;
 	private Connection connection;
 	private Channel    channel;
-	private boolean    connected;
-
 
 	ConnectionManager(final String name, final String brokerHost, final int brokerPort, final String virtualHost) {
 		this.name = name;
@@ -75,7 +73,7 @@ final class ConnectionManager {
 	void connect() throws ControllerException {
 		this.lock.lock();
 		try {
-			if(this.connected) {
+			if(connected()) {
 				return;
 			}
 			final ConnectionFactory factory=new ConnectionFactory();
@@ -87,9 +85,8 @@ final class ConnectionManager {
 			this.connection = factory.newConnection();
 			createChannel();
 		} catch(IOException | TimeoutException e) {
-			this.connected=false;
 			final String message = String.format("Could not connect to broker at %s:%s using virtual host %s",this.brokerHost,this.brokerPort,this.virtualHost);
-			throw new ControllerException(message,e);
+			throw new ControllerException(this.brokerHost,this.brokerPort,this.virtualHost,message,e);
 		} finally {
 			this.lock.unlock();
 		}
@@ -98,12 +95,11 @@ final class ConnectionManager {
 	void disconnect() {
 		this.lock.lock();
 		try {
-			if(!this.connected) {
+			if(!connected()) {
 				return;
 			}
 			closeChannelsQuietly();
 			closeConnectionQuietly();
-			this.connected=false;
 		} finally {
 			this.lock.unlock();
 		}
@@ -112,7 +108,7 @@ final class ConnectionManager {
 	Channel channel() throws ControllerException {
 		this.lock.lock();
 		try {
-			checkState(this.connected,"Not connected");
+			checkState(connected(),"Not connected");
 			if(!this.channel.isOpen()) {
 				createChannel();
 			}
@@ -122,7 +118,7 @@ final class ConnectionManager {
 		}
 	}
 
-	Channel currentChannel() throws IOException {
+	Channel currentChannel() throws ControllerException {
 		final long threadId = Thread.currentThread().getId();
 		Channel result;
 		synchronized(this.channels) {
@@ -135,47 +131,63 @@ final class ConnectionManager {
 		return result;
 	}
 
-	void discardChannel(final Channel channel) {
+	void discardChannel() {
 		final long threadId = Thread.currentThread().getId();
-		closeQuietly(channel);
 		synchronized(this.channels) {
-			this.channels.remove(threadId);
+			final Channel aChannel=this.channels.get(threadId);
+			if(aChannel!=null) {
+				closeQuietly(aChannel);
+				this.channels.remove(threadId);
+			}
 		}
+	}
+
+	boolean isConnected() {
+		this.lock.lock();
+		try {
+			return connected();
+		} finally {
+			this.lock.unlock();
+		}
+	}
+
+	private boolean connected() {
+		return this.connection!=null && this.connection.isOpen();
 	}
 
 	private ThreadFactory brokerThreadFactory() {
 		return
 			new ThreadFactoryBuilder().
 				setNameFormat("{"+this.name+"}-connectionmanager-%d").
-				setUncaughtExceptionHandler(
-					new UncaughtExceptionHandler() {
-						@Override
-						public void uncaughtException(final Thread t, final Throwable e) {
-							LOGGER.error("[{}] Unexpected failure on thread {}",ConnectionManager.this.name,t.getName(),e);
-						}
-					}
-				).
+				setUncaughtExceptionHandler(new ConnectionManagerUncaughtExceptionHandler(this)).
 				build();
 	}
 
 	private void createChannel() throws ControllerException {
 		try {
 			this.channel = createNewChannel();
-			this.connected=true;
-		} catch (final Exception e) {
-			this.connected=false;
+		} catch (final ControllerException e) {
 			closeConnectionQuietly();
-			throw new ControllerException("Could not create channel for broker connection",e);
+			throw e;
 		}
 	}
 
-	private Channel createNewChannel() throws IOException {
+	private Channel createNewChannel() throws ControllerException {
 		this.lock.lock();
 		try {
-			checkState(this.connection!=null,"No connection available");
+			checkState(connected(),"No connection available");
 			final Channel result = this.connection.createChannel();
-			checkState(result!=null,"No channel available");
+			checkNotNull(result,"No channel available");
 			return result;
+		} catch(final NullPointerException | IOException e) {
+			final String message =
+				String.format(
+					"Could not create channel using connection %08X to broker at %s:%s using virtual host %s",
+					this.connection.hashCode(),
+					this.brokerHost,
+					this.brokerPort,
+					this.virtualHost);
+			throw new ControllerException(this.brokerHost,this.brokerPort,this.virtualHost,message,e);
 		} finally {
 			this.lock.unlock();
 		}
@@ -201,14 +213,12 @@ final class ConnectionManager {
 	}
 
 	private void closeConnectionQuietly() {
-		if(this.connection!=null) {
-			try {
-				this.connection.close();
-			} catch (final Exception e) {
-				LOGGER.trace("Could not close connection gracefully",e);
-			}
-			this.connection=null;
+		try {
+			this.connection.close();
+		} catch (final Exception e) {
+			LOGGER.trace("Could not close connection gracefully",e);
 		}
+		this.connection=null;
 	}
 
 	@Override
@@ -224,14 +234,5 @@ final class ConnectionManager {
 					add("connected",this.channel).
 					add("channels{threadId}",this.channels.keySet()).
 					toString();
-	}
-
-	public boolean isConnected() {
-		this.lock.lock();
-		try {
-			return this.connected;
-		} finally {
-			this.lock.unlock();
-		}
 	}
 }

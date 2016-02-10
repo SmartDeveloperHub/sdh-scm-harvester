@@ -105,18 +105,17 @@ final class FailureAnalyzer {
 	}
 
 	private static boolean isValidClose(final Close close) {
-		boolean result=false;
 		if(close.getReplyCode()==406 && close.getMethodId()==10) {
 			final PreconditionFailure failure=PreconditionFailure.fromString(close.getReplyText());
 			if(failure!=null) {
 				final String argument = failure.argument();
-				result=!"type".equals(argument) && !"internal".equals(argument);
-				if(!result) {
-					LOGGER.error("Cannot recover from {}",failure);
+				if(!"type".equals(argument) && !"internal".equals(argument)) {
+					return true;
 				}
+				LOGGER.error("Cannot recover from {}",failure);
 			}
 		}
-		return result;
+		return false;
 	}
 
 }

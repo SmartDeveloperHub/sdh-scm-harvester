@@ -130,11 +130,19 @@ final class CollectorController {
 		}
 	}
 
-	void publishEvent(final Event event) throws IOException {
-		publishEvent(EventUtil.marshall(event), event.getClass().getSimpleName());
+	void publishEvent(final Event event) throws ControllerException {
+		try {
+			publishEvent(EventUtil.marshall(event), event.getClass().getSimpleName());
+		} catch (final IOException e) {
+			throw new ControllerException(
+				this.collector.getBrokerHost(),
+				this.collector.getBrokerPort(),
+				this.collector.getVirtualHost(),
+				"Could not serialize event "+event, e);
+		}
 	}
 
-	void publishEvent(final String event, final String eventType) throws IOException {
+	void publishEvent(final String event, final String eventType) throws ControllerException {
 		this.write.lock();
 		try {
 			checkState(this.manager.isConnected(),"Not connected");
@@ -150,7 +158,7 @@ final class CollectorController {
 		}
 	}
 
-	private void publish(final Channel aChannel, final String exchangeName, final String routingKey, final String payload) throws IOException {
+	private void publish(final Channel aChannel, final String exchangeName, final String routingKey, final String payload) throws ControllerException {
 		try {
 			LOGGER.trace("Publishing message to exchange '{}' and routing key '{}'. Payload: \n{}",exchangeName,routingKey,payload);
 			final Map<String, Object> headers=Maps.newLinkedHashMap();
@@ -167,14 +175,39 @@ final class CollectorController {
 								build(),
 					payload.getBytes());
 		} catch (final IOException e) {
-			this.manager.discardChannel(aChannel);
-			LOGGER.warn("Could not publish message [{}] to exchange '{}' and routing key '{}': {}",payload,exchangeName,routingKey,e.getMessage());
-			throw e;
-		} catch (final Exception e) {
-			this.manager.discardChannel(aChannel);
-			final String errorMessage = String.format("Unexpected failure while publishing message [%s] to exchange '%s' and routing key '%s' using broker %s:%s%s: %s",payload,exchangeName,routingKey,this.collector.getBrokerHost(),this.collector.getBrokerPort(),this.collector.getVirtualHost(),e.getMessage());
+			this.manager.discardChannel();
+			final String errorMessage =
+				String.format(
+					"Could not publish message [%s] to exchange '%s' and routing key '%s' using broker %s:%s%s: %s",
+					payload,exchangeName,routingKey,
+					this.collector.getBrokerHost(),
+					this.collector.getBrokerPort(),
+					this.collector.getVirtualHost(),
+					e.getMessage());
 			LOGGER.error(errorMessage,e);
-			throw new IOException(errorMessage,e);
+			throw new ControllerException(
+				this.collector.getBrokerHost(),
+				this.collector.getBrokerPort(),
+				this.collector.getVirtualHost(),
+				errorMessage,
+				e);
+		} catch (final Exception e) {
+			this.manager.discardChannel();
+			final String errorMessage =
+				String.format(
+					"Unexpected failure while publishing message [%s] to exchange '%s' and routing key '%s' using broker %s:%s%s: %s",
+					payload,exchangeName,routingKey,
+					this.collector.getBrokerHost(),
+					this.collector.getBrokerPort(),
+					this.collector.getVirtualHost(),
+					e.getMessage());
+			LOGGER.error(errorMessage,e);
+			throw new ControllerException(
+					this.collector.getBrokerHost(),
+					this.collector.getBrokerPort(),
+					this.collector.getVirtualHost(),
+					errorMessage,
+					e);
 		}
 	}
 
@@ -193,7 +226,7 @@ final class CollectorController {
 					);
 				this.callbacks.add(callback);
 			} catch (final IOException e) {
-				throw new ControllerException("Could not register consumer for queue '"+this.actualQueueName+"'",e);
+				throw new ControllerException(this.collector.getBrokerHost(),this.collector.getBrokerPort(),this.collector.getVirtualHost(),"Could not register consumer for queue '"+this.actualQueueName+"'",e);
 			}
 		}
 	}
@@ -206,7 +239,7 @@ final class CollectorController {
 			this.manager.channel().exchangeDeclare(this.collector.getExchangeName(),EXCHANGE_TYPE,true);
 		} catch (final IOException e) {
 			if(!FailureAnalyzer.isExchangeDeclarationRecoverable(e)) {
-				throw new ControllerException("Could not create exchange named '"+this.collector.getExchangeName()+"'",e);
+				throw new ControllerException(this.collector.getBrokerHost(),this.collector.getBrokerPort(),this.collector.getVirtualHost(),"Could not create exchange named '"+this.collector.getExchangeName()+"'",e);
 			}
 		}
 	}
@@ -228,7 +261,7 @@ final class CollectorController {
 			this.cleaners.push(CleanerFactory.queueDelete(declaredQueueName));
 			return declaredQueueName;
 		} catch (final IOException e) {
-			throw new ControllerException("Could not create queue named '"+targetQueueName+"'",e);
+			throw new ControllerException(this.collector.getBrokerHost(),this.collector.getBrokerPort(),this.collector.getVirtualHost(),"Could not create queue named '"+targetQueueName+"'",e);
 		}
 	}
 
@@ -237,7 +270,7 @@ final class CollectorController {
 			this.manager.channel().queueBind(queueName,this.collector.getExchangeName(),Notifications.ROUTING_KEY_PATTERN);
 			this.cleaners.push(CleanerFactory.queueUnbind(this.collector.getExchangeName(),queueName,Notifications.ROUTING_KEY_PATTERN));
 		} catch (final IOException e) {
-			throw new ControllerException("Could not bind queue '"+queueName+"' to exchange '"+this.collector.getExchangeName()+"' using routing key '"+Notifications.ROUTING_KEY_PATTERN+"'",e);
+			throw new ControllerException(this.collector.getBrokerHost(),this.collector.getBrokerPort(),this.collector.getVirtualHost(),"Could not bind queue '"+queueName+"' to exchange '"+this.collector.getExchangeName()+"' using routing key '"+Notifications.ROUTING_KEY_PATTERN+"'",e);
 		}
 	}
 

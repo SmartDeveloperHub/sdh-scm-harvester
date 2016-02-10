@@ -30,14 +30,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -114,7 +112,7 @@ public class CollectorAggregatorTest extends NotificationTestHelper {
 			}
 			@Mock(invocations=1)
 			void connect() throws ControllerException {
-				throw new ControllerException("Failure",null);
+				throw new ControllerException("host",1234,"virtualHost","Failure",null);
 			}
 			@Mock(invocations=0)
 			void disconnect() { }
@@ -122,10 +120,8 @@ public class CollectorAggregatorTest extends NotificationTestHelper {
 		final CollectorAggregator sut = CollectorAggregator.newInstance("example", listener);
 		try {
 			sut.connect(Arrays.asList(collector));
-		} catch (final IOException e) {
-			assertThat(e.getCause(),instanceOf(ControllerException.class));
-			assertThat(e.getCause().getMessage(),equalTo("Failure"));
-			assertThat(e.getMessage(),equalTo("Could not connect controller for collector "+collector.getInstance()+" ("+collector+")"));
+		} catch (final ControllerException e) {
+			assertThat(e.getMessage(),equalTo("Failure"));
 		}
 	}
 

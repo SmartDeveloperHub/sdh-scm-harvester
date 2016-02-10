@@ -26,25 +26,27 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.integration.junit4.JMockit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	ConnectionManagerExceptionHandlerTest.class,
-	ConnectionManagerUncaughtExceptionHandlerTest.class,
-	ConnectionManagerTest.class,
-	EventUtilTest.class,
-	FailureAnalyzerTest.class,
-	CleanerFactoryTest.class,
-	CollectorControllerTest.class,
-	LoggingReturnListenerTest.class,
-	AcknowledgeableNotificationTest.class,
-	NotificationPumpTest.class,
-	NotificationConsumerTest.class,
-	CollectorAggregatorTest.class,
-	NotificationsTest.class
-})
-public class NotificationUnitTests {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(JMockit.class)
+public class ConnectionManagerUncaughtExceptionHandlerTest {
+	@Injectable
+	private ConnectionManager manager;
+	@Tested
+	private ConnectionManagerUncaughtExceptionHandler sut;
+
+	@Test
+	public void testUncaughtException() throws Exception {
+		new Expectations() {{
+			ConnectionManagerUncaughtExceptionHandlerTest.this.manager.toString();this.result="manager";
+		}};
+		this.sut.uncaughtException(Thread.currentThread(),new RuntimeException("failure"));
+	}
+
 }

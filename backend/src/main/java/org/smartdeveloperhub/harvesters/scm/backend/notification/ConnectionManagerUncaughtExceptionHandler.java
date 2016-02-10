@@ -26,25 +26,24 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.lang.Thread.UncaughtExceptionHandler;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	ConnectionManagerExceptionHandlerTest.class,
-	ConnectionManagerUncaughtExceptionHandlerTest.class,
-	ConnectionManagerTest.class,
-	EventUtilTest.class,
-	FailureAnalyzerTest.class,
-	CleanerFactoryTest.class,
-	CollectorControllerTest.class,
-	LoggingReturnListenerTest.class,
-	AcknowledgeableNotificationTest.class,
-	NotificationPumpTest.class,
-	NotificationConsumerTest.class,
-	CollectorAggregatorTest.class,
-	NotificationsTest.class
-})
-public class NotificationUnitTests {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+final class ConnectionManagerUncaughtExceptionHandler implements UncaughtExceptionHandler {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(ConnectionManager.class);
+
+	private final ConnectionManager manager;
+
+	ConnectionManagerUncaughtExceptionHandler(final ConnectionManager manager) {
+		this.manager = manager;
+	}
+
+	@Override
+	public void uncaughtException(final Thread t, final Throwable e) {
+		LOGGER.error("[{}] Unexpected failure on thread {}",this.manager,t.getName(),e);
+	}
+
 }

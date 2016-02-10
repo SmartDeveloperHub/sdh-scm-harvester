@@ -57,6 +57,12 @@ public class AcknowledgeableNotificationTest {
 	}
 
 	@Test
+	public void testAcknowledgMarksAcknowledgement() {
+		this.sut.acknowledge();
+		assertThat(this.sut.isAcknowledged(),equalTo(true));
+	}
+
+	@Test
 	public void testOnlyAcknowledgesOnce() {
 		this.sut.acknowledge();
 		try {

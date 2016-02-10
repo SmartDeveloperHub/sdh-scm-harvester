@@ -29,7 +29,6 @@ package org.smartdeveloperhub.harvesters.scm.backend.notification;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
@@ -77,7 +76,7 @@ final class CollectorAggregator {
 		this.connectedControllers=Lists.newLinkedList();
 	}
 
-	void connect(final List<Collector> collectors) throws IOException {
+	void connect(final List<Collector> collectors) throws ControllerException {
 		LOGGER.info("Setting up collector aggregator for {}...",this.name);
 		startNotificationPump();
 		for(final Collector collector:collectors) {
@@ -112,7 +111,7 @@ final class CollectorAggregator {
 		LOGGER.info("Collector aggregator for {} disconnected",this.name);
 	}
 
-	private void addCollector(final Collector collector, final String queueName) throws IOException {
+	private void addCollector(final Collector collector, final String queueName) throws ControllerException {
 		final boolean isNew=!this.brokerCollectors.containsKey(queueName);
 		this.brokerInstances.put(queueName,collector.getInstance());
 		this.instanceBroker.put(collector.getInstance(),queueName);
@@ -131,7 +130,7 @@ final class CollectorAggregator {
 		}
 	}
 
-	private CollectorController startController(final Collector collector, final String queueName) throws IOException {
+	private CollectorController startController(final Collector collector, final String queueName) throws ControllerException {
 		final CollectorController controller = CollectorController.createNamedReceiver(collector,queueName,this.notificationQueue);
 		LOGGER.info("Connecting controller for collector {}...",collector.getInstance());
 		try {
@@ -140,7 +139,7 @@ final class CollectorAggregator {
 		} catch (final ControllerException e) {
 			LOGGER.warn("Could not connect controller for collector {}. Full stacktrace follows",collector.getInstance(),e);
 			shutdownGracefully();
-			throw new IOException("Could not connect controller for collector "+collector.getInstance()+" ("+collector+")",e);
+			throw e;
 		}
 	}
 
