@@ -26,10 +26,23 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
+/**
+ * Utility class that allows {@code NotificationListener}s to inform about the
+ * lifecycle of the events notified by the Collectors used by a given GitLab
+ * Enhancer instance.
+ */
 public interface Notification {
 
+	/**
+	 * Inform about the consumption of the notified event.
+	 */
 	void consume();
 
+	/**
+	 * Inform that the notified event is discarded because a processing failure
+	 *
+	 * @param exception the failure that prevented the consumption of the event
+	 */
 	void discard(Throwable exception);
 
 }

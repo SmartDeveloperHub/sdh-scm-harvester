@@ -91,9 +91,13 @@ final class NotificationConsumer extends DefaultConsumer {
 			try {
 				doResume(listener);
 			} finally {
-				if(!this.notification.isAcknowledged()) {
-					this.notification.acknowledge();
-				}
+				enforceAcknowledgement();
+			}
+		}
+
+		private void enforceAcknowledgement() {
+			if(!this.notification.isAcknowledged()) {
+				this.notification.acknowledge();
 			}
 		}
 

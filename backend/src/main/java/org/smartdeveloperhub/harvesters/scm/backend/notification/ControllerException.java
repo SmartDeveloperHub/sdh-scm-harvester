@@ -27,7 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
 
-public class ControllerException extends Exception {
+final class ControllerException extends Exception {
 
 	private static final long serialVersionUID = 7249473927408663886L;
 
@@ -35,7 +35,7 @@ public class ControllerException extends Exception {
 	private final int brokerPort;
 	private final String virtualHost;
 
-	public ControllerException(final String brokerHost, final int brokerPort, final String virtualHost, final String message, final Throwable cause) {
+	ControllerException(final String brokerHost, final int brokerPort, final String virtualHost, final String message, final Throwable cause) {
 		super(message, cause);
 		this.brokerHost = brokerHost;
 		this.brokerPort = brokerPort;
@@ -47,7 +47,7 @@ public class ControllerException extends Exception {
 	 *
 	 * @return the broker host
 	 */
-	public String getBrokerHost() {
+	String getBrokerHost() {
 		return this.brokerHost;
 	}
 
@@ -56,7 +56,7 @@ public class ControllerException extends Exception {
 	 *
 	 * @return the broker port
 	 */
-	public int getBrokerPort() {
+	int getBrokerPort() {
 		return this.brokerPort;
 	}
 
@@ -65,10 +65,8 @@ public class ControllerException extends Exception {
 	 *
 	 * @return the virtual host
 	 */
-	public String getVirtualHost() {
+	String getVirtualHost() {
 		return this.virtualHost;
 	}
-
-
 
 }

@@ -44,6 +44,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	NotificationPumpTest.class,
 	NotificationConsumerTest.class,
 	CollectorAggregatorTest.class,
+	NotificationManagerTest.class,
 	NotificationsTest.class
 })
 public class NotificationUnitTests {

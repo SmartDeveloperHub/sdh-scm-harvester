@@ -334,7 +334,7 @@ public class ConnectionManagerTest {
 		assertThat(this.sut.currentChannel(),sameInstance(this.channel));
 	}
 	@Test
-	public void testThreadLocalChannelLifecycleIsThreadSafe(@Mocked final Channel currentChannel) throws Exception {
+	public void testThreadLocalChannelLifecycleIsThreadSafe() throws Exception {
 		new MockUp<ConnectionFactory>() {
 			@Mock
 			public void setHost(final String host) {
@@ -353,21 +353,34 @@ public class ConnectionManagerTest {
 				return ConnectionManagerTest.this.connection;
 			}
 		};
+		final Channel currentChannel=new MockUp<Channel>() {
+			@Mock(invocations=250)
+			boolean isOpen() {
+				return true;
+			}
+			@Mock(invocations=250)
+			void close() {
+				try {
+					TimeUnit.MICROSECONDS.sleep(2500);
+				} catch (final InterruptedException e) {
+				}
+			}
+		}.getMockInstance();
 		new Expectations() {{
-			ConnectionManagerTest.this.connection.createChannel();returns(ConnectionManagerTest.this.channel,currentChannel);this.times=5001;
+			ConnectionManagerTest.this.connection.createChannel();returns(ConnectionManagerTest.this.channel,currentChannel);this.times=251;
 			ConnectionManagerTest.this.connection.isOpen();this.result=true;
-			currentChannel.isOpen();this.times=5000;this.result=true;
-			currentChannel.close();this.times=5000;
 		}};
 		this.sut.connect();
-		final ExecutorService executor = Executors.newFixedThreadPool(50);
-		for(int i=0;i<5000;i++) {
+		final ExecutorService executor = Executors.newFixedThreadPool(100);
+		for(int i=0;i<500;i++) {
+			final int times=i;
 			executor.execute(new Runnable(){
 				@Override
 				public void run() {
 					try {
-						final Channel aChannel=ConnectionManagerTest.this.sut.currentChannel();
-						assertThat(aChannel,sameInstance(currentChannel));
+						if(times%2==0) {
+							ConnectionManagerTest.this.sut.currentChannel();
+						}
 						ConnectionManagerTest.this.sut.discardChannel();
 					} catch (final ControllerException e) {
 						e.printStackTrace();
