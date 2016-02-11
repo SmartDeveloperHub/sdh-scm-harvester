@@ -26,56 +26,39 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import java.util.concurrent.TimeUnit;
-
+import org.ldp4j.application.lifecycle.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 
-import com.google.common.base.Stopwatch;
+public final class DelayedPublisher implements Managed {
 
-abstract class PublisherThread extends Thread {
+	private static final Logger LOGGER=LoggerFactory.getLogger(DelayedPublisher.class);
 
-	private static final Logger LOGGER=LoggerFactory.getLogger(PublisherThread.class);
+	private final BranchCommitPublisherThread branchCommitpublisher;
+	private final UserPublisherThread userPublisher;
 
-	private final BackendController controller;
-
-	PublisherThread(final String threadName, final BackendController controller) {
-		super();
-		setName(threadName+"Publisher");
-		setUncaughtExceptionHandler(
-			new UncaughtExceptionHandler() {
-				@Override
-				public void uncaughtException(final Thread t, final Throwable e) {
-					LOGGER.error("{} Publisher thread died unexpectedly. Full stacktrace follows",e);
-				}
-			});
-		this.controller = controller;
+	public DelayedPublisher(final BackendController controller) {
+		this.branchCommitpublisher = new BranchCommitPublisherThread(controller);
+		this.userPublisher = new UserPublisherThread(controller);
 	}
 
 	@Override
-	public final void run(){
-		LOGGER.info("Running {}...",getName());
-		final Stopwatch watch = Stopwatch.createStarted();
-		try {
-			doPublish();
-		} finally {
-			watch.stop();
-			LOGGER.info("{} Elapsed time (ms): {}",getName(),watch.elapsed(TimeUnit.MILLISECONDS));
-		}
+	public void start() throws Exception {
+		LOGGER.info("SCM Harvester: Starting thread for registering branches and commits.");
+		this.branchCommitpublisher.start();
+
+		LOGGER.info("SCM Harvester: Starting thread for registering users.");
+		this.userPublisher.start();
 	}
 
 	@Override
-	public final void start() {
-		LOGGER.info("Starting {}...",getName());
-		super.start();
+	public void stop() throws Exception {
+		LOGGER.info("SCM Harvester: Awaiting termination of the thread for registering users.");
+		this.userPublisher.join();
+
+		LOGGER.info("SCM Harvester: Awaiting termination of the thread for registering branches and commits.");
+		this.branchCommitpublisher.join();
 	}
-
-	protected abstract void doPublish();
-
-	protected final BackendController getController() {
-		return this.controller;
-	}
-
 
 }

@@ -43,13 +43,13 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryC
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
-public class BranchCommitPublisherThread extends PublisherThread {
+final class BranchCommitPublisherThread extends PublisherThread {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(BranchCommitPublisherThread.class);
 
 	private static final String THREAD_NAME = "BranchCommit";
 
-	public BranchCommitPublisherThread(final BackendController controller) {
+	BranchCommitPublisherThread(final BackendController controller) {
 		super(THREAD_NAME,controller);
 	}
 

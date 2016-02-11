@@ -43,8 +43,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainer
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.harvester.HarvesterHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendResourcePublisher;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BranchCommitPublisherThread;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.UserPublisherThread;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.DelayedPublisher;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
@@ -72,6 +71,8 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 		LOGGER.info("- Target..: {}",configuration.target());
 		this.controller = new BackendController(this.target);
 
+		environment.lifecycle().register(new DelayedPublisher(this.controller));
+
 		bootstrap.addHandler(new HarvesterHandler());
 		bootstrap.addHandler(new RepositoryHandler(this.controller));
 		bootstrap.addHandler(new UserHandler(this.controller));
@@ -98,14 +99,6 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 			publisher.publishHarvesterResources();
 			session.saveChanges();
 			LOGGER.info("SCM Harvester Application initialization completed.");
-
-			LOGGER.info("SCM Harvester: Starting thread for registering branches and commits.");
-			final BranchCommitPublisherThread branchCommitpublisher = new BranchCommitPublisherThread(this.controller);
-			branchCommitpublisher.start();
-
-			LOGGER.info("SCM Harvester: Starting thread for registering users.");
-			final UserPublisherThread userPublisher = new UserPublisherThread(this.controller);
-			userPublisher.start();
 		} catch (final Exception e) {
 			final String errorMessage = "SCM Harvester Application initialization failed";
 			LOGGER.warn(errorMessage+". Full stacktrace follows: ",e);

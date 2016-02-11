@@ -39,11 +39,11 @@ import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
-public class UserPublisherThread extends PublisherThread {
+final class UserPublisherThread extends PublisherThread {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserPublisherThread.class);
 
-	public UserPublisherThread(final BackendController controller) {
+	UserPublisherThread(final BackendController controller) {
 		super("User",controller);
 	}
 

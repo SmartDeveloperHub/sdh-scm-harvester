@@ -69,9 +69,7 @@ public class BackendResourcePublisher {
 		publishAttachedUserContainer(harvesterName, harvesterSnapshot);
 
 		final ContainerSnapshot repositoryContainer =
-			publishAttachedRepositoryContainer(
-				harvesterName,
-				harvesterSnapshot);
+			publishAttachedRepositoryContainer(harvesterName, harvesterSnapshot);
 
 		createRepositoryResources(repositoryContainer);
 
