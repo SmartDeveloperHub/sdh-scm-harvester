@@ -26,14 +26,39 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.util.Date;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	CollectorAggregatorITest.class,
-	NotificationManagerITest.class
-})
-public class NotificationIntegrationTests {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+final class EventPublisher implements Runnable {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(EventPublisher.class);
+
+	private final Event event;
+	private final CollectorAggregator aggregator;
+
+	EventPublisher(final Event event, final CollectorAggregator aggregator) {
+		this.event = event;
+		this.aggregator = aggregator;
+	}
+
+	@Override
+	public void run() {
+		final CollectorController controller = this.aggregator.controller(this.event.getInstance());
+		try {
+			controller.publishEvent(this.event);
+			LOGGER.info("Published event {{}}{{}}{}",this.event.getInstance(),new Date(this.event.getTimestamp()),this.event.getClass().getSimpleName());
+			final Random random = new Random(System.nanoTime());
+			try {
+				TimeUnit.MILLISECONDS.sleep(random.nextInt(250));
+			} catch (final InterruptedException e) {
+				LOGGER.error("Interrupted while sleeping after publishing event "+this.event);
+			}
+		} catch (final ControllerException e) {
+			LOGGER.error("Could not publish event "+this.event,e);
+		}
+	}
 }
