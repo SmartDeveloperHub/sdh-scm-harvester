@@ -26,19 +26,18 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import org.ldp4j.application.lifecycle.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 
-public final class DelayedPublisher implements Managed {
+final class StaticHarvesterPublisher extends HarvesterPublisher {
 
-	private static final Logger LOGGER=LoggerFactory.getLogger(DelayedPublisher.class);
+	private static final Logger LOGGER=LoggerFactory.getLogger(StaticHarvesterPublisher.class);
 
 	private final BranchCommitPublisherThread branchCommitpublisher;
 	private final UserPublisherThread userPublisher;
 
-	public DelayedPublisher(final BackendController controller) {
+	StaticHarvesterPublisher(final BackendController controller) {
 		this.branchCommitpublisher = new BranchCommitPublisherThread(controller);
 		this.userPublisher = new UserPublisherThread(controller);
 	}

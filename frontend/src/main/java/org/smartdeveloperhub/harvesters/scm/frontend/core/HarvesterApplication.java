@@ -43,7 +43,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainer
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.harvester.HarvesterHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendResourcePublisher;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.DelayedPublisher;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.HarvesterPublisher;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
@@ -71,7 +71,7 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 		LOGGER.info("- Target..: {}",configuration.target());
 		this.controller = new BackendController(this.target);
 
-		environment.lifecycle().register(new DelayedPublisher(this.controller));
+		environment.lifecycle().register(HarvesterPublisher.newInstance(this.controller));
 
 		bootstrap.addHandler(new HarvesterHandler());
 		bootstrap.addHandler(new RepositoryHandler(this.controller));
