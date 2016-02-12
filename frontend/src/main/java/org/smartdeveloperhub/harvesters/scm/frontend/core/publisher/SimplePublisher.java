@@ -26,12 +26,49 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import org.ldp4j.application.lifecycle.Managed;
+import java.io.IOException;
+
+import org.ldp4j.application.session.WriteSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 
-public abstract class HarvesterPublisher implements Managed {
+final class SimplePublisher implements Publisher {
 
-	public static HarvesterPublisher newInstance(final BackendController controller) {
-		return new StaticHarvesterPublisher(controller);
+	private static final Logger LOGGER=LoggerFactory.getLogger(SimplePublisher.class);
+
+	private final BranchCommitPublisherThread branchCommitpublisher;
+	private final UserPublisherThread userPublisher;
+	private final BackendController controller;
+
+	SimplePublisher(final BackendController controller) {
+		this.controller = controller;
+		this.branchCommitpublisher = new BranchCommitPublisherThread(controller);
+		this.userPublisher = new UserPublisherThread(controller);
 	}
+
+	@Override
+	public void initialize(final WriteSession session) throws IOException {
+		final BackendResourcePublisher publisher = new BackendResourcePublisher(session, this.controller);
+		publisher.publishHarvesterResources();
+	}
+
+	@Override
+	public void start() throws Exception {
+		LOGGER.info("SCM Harvester: Starting thread for registering branches and commits.");
+		this.branchCommitpublisher.start();
+
+		LOGGER.info("SCM Harvester: Starting thread for registering users.");
+		this.userPublisher.start();
+	}
+
+	@Override
+	public void stop() throws Exception {
+		LOGGER.info("SCM Harvester: Awaiting termination of the thread for registering users.");
+		this.userPublisher.join();
+
+		LOGGER.info("SCM Harvester: Awaiting termination of the thread for registering branches and commits.");
+		this.branchCommitpublisher.join();
+	}
+
 }

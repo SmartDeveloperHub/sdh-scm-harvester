@@ -26,38 +26,19 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 
-final class StaticHarvesterPublisher extends HarvesterPublisher {
+public final class PublisherFactory {
 
-	private static final Logger LOGGER=LoggerFactory.getLogger(StaticHarvesterPublisher.class);
-
-	private final BranchCommitPublisherThread branchCommitpublisher;
-	private final UserPublisherThread userPublisher;
-
-	StaticHarvesterPublisher(final BackendController controller) {
-		this.branchCommitpublisher = new BranchCommitPublisherThread(controller);
-		this.userPublisher = new UserPublisherThread(controller);
+	private PublisherFactory() {
 	}
 
-	@Override
-	public void start() throws Exception {
-		LOGGER.info("SCM Harvester: Starting thread for registering branches and commits.");
-		this.branchCommitpublisher.start();
-
-		LOGGER.info("SCM Harvester: Starting thread for registering users.");
-		this.userPublisher.start();
+	public static Publisher createSimplePublisher(final BackendController controller) {
+		return new SimplePublisher(controller);
 	}
 
-	@Override
-	public void stop() throws Exception {
-		LOGGER.info("SCM Harvester: Awaiting termination of the thread for registering users.");
-		this.userPublisher.join();
-
-		LOGGER.info("SCM Harvester: Awaiting termination of the thread for registering branches and commits.");
-		this.branchCommitpublisher.join();
+	public static Publisher createDynamicPublisher(final BackendController controller) {
+		return new DynamicPublisher(controller);
 	}
 
 }

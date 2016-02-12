@@ -41,19 +41,19 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryC
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
-public class BackendResourcePublisher {
+final class BackendResourcePublisher {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(BackendResourcePublisher.class);
 
 	private final WriteSession session;
 	private final BackendController controller;
 
-	public BackendResourcePublisher(final WriteSession session, final BackendController controller) {
+	BackendResourcePublisher(final WriteSession session, final BackendController controller) {
 		this.controller=controller;
 		this.session=session;
 	}
 
-	public void publishHarvesterResources() throws IOException {
+	void publishHarvesterResources() throws IOException {
 		LOGGER.info("Publishing SCM Harvester Resource...");
 		final URI target = this.controller.getTarget();
 
