@@ -72,7 +72,7 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 
 		final BackendController controller = new BackendController(this.target);
 
-		this.publisher = PublisherFactory.createSimplePublisher(controller);
+		this.publisher = PublisherFactory.createDynamicPublisher(controller);
 		environment.lifecycle().register(this.publisher);
 
 		bootstrap.addHandler(new HarvesterHandler());
