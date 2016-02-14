@@ -97,7 +97,7 @@ public class DynamicPublisherTest {
 		final BackendController controller=
 			new MockUp<BackendController>() {
 				private final Random random = new Random(System.nanoTime());
-				@Mock(invocations=1)
+				@Mock(invocations=2)
 				URI getTarget() {
 					return GITLAB_ENHANCER;
 				}

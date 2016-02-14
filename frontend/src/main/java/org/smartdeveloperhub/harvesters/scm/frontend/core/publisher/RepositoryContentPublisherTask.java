@@ -39,7 +39,6 @@ import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
@@ -81,13 +80,12 @@ final class RepositoryContentPublisherTask extends PublisherTask {
 		ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
 		if(repositorySnapshot==null) {
 			LOGGER.warn("Could not find resource for repository {}",repositoryId);
-			final ContainerSnapshot repositoryContainer =
-				session.
-					find(
-						ContainerSnapshot.class,
-						IdentityUtil.enhancerName(getController().getTarget()),
-						RepositoryContainerHandler.class);
-			repositorySnapshot=PublisherHelper.publishRepository(repositoryContainer, repositoryId);
+			repositorySnapshot=
+				PublisherHelper.
+					publishRepository(
+						PublisherHelper.
+							findRepositoryContainer(session,getController().getTarget()),
+						repositoryId);
 		}
 		return repositorySnapshot;
 	}

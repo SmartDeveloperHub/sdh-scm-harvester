@@ -30,14 +30,10 @@ import java.io.IOException;
 import java.util.List;
 
 import org.ldp4j.application.ApplicationContext;
-import org.ldp4j.application.data.Name;
-import org.ldp4j.application.session.ContainerSnapshot;
 import org.ldp4j.application.session.WriteSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 final class UserPublisherTask extends PublisherTask {
 
@@ -60,15 +56,7 @@ final class UserPublisherTask extends PublisherTask {
 	private void publishUserResources(final List<String> users) throws IOException {
 		final ApplicationContext ctx = ApplicationContext.getInstance();
 		try(WriteSession session = ctx.createSession()){
-			final ContainerSnapshot userContainerSnapshot=
-				session.find(
-					ContainerSnapshot.class,
-					IdentityUtil.userContainerName(),
-					UserContainerHandler.class);
-			for(final String userId:users){
-				final Name<String> userName = IdentityUtil.userName(userId);
-				userContainerSnapshot.addMember(userName);
-			}
+			PublisherHelper.publishUsers(session, users);
 			session.saveChanges();
 		} catch(final Exception e) {
 			throw new IOException("Could not publish user resources",e);

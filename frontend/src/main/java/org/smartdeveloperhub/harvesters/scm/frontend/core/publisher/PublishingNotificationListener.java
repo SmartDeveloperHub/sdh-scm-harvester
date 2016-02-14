@@ -26,6 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 
 import org.ldp4j.application.ApplicationContext;
@@ -46,55 +48,132 @@ import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryUpdat
 
 final class PublishingNotificationListener implements NotificationListener {
 
+	abstract class NotificationHandler<T extends Event> {
+
+		private WriteSession session() throws InterruptedException, ApplicationContextException {
+			PublishingNotificationListener.this.publishingCompleted.await();
+			return ApplicationContext.getInstance().createSession();
+		}
+
+		final void consumeEvent(final Notification notification, final T event) {
+			try(WriteSession session=session()) {
+				try {
+					doConsumeEvent(event, session);
+					notification.consume();
+					session.saveChanges();
+				} catch (final IOException e) {
+					session.discardChanges();
+					notification.discard(e);
+				}
+			} catch(final InterruptedException e) {
+				Thread.currentThread().interrupt();
+				notification.discard(e);
+			} catch(final WriteSessionException | SessionTerminationException | ApplicationContextException e) {
+				notification.discard(e);
+			}
+		}
+
+		abstract void doConsumeEvent(final T event, final WriteSession session) throws IOException;
+
+	}
+
+	final class CommitterCreationHandler extends NotificationHandler<CommitterCreatedEvent> {
+
+		@Override
+		void doConsumeEvent(final CommitterCreatedEvent event, final WriteSession session) {
+			PublisherHelper.publishUsers(session, event.getNewCommitters());
+		}
+
+	}
+
+	final class CommitterDeletionHandler extends NotificationHandler<CommitterDeletedEvent> {
+
+		@Override
+		void doConsumeEvent(final CommitterDeletedEvent event, final WriteSession session) {
+			PublisherHelper.unpublishUsers(session, event.getDeletedCommitters());
+		}
+
+	}
+
+	final class RepositoryCreationHandler extends NotificationHandler<RepositoryCreatedEvent> {
+
+		@Override
+		void doConsumeEvent(final RepositoryCreatedEvent event, final WriteSession session) {
+			PublisherHelper.
+				publishRepositories(
+					session,
+					PublishingNotificationListener.this.target,
+					event.getNewRepositories());
+		}
+
+	}
+
+	final class RepositoryDeletionHandler extends NotificationHandler<RepositoryDeletedEvent> {
+
+		@Override
+		void doConsumeEvent(final RepositoryDeletedEvent event, final WriteSession session) {
+			PublisherHelper.
+				unpublishRepositories(
+					session,
+					PublishingNotificationListener.this.target,
+					event.getDeletedRepositories());
+		}
+
+	}
+
+	final class RepositoryUpdateHandler extends NotificationHandler<RepositoryUpdatedEvent> {
+
+		@Override
+		void doConsumeEvent(final RepositoryUpdatedEvent event, final WriteSession session) throws IOException {
+			PublisherHelper.
+				updateRepository(
+					session,
+					PublishingNotificationListener.this.target,
+					event);
+		}
+
+	}
+
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER=LoggerFactory.getLogger(PublishingNotificationListener.class);
 
 	private final CountDownLatch publishingCompleted;
 
-	PublishingNotificationListener(final CountDownLatch publishingCompleted) {
+	private final URI target;
+
+	PublishingNotificationListener(final CountDownLatch publishingCompleted, final URI target) {
 		this.publishingCompleted = publishingCompleted;
-	}
-
-	private WriteSession session() throws InterruptedException, ApplicationContextException {
-		this.publishingCompleted.await();
-		return ApplicationContext.getInstance().createSession();
-	}
-
-	private void consumeEvent(final Notification notification, final Event event) {
-		try(WriteSession session=session()) {
-			LOGGER.warn("TODO: Implement consumption of {}",event);
-			session.discardChanges();
-			notification.consume();
-		} catch(final InterruptedException e) {
-			Thread.currentThread().interrupt();
-			notification.discard(e);
-		} catch(final WriteSessionException | SessionTerminationException | ApplicationContextException e) {
-			notification.discard(e);
-		}
+		this.target = target;
 	}
 
 	@Override
 	public void onCommitterCreation(final Notification notification, final CommitterCreatedEvent event) {
-		consumeEvent(notification, event);
+		new CommitterCreationHandler().
+			consumeEvent(notification, event);
 	}
 
 	@Override
 	public void onCommitterDeletion(final Notification notification, final CommitterDeletedEvent event) {
-		consumeEvent(notification, event);
+		new CommitterDeletionHandler().
+			consumeEvent(notification, event);
 	}
 
 	@Override
 	public void onRepositoryCreation(final Notification notification, final RepositoryCreatedEvent event) {
-		consumeEvent(notification, event);
+		new RepositoryCreationHandler().
+			consumeEvent(notification, event);
 	}
 
 	@Override
 	public void onRepositoryDeletion(final Notification notification, final RepositoryDeletedEvent event) {
-		consumeEvent(notification, event);
+		new RepositoryDeletionHandler().
+			consumeEvent(notification, event);
 	}
 
 	@Override
 	public void onRepositoryUpdate(final Notification notification, final RepositoryUpdatedEvent event) {
-		consumeEvent(notification, event);
+		new RepositoryUpdateHandler().
+			consumeEvent(notification, event);
 	}
 
 }

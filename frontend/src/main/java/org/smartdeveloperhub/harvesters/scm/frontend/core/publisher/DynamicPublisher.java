@@ -105,7 +105,7 @@ final class DynamicPublisher implements Publisher {
 		this.manager=
 			NotificationManager.
 				newInstance(controller.getTarget(),
-				new PublishingNotificationListener(this.publishingCompleted));
+				new PublishingNotificationListener(this.publishingCompleted,controller.getTarget()));
 	}
 
 	void awaitPublicationCompletion() throws InterruptedException {
