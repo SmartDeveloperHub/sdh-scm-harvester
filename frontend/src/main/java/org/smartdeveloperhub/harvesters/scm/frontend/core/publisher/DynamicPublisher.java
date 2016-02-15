@@ -114,8 +114,13 @@ final class DynamicPublisher implements Publisher {
 
 	@Override
 	public void initialize(final WriteSession session) throws IOException {
-		final BackendResourcePublisher publisher = new BackendResourcePublisher(session, this.controller);
-		publisher.publishHarvesterResources();
+		LOGGER.info("Publishing SCM Harvester Resource...");
+		PublisherHelper.
+			publishHarvester(
+				session,
+				this.controller.getTarget(),
+				this.controller.getRepositories());
+		LOGGER.info("Published SCM Harvester Resource");
 	}
 
 	@Override

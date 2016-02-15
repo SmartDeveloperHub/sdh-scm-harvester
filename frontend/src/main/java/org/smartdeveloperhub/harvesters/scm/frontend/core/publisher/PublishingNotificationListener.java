@@ -85,7 +85,11 @@ final class PublishingNotificationListener implements NotificationListener {
 
 		@Override
 		void handleEvent(final CommitterCreatedEvent event, final WriteSession session) {
-			PublisherHelper.publishUsers(session, event.getNewCommitters());
+			PublisherHelper.
+				publishUsers(
+					session,
+					PublishingNotificationListener.this.target,
+					event.getNewCommitters());
 		}
 
 	}

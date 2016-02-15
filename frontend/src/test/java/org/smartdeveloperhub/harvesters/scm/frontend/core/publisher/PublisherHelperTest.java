@@ -29,7 +29,6 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -48,12 +47,16 @@ import org.ldp4j.application.session.ResourceSnapshot;
 import org.ldp4j.application.session.WriteSession;
 import org.ldp4j.commons.testing.Utils;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryUpdatedEvent;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branches;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commits;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.harvester.HarvesterHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
@@ -69,14 +72,64 @@ public class PublisherHelperTest {
 	}
 
 	@Test
-	public void testPublishUsers(@Mocked final WriteSession session, @Mocked final ContainerSnapshot container) {
+	public void testPublishHarvester(@Mocked final WriteSession session, @Mocked final ResourceSnapshot resource, @Mocked final ContainerSnapshot container) {
+		final URI target = URI.create("target");
 		new Expectations() {{
-			session.find(ContainerSnapshot.class, IdentityUtil.userContainerName(), UserContainerHandler.class);this.result=container;
+			session.find(ResourceSnapshot.class, IdentityUtil.enhancerName(target),HarvesterHandler.class);this.result=resource;
+			resource.createAttachedResource(ContainerSnapshot.class, HarvesterHandler.HARVESTER_COMMITTERS, IdentityUtil.enhancerName(target), UserContainerHandler.class);this.result=container;
+			resource.createAttachedResource(ContainerSnapshot.class, HarvesterHandler.HARVESTER_REPOSITORIES, IdentityUtil.enhancerName(target), RepositoryContainerHandler.class);this.result=container;
+			session.find(ContainerSnapshot.class,IdentityUtil.enhancerName(target),RepositoryContainerHandler.class);this.result=container;
+			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName(1),RepositoryHandler.class);this.result=null;
+			container.addMember(IdentityUtil.repositoryName(1));
+			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName(2),RepositoryHandler.class);this.result=null;
+			container.addMember(IdentityUtil.repositoryName(2));
+		}};
+		PublisherHelper.
+			publishHarvester(session,target,Arrays.asList(1,2));
+	}
+
+	@Test
+	public void testPublishRepository$notExists(@Mocked final WriteSession session, @Mocked final ResourceSnapshot resource, @Mocked final ContainerSnapshot container) throws IOException {
+		final URI target = URI.create("target");
+		final Repository repository=new Repository();
+		repository.setId(1);
+		repository.setBranches(new Branches());
+		repository.setCommits(new Commits());
+		new Expectations() {{
+			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName(1),RepositoryHandler.class);this.result=null;
+			session.find(ContainerSnapshot.class,IdentityUtil.enhancerName(target),RepositoryContainerHandler.class);this.result=container;
+			container.addMember(IdentityUtil.repositoryName(1));this.result=resource;
+			resource.createAttachedResource(ContainerSnapshot.class, RepositoryHandler.REPOSITORY_BRANCHES, IdentityUtil.repositoryName(1), BranchContainerHandler.class);
+			resource.createAttachedResource(ContainerSnapshot.class, RepositoryHandler.REPOSITORY_COMMITS, IdentityUtil.repositoryName(1), CommitContainerHandler.class);
+		}};
+		PublisherHelper.
+			publishRepository(session, target, repository);
+	}
+
+	@Test
+	public void testPublishRepository$exists(@Mocked final WriteSession session, @Mocked final ResourceSnapshot resource, @Mocked final ContainerSnapshot container) throws IOException {
+		final URI target = URI.create("target");
+		final Repository repository=new Repository();
+		repository.setId(1);
+		repository.setBranches(new Branches());
+		repository.setCommits(new Commits());
+		new Expectations() {{
+			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName(1),RepositoryHandler.class);this.result=resource;
+		}};
+		PublisherHelper.
+			publishRepository(session, target, repository);
+	}
+
+	@Test
+	public void testPublishUsers(@Mocked final WriteSession session, @Mocked final ContainerSnapshot container) {
+		final URI target = URI.create("target");
+		new Expectations() {{
+			session.find(ContainerSnapshot.class, IdentityUtil.enhancerName(target), UserContainerHandler.class);this.result=container;
 			container.addMember(IdentityUtil.userName("user1"));
 			container.addMember(IdentityUtil.userName("user2"));
 		}};
 		PublisherHelper.
-			publishUsers(session, Arrays.asList("user1","user2"));
+			publishUsers(session,target,Arrays.asList("user1","user2"));
 	}
 
 	@Test
@@ -88,18 +141,6 @@ public class PublisherHelperTest {
 		}};
 		PublisherHelper.
 			unpublishUsers(session, Arrays.asList("user1","user2"));
-	}
-
-	@Test
-	public void testFindRepositoryContainer(@Mocked final WriteSession session, @Mocked final ContainerSnapshot container) {
-		final URI target = URI.create("target");
-		new Expectations() {{
-			session.find(ContainerSnapshot.class, IdentityUtil.enhancerName(target), RepositoryContainerHandler.class);this.result=container;
-		}};
-		assertThat(
-			PublisherHelper.
-				findRepositoryContainer(session, target),
-			sameInstance(container));
 	}
 
 	@Test
@@ -183,7 +224,7 @@ public class PublisherHelperTest {
 				updateRepository(session, event);
 			fail("Should fail if cannot add commit");
 		} catch (final IOException e) {
-			assertThat(e.getMessage(),equalTo("Could not add new commits to repository 1"));
+			assertThat(e.getMessage(),equalTo("Could not publish commits of repository 1"));
 			assertThat(e.getCause(),instanceOf(IOException.class));
 			assertThat(e.getCause().getMessage(),equalTo("Failure"));
 		}
@@ -225,7 +266,7 @@ public class PublisherHelperTest {
 				updateRepository(session, event);
 			fail("Should fail if cannot add branches");
 		} catch (final IOException e) {
-			assertThat(e.getMessage(),equalTo("Could not add new branches to repository 1"));
+			assertThat(e.getMessage(),equalTo("Could not publish branches of repository 1"));
 			assertThat(e.getCause(),instanceOf(IOException.class));
 			assertThat(e.getCause().getMessage(),equalTo("Failure"));
 		}
@@ -263,7 +304,7 @@ public class PublisherHelperTest {
 				updateRepository(session, event);
 			fail("Should fail if cannot remove commits");
 		} catch (final IOException e) {
-			assertThat(e.getMessage(),equalTo("Could not remove commits from repository 1"));
+			assertThat(e.getMessage(),equalTo("Could not unpublish commits of repository 1"));
 			assertThat(e.getCause(),instanceOf(IOException.class));
 			assertThat(e.getCause().getMessage(),equalTo("Failure"));
 		}
@@ -299,9 +340,9 @@ public class PublisherHelperTest {
 		try {
 			PublisherHelper.
 				updateRepository(session, event);
-			fail("Should fail if cannot add branches");
+			fail("Should fail if cannot remove branches");
 		} catch (final IOException e) {
-			assertThat(e.getMessage(),equalTo("Could not remove branches from repository 1"));
+			assertThat(e.getMessage(),equalTo("Could not unpublish branches of repository 1"));
 			assertThat(e.getCause(),instanceOf(IOException.class));
 			assertThat(e.getCause().getMessage(),equalTo("Failure"));
 		}

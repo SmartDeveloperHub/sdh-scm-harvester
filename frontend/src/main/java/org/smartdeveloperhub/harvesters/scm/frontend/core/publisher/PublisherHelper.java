@@ -37,12 +37,14 @@ import org.ldp4j.application.session.WriteSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryUpdatedEvent;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.harvester.HarvesterHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
@@ -51,41 +53,55 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 final class PublisherHelper {
 
-	private static final Logger LOGGER=LoggerFactory.getLogger(BackendResourcePublisher.class);
+	private static final Logger LOGGER=LoggerFactory.getLogger(PublisherHelper.class);
 
 	private PublisherHelper() {
 	}
 
-	static ResourceSnapshot publishRepository(final ContainerSnapshot repositoryContainer, final Integer repositoryId) {
-		final Name<Integer> repositoryName=
-			IdentityUtil.repositoryName(repositoryId);
+	static void publishHarvester(final WriteSession session, final URI target, final List<Integer> repositories) {
+		final Name<URI> harvesterName = IdentityUtil.enhancerName(target);
 
-		final ResourceSnapshot repository =
-				repositoryContainer.addMember(repositoryName);
+		final ResourceSnapshot harvesterSnapshot=
+			session.
+				find(
+					ResourceSnapshot.class,
+					harvesterName,
+					HarvesterHandler.class);
 
-		repository.
+		harvesterSnapshot.
 			createAttachedResource(
 				ContainerSnapshot.class,
-				RepositoryHandler.REPOSITORY_BRANCHES,
-				repositoryName,
-				BranchContainerHandler.class);
+				HarvesterHandler.HARVESTER_COMMITTERS,
+				harvesterName,
+				UserContainerHandler.class);
 
-		repository.
+		harvesterSnapshot.
 			createAttachedResource(
 				ContainerSnapshot.class,
-				RepositoryHandler.REPOSITORY_COMMITS,
-				repositoryName,
-				CommitContainerHandler.class);
+				HarvesterHandler.HARVESTER_REPOSITORIES,
+				harvesterName,
+				RepositoryContainerHandler.class);
 
-		LOGGER.debug("Published resource for repository {}",repositoryId);
-		return repository;
+		publishRepositories(session,target,repositories);
 	}
 
-	static void publishUsers(final WriteSession session, final List<String> users) {
+	static void publishRepository(final WriteSession session, final URI target, final Repository repository) throws IOException {
+		final ResourceSnapshot repositorySnapshot = findRepositoryResource(session, target, repository.getId());
+		publishRepositoryBranches(
+			repository.getId(),
+			repository.getBranches().getBranchIds(),
+			repositorySnapshot);
+		publishRepositoryCommits(
+			repository.getId(),
+			repository.getCommits().getCommitIds(),
+			repositorySnapshot);
+	}
+
+	static void publishUsers(final WriteSession session, final URI target, final List<String> users) {
 		final ContainerSnapshot userContainer=
 			session.find(
 				ContainerSnapshot.class,
-				IdentityUtil.userContainerName(),
+				IdentityUtil.enhancerName(target),
 				UserContainerHandler.class);
 		for(final String userId:users){
 			final Name<String> userName = IdentityUtil.userName(userId);
@@ -127,15 +143,6 @@ final class PublisherHelper {
 
 	}
 
-	static ContainerSnapshot findRepositoryContainer(final WriteSession session, final URI target) {
-		return
-			session.
-				find(
-					ContainerSnapshot.class,
-					IdentityUtil.enhancerName(target),
-					RepositoryContainerHandler.class);
-	}
-
 	static void updateRepository(final WriteSession session, final RepositoryUpdatedEvent event) throws IOException {
 		final Name<Integer> repositoryName = IdentityUtil.repositoryName(event.getRepository());
 		final ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
@@ -164,9 +171,55 @@ final class PublisherHelper {
 			session);
 	}
 
+	private static ContainerSnapshot findRepositoryContainer(final WriteSession session, final URI target) {
+		return
+			session.
+				find(
+					ContainerSnapshot.class,
+					IdentityUtil.enhancerName(target),
+					RepositoryContainerHandler.class);
+	}
+
+	private static ResourceSnapshot findRepositoryResource(final WriteSession session, final URI target, final Integer repositoryId) {
+		final Name<Integer> repositoryName = IdentityUtil.repositoryName(repositoryId);
+		ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
+		if(repositorySnapshot==null) {
+			LOGGER.warn("Could not find resource for repository {}",repositoryId);
+			repositorySnapshot=
+				publishRepository(
+					findRepositoryContainer(session,target),
+					repositoryId);
+		}
+		return repositorySnapshot;
+	}
+
+	private static ResourceSnapshot publishRepository(final ContainerSnapshot repositoryContainer, final Integer repositoryId) {
+		final Name<Integer> repositoryName=
+			IdentityUtil.repositoryName(repositoryId);
+
+		final ResourceSnapshot repository =
+				repositoryContainer.addMember(repositoryName);
+
+		repository.
+			createAttachedResource(
+				ContainerSnapshot.class,
+				RepositoryHandler.REPOSITORY_BRANCHES,
+				repositoryName,
+				BranchContainerHandler.class);
+
+		repository.
+			createAttachedResource(
+				ContainerSnapshot.class,
+				RepositoryHandler.REPOSITORY_COMMITS,
+				repositoryName,
+				CommitContainerHandler.class);
+
+		LOGGER.debug("Published resource for repository {}",repositoryId);
+		return repository;
+	}
+
 	private static void publishRepositoryBranches(final Integer repositoryId, final List<String> branches, final ResourceSnapshot repositorySnapshot) throws IOException {
 		if(branches.isEmpty()) {
-			LOGGER.info("No new branches added to repository {}",repositoryId);
 			return;
 		}
 		final ContainerSnapshot branchContainer=
@@ -182,13 +235,12 @@ final class PublisherHelper {
 								new BranchKey(repositoryId,branchId)));
 			}
 		} catch(final Exception e) {
-			throw new IOException("Could not add new branches to repository "+repositoryId,e);
+			throw new IOException("Could not publish branches of repository "+repositoryId,e);
 		}
 	}
 
 	private static void unpublishRepositoryBranches(final Integer repositoryId, final List<String> branches, final WriteSession session) throws IOException {
 		if(branches.isEmpty()) {
-			LOGGER.info("No branches removed from repository {}",repositoryId);
 			return;
 		}
 		try {
@@ -205,13 +257,12 @@ final class PublisherHelper {
 				}
 			}
 		} catch(final Exception e) {
-			throw new IOException("Could not remove branches from repository "+repositoryId,e);
+			throw new IOException("Could not unpublish branches of repository "+repositoryId,e);
 		}
 	}
 
 	private static void publishRepositoryCommits(final Integer repositoryId, final List<String> commits, final ResourceSnapshot repositorySnapshot) throws IOException {
 		if(commits.isEmpty()) {
-			LOGGER.info("No new commits added to repository {}",repositoryId);
 			return;
 		}
 		final ContainerSnapshot commitContainer=
@@ -227,13 +278,12 @@ final class PublisherHelper {
 								new CommitKey(repositoryId,commitId)));
 			}
 		} catch(final Exception e) {
-			throw new IOException("Could not add new commits to repository "+repositoryId,e);
+			throw new IOException("Could not publish commits of repository "+repositoryId,e);
 		}
 	}
 
 	private static void unpublishRepositoryCommits(final Integer repositoryId, final List<String> commits, final WriteSession session) throws IOException {
 		if(commits.isEmpty()) {
-			LOGGER.info("No commits removed from repository {}",repositoryId);
 			return;
 		}
 		try {
@@ -250,7 +300,7 @@ final class PublisherHelper {
 				}
 			}
 		} catch(final Exception e) {
-			throw new IOException("Could not remove commits from repository "+repositoryId,e);
+			throw new IOException("Could not unpublish commits of repository "+repositoryId,e);
 		}
 	}
 

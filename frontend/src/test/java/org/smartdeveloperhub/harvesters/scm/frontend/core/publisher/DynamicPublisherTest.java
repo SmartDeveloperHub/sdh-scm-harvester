@@ -97,7 +97,7 @@ public class DynamicPublisherTest {
 		final BackendController controller=
 			new MockUp<BackendController>() {
 				private final Random random = new Random(System.nanoTime());
-				@Mock(invocations=2)
+				@Mock
 				URI getTarget() {
 					return GITLAB_ENHANCER;
 				}
@@ -120,6 +120,7 @@ public class DynamicPublisherTest {
 				}
 				private Repository createRepository(final int repoId, final int branchCount, final int commitCount) {
 					final Repository repository = new Repository();
+					repository.setId(repoId);
 					final Branches branches = new Branches();
 					branches.setBranchIds(createValues(repoId,"br",branchCount));
 					repository.setBranches(branches);

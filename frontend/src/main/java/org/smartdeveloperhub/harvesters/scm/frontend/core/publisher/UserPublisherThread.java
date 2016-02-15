@@ -63,7 +63,11 @@ final class UserPublisherThread extends PublisherThread {
 	private void publishUserResources(final List<String> users) throws IOException {
 		final ApplicationContext ctx = ApplicationContext.getInstance();
 		try(WriteSession session = ctx.createSession()){
-			PublisherHelper.publishUsers(session, users);
+			PublisherHelper.
+				publishUsers(
+					session,
+					getController().getTarget(),
+					users);
 			session.saveChanges();
 		} catch(final Exception e) {
 			throw new IOException("Could not publish user resources",e);

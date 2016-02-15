@@ -43,7 +43,6 @@ import org.ldp4j.application.session.ResourceSnapshot;
 import org.ldp4j.commons.testing.Utils;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 
 @RunWith(JMockit.class)
 public class IdentityUtilTest {
@@ -80,11 +79,6 @@ public class IdentityUtilTest {
 		final Integer id = 1;
 		setUpMock(id);
 		assertThat(IdentityUtil.repositoryId(this.resource),equalTo(id));
-	}
-
-	@Test
-	public void testUserContainerName() throws Exception {
-		assertThat(IdentityUtil.userContainerName().id(),equalTo(UserContainerHandler.NAME));
 	}
 
 	@Test

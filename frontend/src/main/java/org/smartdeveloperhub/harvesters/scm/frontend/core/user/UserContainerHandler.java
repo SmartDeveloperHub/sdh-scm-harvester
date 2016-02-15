@@ -37,7 +37,6 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedCon
 public class UserContainerHandler extends AbstractCappedContainerHandler {
 
 	public static final String ID   = "UserContainerHandler";
-	public static final String NAME = "UserContainer";
 
 	public UserContainerHandler() {
 		super("user");
