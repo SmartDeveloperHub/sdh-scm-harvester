@@ -57,12 +57,6 @@ final class PublisherHelper {
 	}
 
 	static ResourceSnapshot publishRepository(final ContainerSnapshot repositoryContainer, final Integer repositoryId) {
-		LOGGER.debug(
-			"Started publishing resource for repository {} @ {} ({})...",
-			repositoryId,
-			repositoryContainer.name(),
-			repositoryContainer.templateId());
-
 		final Name<Integer> repositoryName=
 			IdentityUtil.repositoryName(repositoryId);
 
@@ -83,12 +77,7 @@ final class PublisherHelper {
 				repositoryName,
 				CommitContainerHandler.class);
 
-		LOGGER.debug(
-			"Published resource for repository {} @ {} ({})",
-			repositoryId,
-			repositoryContainer.name(),
-			repositoryContainer.templateId());
-
+		LOGGER.debug("Published resource for repository {}",repositoryId);
 		return repository;
 	}
 
@@ -127,7 +116,7 @@ final class PublisherHelper {
 
 	}
 
-	static void unpublishRepositories(final WriteSession session, final URI target, final List<Integer> deletedRepositories) {
+	static void unpublishRepositories(final WriteSession session, final List<Integer> deletedRepositories) {
 		for(final Integer repositoryId:deletedRepositories) {
 			final Name<Integer> repositoryName = IdentityUtil.repositoryName(repositoryId);
 			final ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
@@ -147,7 +136,7 @@ final class PublisherHelper {
 					RepositoryContainerHandler.class);
 	}
 
-	static void updateRepository(final WriteSession session, final URI target, final RepositoryUpdatedEvent event) throws IOException {
+	static void updateRepository(final WriteSession session, final RepositoryUpdatedEvent event) throws IOException {
 		final Name<Integer> repositoryName = IdentityUtil.repositoryName(event.getRepository());
 		final ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
 		if(repositorySnapshot==null) {
@@ -171,7 +160,7 @@ final class PublisherHelper {
 
 		unpublishRepositoryCommits(
 			event.getRepository(),
-			event.getDeletedBranches(),
+			event.getDeletedCommits(),
 			session);
 	}
 

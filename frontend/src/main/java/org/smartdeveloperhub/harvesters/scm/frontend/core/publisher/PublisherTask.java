@@ -64,7 +64,7 @@ abstract class PublisherTask implements Callable<Boolean> {
 		}
 	}
 
-	protected abstract void doPublish() throws Exception;
+	protected abstract void doPublish() throws Exception; // NOSONAR
 
 	protected final BackendController getController() {
 		return this.controller;

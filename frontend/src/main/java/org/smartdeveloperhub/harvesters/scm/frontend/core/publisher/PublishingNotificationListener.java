@@ -57,14 +57,7 @@ final class PublishingNotificationListener implements NotificationListener {
 
 		final void consumeEvent(final Notification notification, final T event) {
 			try(WriteSession session=session()) {
-				try {
-					doConsumeEvent(event, session);
-					notification.consume();
-					session.saveChanges();
-				} catch (final IOException e) {
-					session.discardChanges();
-					notification.discard(e);
-				}
+				doConsumeEvent(notification, event, session);
 			} catch(final InterruptedException e) {
 				Thread.currentThread().interrupt();
 				notification.discard(e);
@@ -73,14 +66,25 @@ final class PublishingNotificationListener implements NotificationListener {
 			}
 		}
 
-		abstract void doConsumeEvent(final T event, final WriteSession session) throws IOException;
+		private void doConsumeEvent(final Notification notification, final T event, final WriteSession session) throws WriteSessionException {
+			try {
+				handleEvent(event, session);
+				notification.consume();
+				session.saveChanges();
+			} catch (final IOException e) {
+				session.discardChanges();
+				notification.discard(e);
+			}
+		}
+
+		abstract void handleEvent(final T event, final WriteSession session) throws IOException;
 
 	}
 
 	final class CommitterCreationHandler extends NotificationHandler<CommitterCreatedEvent> {
 
 		@Override
-		void doConsumeEvent(final CommitterCreatedEvent event, final WriteSession session) {
+		void handleEvent(final CommitterCreatedEvent event, final WriteSession session) {
 			PublisherHelper.publishUsers(session, event.getNewCommitters());
 		}
 
@@ -89,7 +93,7 @@ final class PublishingNotificationListener implements NotificationListener {
 	final class CommitterDeletionHandler extends NotificationHandler<CommitterDeletedEvent> {
 
 		@Override
-		void doConsumeEvent(final CommitterDeletedEvent event, final WriteSession session) {
+		void handleEvent(final CommitterDeletedEvent event, final WriteSession session) {
 			PublisherHelper.unpublishUsers(session, event.getDeletedCommitters());
 		}
 
@@ -98,7 +102,7 @@ final class PublishingNotificationListener implements NotificationListener {
 	final class RepositoryCreationHandler extends NotificationHandler<RepositoryCreatedEvent> {
 
 		@Override
-		void doConsumeEvent(final RepositoryCreatedEvent event, final WriteSession session) {
+		void handleEvent(final RepositoryCreatedEvent event, final WriteSession session) {
 			PublisherHelper.
 				publishRepositories(
 					session,
@@ -111,12 +115,8 @@ final class PublishingNotificationListener implements NotificationListener {
 	final class RepositoryDeletionHandler extends NotificationHandler<RepositoryDeletedEvent> {
 
 		@Override
-		void doConsumeEvent(final RepositoryDeletedEvent event, final WriteSession session) {
-			PublisherHelper.
-				unpublishRepositories(
-					session,
-					PublishingNotificationListener.this.target,
-					event.getDeletedRepositories());
+		void handleEvent(final RepositoryDeletedEvent event, final WriteSession session) {
+			PublisherHelper.unpublishRepositories(session,event.getDeletedRepositories());
 		}
 
 	}
@@ -124,12 +124,8 @@ final class PublishingNotificationListener implements NotificationListener {
 	final class RepositoryUpdateHandler extends NotificationHandler<RepositoryUpdatedEvent> {
 
 		@Override
-		void doConsumeEvent(final RepositoryUpdatedEvent event, final WriteSession session) throws IOException {
-			PublisherHelper.
-				updateRepository(
-					session,
-					PublishingNotificationListener.this.target,
-					event);
+		void handleEvent(final RepositoryUpdatedEvent event, final WriteSession session) throws IOException {
+			PublisherHelper.updateRepository(session,event);
 		}
 
 	}
