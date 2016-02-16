@@ -55,7 +55,9 @@ final class UserPublisherTask extends PublisherTask {
 
 	private void publishUserResources(final List<String> users) throws IOException {
 		final ApplicationContext ctx = ApplicationContext.getInstance();
-		try(WriteSession session = ctx.createSession()){
+		WriteSession session=null;
+		try {
+			session = ctx.createSession();
 			PublisherHelper.
 				publishUsers(
 					session,
@@ -64,6 +66,8 @@ final class UserPublisherTask extends PublisherTask {
 			session.saveChanges();
 		} catch(final Exception e) {
 			throw new IOException("Could not publish user resources",e);
+		} finally {
+			PublisherHelper.closeGracefully(session);
 		}
 	}
 

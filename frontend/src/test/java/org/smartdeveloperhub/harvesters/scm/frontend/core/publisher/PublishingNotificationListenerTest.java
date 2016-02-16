@@ -44,7 +44,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ldp4j.application.ApplicationContext;
 import org.ldp4j.application.ApplicationContextException;
-import org.ldp4j.application.session.SessionTerminationException;
 import org.ldp4j.application.session.WriteSession;
 import org.ldp4j.application.session.WriteSessionException;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.CommitterCreatedEvent;
@@ -201,24 +200,6 @@ public class PublishingNotificationListenerTest {
 	}
 
 	@Test
-	public void testProcessingFailsOnSessionTerminationException(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper, @Mocked final CountDownLatch publishingCompleted) throws Exception {
-		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
-		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
-		event.setInstance(TARGET.toString());
-		final SessionTerminationException failure = new SessionTerminationException("Failure");
-		new Expectations() {{
-			publishingCompleted.await();
-			ApplicationContext.getInstance();this.result=context;
-			context.createSession();this.result=session;
-			PublisherHelper.updateRepository(session, event);
-			session.saveChanges();
-			PublishingNotificationListenerTest.this.notification.consume();
-			session.close();this.result=failure;
-		}};
-		this.sut.onRepositoryUpdate(this.notification, event);
-	}
-
-	@Test
 	public void testProcessingFailsOnInterruptionWhileWaiting(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper) throws Exception {
 		final CountDownLatch latch=new CountDownLatch(1);
 		this.sut=new PublishingNotificationListener(latch,TARGET);
@@ -262,7 +243,7 @@ public class PublishingNotificationListenerTest {
 			ApplicationContext.getInstance();this.result=context;
 			context.createSession();this.result=session;
 			PublisherHelper.updateRepository(session, event);this.result=failure;
-			session.close();
+			PublisherHelper.closeGracefully(session);
 		}};
 		try {
 			this.sut.onRepositoryUpdate(this.notification, event);

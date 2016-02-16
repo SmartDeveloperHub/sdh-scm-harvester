@@ -44,6 +44,7 @@ import org.junit.runner.RunWith;
 import org.ldp4j.application.session.AttachmentSnapshot;
 import org.ldp4j.application.session.ContainerSnapshot;
 import org.ldp4j.application.session.ResourceSnapshot;
+import org.ldp4j.application.session.SessionTerminationException;
 import org.ldp4j.application.session.WriteSession;
 import org.ldp4j.commons.testing.Utils;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryUpdatedEvent;
@@ -69,6 +70,19 @@ public class PublisherHelperTest {
 	@Test
 	public void verifyIsUtilityClass() {
 		assertThat(Utils.isUtilityClass(PublisherHelper.class),equalTo(true));
+	}
+
+	@Test
+	public void testCloseQuietly(@Mocked final WriteSession session) throws SessionTerminationException {
+		new Expectations() {{
+			session.close();this.result=new SessionTerminationException("Failure");
+		}};
+		PublisherHelper.closeGracefully(session);
+	}
+
+	@Test
+	public void testCloseQuietly() throws SessionTerminationException {
+		PublisherHelper.closeGracefully(null);
 	}
 
 	@Test

@@ -27,45 +27,58 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
 import java.io.IOException;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+import mockit.Expectations;
+import mockit.Mocked;
+import mockit.integration.junit4.JMockit;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.ldp4j.application.ApplicationContext;
 import org.ldp4j.application.session.WriteSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 
-final class RepositoryContentPublisherTask extends PublisherTask {
+@RunWith(JMockit.class)
+public class UserPublisherTaskTest {
 
-	private static final Logger LOGGER=LoggerFactory.getLogger(RepositoryContentPublisherTask.class);
+	@Mocked private BackendController controller;
+	@Mocked private ApplicationContext context;
+	@Mocked private WriteSession session;
+	@Mocked private PublisherHelper helper;
 
-	RepositoryContentPublisherTask(final BackendController controller) {
-		super("Repo. member publication",controller);
+	private UserPublisherTask sut;
+
+	@Before
+	public void setUp() {
+		this.sut=new UserPublisherTask(this.controller);
 	}
 
-	@Override
-	protected final void doPublish() throws IOException {
-		for(final Integer repositoryId:getController().getRepositories()){
-			populateRepository(repositoryId);
-		}
+	@Test
+	public void testNoCommitters() throws IOException {
+		new Expectations() {{
+			UserPublisherTaskTest.this.controller.getCommitters();this.result=Collections.emptyList();
+		}};
+		this.sut.call();
 	}
 
-	private void populateRepository(final Integer repositoryId) throws IOException {
-		LOGGER.info("Populating repository {}...",repositoryId);
-		final ApplicationContext ctx = ApplicationContext.getInstance();
-		WriteSession session=null;
-		try {
-			session=ctx.createSession();
-			PublisherHelper.
-				publishRepository(
-					session,
-					getController().getTarget(),
-					getController().getRepository(repositoryId));
-			session.saveChanges();
-		} catch (final Exception e) {
-			throw new IOException("Could not populate repository "+repositoryId,e);
-		} finally {
-			PublisherHelper.closeGracefully(session);
-		}
+	@Test
+	public void testProcessFailure() throws Exception {
+		final URI target=URI.create("target");
+		final List<String> committers = Arrays.asList("committer1","committer2");
+		new Expectations() {{
+			UserPublisherTaskTest.this.controller.getTarget();this.result=target;
+			UserPublisherTaskTest.this.controller.getCommitters();this.result=committers;
+			ApplicationContext.getInstance();this.result=UserPublisherTaskTest.this.context;
+			UserPublisherTaskTest.this.context.createSession();this.result=UserPublisherTaskTest.this.session;
+			PublisherHelper.publishUsers(UserPublisherTaskTest.this.session, target, committers);this.result=new IOException("Failure");
+			PublisherHelper.closeGracefully(UserPublisherTaskTest.this.session);
+		}};
+		this.sut.call();
 	}
 
 }

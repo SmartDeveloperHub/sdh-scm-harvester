@@ -33,6 +33,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 	PublisherTaskTest.class,
+	UserPublisherTaskTest.class,
+	RepositoryContentPublisherTaskTest.class,
 	DynamicPublisherTest.class,
 	PublisherHelperTest.class,
 	PublishingNotificationListenerTest.class,

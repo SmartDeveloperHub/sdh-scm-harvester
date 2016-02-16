@@ -33,6 +33,7 @@ import java.util.List;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.session.ContainerSnapshot;
 import org.ldp4j.application.session.ResourceSnapshot;
+import org.ldp4j.application.session.SessionTerminationException;
 import org.ldp4j.application.session.WriteSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,16 @@ final class PublisherHelper {
 	private static final Logger LOGGER=LoggerFactory.getLogger(PublisherHelper.class);
 
 	private PublisherHelper() {
+	}
+
+	static void closeGracefully(final WriteSession session) {
+		if(session!=null) {
+			try {
+				session.close();
+			} catch (final SessionTerminationException e) {
+				LOGGER.warn("Could not terminate session",e);
+			}
+		}
 	}
 
 	static void publishHarvester(final WriteSession session, final URI target, final List<Integer> repositories) {

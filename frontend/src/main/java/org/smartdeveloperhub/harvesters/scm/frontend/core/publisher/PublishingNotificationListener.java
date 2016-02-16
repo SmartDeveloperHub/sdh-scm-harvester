@@ -32,11 +32,8 @@ import java.util.concurrent.CountDownLatch;
 
 import org.ldp4j.application.ApplicationContext;
 import org.ldp4j.application.ApplicationContextException;
-import org.ldp4j.application.session.SessionTerminationException;
 import org.ldp4j.application.session.WriteSession;
 import org.ldp4j.application.session.WriteSessionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.CommitterCreatedEvent;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.CommitterDeletedEvent;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.Event;
@@ -61,23 +58,13 @@ final class PublishingNotificationListener implements NotificationListener {
 			} catch(final WriteSessionException | ApplicationContextException e) {
 				notification.discard(e);
 			} finally {
-				closeGracefully(session);
+				PublisherHelper.closeGracefully(session);
 			}
 		}
 
 		private WriteSession session() throws InterruptedException, ApplicationContextException {
 			PublishingNotificationListener.this.publishingCompleted.await();
 			return ApplicationContext.getInstance().createSession();
-		}
-
-		private void closeGracefully(final WriteSession session) {
-			if(session!=null) {
-				try {
-					session.close();
-				} catch (final SessionTerminationException e) {
-					LOGGER.warn("Could not terminate session",e);
-				}
-			}
 		}
 
 		private void doConsumeEvent(final Notification notification, final T event, final WriteSession session) throws WriteSessionException {
@@ -147,8 +134,6 @@ final class PublishingNotificationListener implements NotificationListener {
 		}
 
 	}
-
-	private static final Logger LOGGER=LoggerFactory.getLogger(PublishingNotificationListener.class);
 
 	private final CountDownLatch publishingCompleted;
 
