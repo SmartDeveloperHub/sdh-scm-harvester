@@ -26,16 +26,49 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.user;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.sameInstance;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Mocked;
+import mockit.Tested;
+import mockit.integration.junit4.JMockit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	UserHandlerTest.class,
-	UserContainerHandlerTest.class,
-	UserVocabularyTest.class
-})
-public class UnitTestSuite {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.ldp4j.application.session.ResourceSnapshot;
+import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
+
+@RunWith(JMockit.class)
+public class UserHandlerTest {
+
+	@Injectable	private BackendController controller;
+
+	@Mocked private ResourceSnapshot resource;
+	@Mocked private IdentityUtil util;
+	@Mocked private User entity;
+
+	private final String key="key";
+
+	@Tested
+	private UserHandler sut;
+
+	@Test
+	public void testGetId() throws Exception {
+		new Expectations() {{
+			IdentityUtil.userId(UserHandlerTest.this.resource);this.result=UserHandlerTest.this.key;
+		}};
+		assertThat(this.sut.getId(this.resource),sameInstance(this.key));
+	}
+
+	@Test
+	public void testGetEntity() throws Exception {
+		new Expectations() {{
+			UserHandlerTest.this.controller.getUser(UserHandlerTest.this.key);this.result=UserHandlerTest.this.entity;
+		}};
+		assertThat(this.sut.getEntity(this.controller, this.key),sameInstance(this.entity));
+	}
 
 }

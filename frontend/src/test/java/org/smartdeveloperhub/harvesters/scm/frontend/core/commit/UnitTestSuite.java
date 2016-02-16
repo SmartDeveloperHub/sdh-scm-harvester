@@ -33,6 +33,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 	CommitKeyTest.class,
+	CommitHandlerTest.class,
 	CommitContainerHandlerTest.class,
 	CommitVocabularyTest.class
 })

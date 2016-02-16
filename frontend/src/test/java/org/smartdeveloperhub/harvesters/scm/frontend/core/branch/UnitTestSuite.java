@@ -33,6 +33,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 	BranchKeyTest.class,
+	BranchHandlerTest.class,
 	BranchContainerHandlerTest.class,
 	BranchVocabularyTest.class
 })
