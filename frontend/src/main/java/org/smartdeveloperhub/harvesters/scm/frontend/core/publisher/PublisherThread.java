@@ -33,15 +33,10 @@ abstract class PublisherThread extends Thread {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(PublisherThread.class);
 
+	private final PublisherTask task;
+
 	PublisherThread(final String threadName, final PublisherTask task) {
-		super(
-			new Runnable() {
-				@Override
-				public void run() {
-					task.call();
-				}
-			}
-		);
+		super();
 		setName(threadName+"Publisher");
 		setUncaughtExceptionHandler(
 			new UncaughtExceptionHandler() {
@@ -50,6 +45,12 @@ abstract class PublisherThread extends Thread {
 					LOGGER.error("{} Publisher thread died unexpectedly. Full stacktrace follows",threadName,e);
 				}
 			});
+		this.task = task;
+	}
+
+	@Override
+	public final void run() {
+		this.task.call();
 	}
 
 }
