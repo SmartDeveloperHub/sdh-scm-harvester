@@ -26,21 +26,30 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import mockit.Mocked;
+import mockit.integration.junit4.JMockit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	PublisherTaskTest.class,
-	DynamicPublisherTest.class,
-	PublisherHelperTest.class,
-	PublishingNotificationListenerTest.class,
-	PublisherThreadTest.class,
-	UserPublisherThreadTest.class,
-	BranchCommitPublisherThreadTest.class,
-	PublisherFactoryTest.class
-})
-public class UnitTestSuite {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
+
+@RunWith(JMockit.class)
+public class PublisherTaskTest {
+
+	@Mocked	private BackendController controller;
+
+	@Test
+	public void testCapturesFailure() throws Exception {
+		final PublisherTask task=
+			new PublisherTask("taskName",this.controller) {
+				@Override
+				protected void doPublish() throws Exception {
+					throw new RuntimeException("Failure");
+				}
+			};
+		assertThat(task.call(),equalTo(false));
+	}
 
 }

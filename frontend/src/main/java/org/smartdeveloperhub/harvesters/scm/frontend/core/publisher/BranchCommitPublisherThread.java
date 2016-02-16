@@ -26,51 +26,12 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import java.io.IOException;
-
-import org.ldp4j.application.ApplicationContext;
-import org.ldp4j.application.session.WriteSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 
 final class BranchCommitPublisherThread extends PublisherThread {
 
-	private static final Logger LOGGER=LoggerFactory.getLogger(BranchCommitPublisherThread.class);
-
-	private static final String THREAD_NAME = "BranchCommit";
-
 	BranchCommitPublisherThread(final BackendController controller) {
-		super(THREAD_NAME,controller);
-	}
-
-	@Override
-	protected final void doPublish(){
-		LOGGER.info("Started repository population process...");
-		try {
-			for(final Integer repositoryId:getController().getRepositories()){
-				populateRepository(repositoryId);
-			}
-		} catch (final IOException e) {
-			LOGGER.error("Repository population failure",e);
-		} finally {
-			LOGGER.info("Finalized repository population process");
-		}
-	}
-
-	private void populateRepository(final Integer repositoryId) {
-		LOGGER.info("Populating repository {}...",repositoryId);
-		final ApplicationContext ctx = ApplicationContext.getInstance();
-		try(WriteSession session=ctx.createSession()) {
-			PublisherHelper.
-				publishRepository(
-					session,
-					getController().getTarget(),
-					getController().getRepository(repositoryId));
-			session.saveChanges();
-		} catch (final Exception e) {
-			LOGGER.error("Could not populate repository {}",repositoryId,e);
-		}
+		super("BranchCommit",new RepositoryContentPublisherTask(controller));
 	}
 
 }

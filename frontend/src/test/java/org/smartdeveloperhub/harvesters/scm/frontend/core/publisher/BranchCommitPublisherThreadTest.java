@@ -26,21 +26,35 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
+import mockit.Mock;
+import mockit.MockUp;
+import mockit.Mocked;
+import mockit.integration.junit4.JMockit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	PublisherTaskTest.class,
-	DynamicPublisherTest.class,
-	PublisherHelperTest.class,
-	PublishingNotificationListenerTest.class,
-	PublisherThreadTest.class,
-	UserPublisherThreadTest.class,
-	BranchCommitPublisherThreadTest.class,
-	PublisherFactoryTest.class
-})
-public class UnitTestSuite {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
+
+@RunWith(JMockit.class)
+public class BranchCommitPublisherThreadTest {
+
+	@Mocked	private BackendController controller;
+
+	@Test
+	public void testConstructor() throws Exception {
+		new MockUp<RepositoryContentPublisherTask>() {
+			@Mock(invocations=1)
+			void $init(final BackendController aController) {
+				assertThat(aController,sameInstance(BranchCommitPublisherThreadTest.this.controller));
+			}
+		};
+		final BranchCommitPublisherThread sut = new BranchCommitPublisherThread(this.controller);
+		assertThat(sut.getName(),equalTo("BranchCommitPublisher"));
+		assertThat(sut.getUncaughtExceptionHandler(),notNullValue());
+	}
 
 }

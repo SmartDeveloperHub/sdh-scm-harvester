@@ -26,52 +26,12 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.ldp4j.application.ApplicationContext;
-import org.ldp4j.application.session.WriteSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 
 final class UserPublisherThread extends PublisherThread {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(UserPublisherThread.class);
-
 	UserPublisherThread(final BackendController controller) {
-		super("User",controller);
-	}
-
-	@Override
-	protected final void doPublish() {
-		LOGGER.info("Started user population process...");
-		try {
-			final List<String> users = getController().getCommitters();
-			if(users.isEmpty()) {
-				LOGGER.info("No committers available");
-				return;
-			}
-			publishUserResources(users);
-		} catch (final Exception e) {
-			LOGGER.error("Could not populate users", e);
-		} finally {
-			LOGGER.info("Finalized user population process");
-		}
-	}
-
-	private void publishUserResources(final List<String> users) throws IOException {
-		final ApplicationContext ctx = ApplicationContext.getInstance();
-		try(WriteSession session = ctx.createSession()){
-			PublisherHelper.
-				publishUsers(
-					session,
-					getController().getTarget(),
-					users);
-			session.saveChanges();
-		} catch(final Exception e) {
-			throw new IOException("Could not publish user resources",e);
-		}
+		super("User",new UserPublisherTask(controller));
 	}
 
 }

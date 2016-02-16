@@ -28,6 +28,7 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URI;
@@ -64,7 +65,7 @@ public class PublishingNotificationListenerTest {
 	private PublishingNotificationListener sut;
 
 	@Test
-	public void testOnCommitterCreation(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper,@Mocked final CountDownLatch publishingCompleted) throws Exception {
+	public void testOnCommitterCreation(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper, @Mocked final CountDownLatch publishingCompleted) throws Exception {
 		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
 		final CommitterCreatedEvent event = new CommitterCreatedEvent();
 		event.setInstance(TARGET.toString());
@@ -82,7 +83,7 @@ public class PublishingNotificationListenerTest {
 	}
 
 	@Test
-	public void testOnCommitterDeletion(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper,@Mocked final CountDownLatch publishingCompleted) throws Exception {
+	public void testOnCommitterDeletion(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper, @Mocked final CountDownLatch publishingCompleted) throws Exception {
 		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
 		final CommitterDeletedEvent event = new CommitterDeletedEvent();
 		event.setInstance(TARGET.toString());
@@ -118,7 +119,7 @@ public class PublishingNotificationListenerTest {
 	}
 
 	@Test
-	public void testOnRepositoryDeletion(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper,@Mocked final CountDownLatch publishingCompleted) throws Exception {
+	public void testOnRepositoryDeletion(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper, @Mocked final CountDownLatch publishingCompleted) throws Exception {
 		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
 		final RepositoryDeletedEvent event = new RepositoryDeletedEvent();
 		event.setInstance(TARGET.toString());
@@ -136,7 +137,7 @@ public class PublishingNotificationListenerTest {
 	}
 
 	@Test
-	public void testOnRepositoryUpdate(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper,@Mocked final CountDownLatch publishingCompleted) throws Exception {
+	public void testOnRepositoryUpdate(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper, @Mocked final CountDownLatch publishingCompleted) throws Exception {
 		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
 		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
 		event.setInstance(TARGET.toString());
@@ -152,7 +153,7 @@ public class PublishingNotificationListenerTest {
 	}
 
 	@Test
-	public void testProcessingFailsOnPublisherHelperFailure(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper,@Mocked final CountDownLatch publishingCompleted) throws Exception {
+	public void testProcessingFailsOnPublisherHelperFailure(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper, @Mocked final CountDownLatch publishingCompleted) throws Exception {
 		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
 		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
 		event.setInstance(TARGET.toString());
@@ -169,7 +170,7 @@ public class PublishingNotificationListenerTest {
 	}
 
 	@Test
-	public void testProcessingFailsOnWriteSessionException(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper,@Mocked final CountDownLatch publishingCompleted) throws Exception {
+	public void testProcessingFailsOnWriteSessionException(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper, @Mocked final CountDownLatch publishingCompleted) throws Exception {
 		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
 		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
 		event.setInstance(TARGET.toString());
@@ -185,7 +186,7 @@ public class PublishingNotificationListenerTest {
 	}
 
 	@Test
-	public void testProcessingFailsOnApplicationContextException(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper,@Mocked final CountDownLatch publishingCompleted) throws Exception {
+	public void testProcessingFailsOnApplicationContextException(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper, @Mocked final CountDownLatch publishingCompleted) throws Exception {
 		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
 		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
 		event.setInstance(TARGET.toString());
@@ -200,7 +201,7 @@ public class PublishingNotificationListenerTest {
 	}
 
 	@Test
-	public void testProcessingFailsOnSessionTerminationException(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper,@Mocked final CountDownLatch publishingCompleted) throws Exception {
+	public void testProcessingFailsOnSessionTerminationException(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper, @Mocked final CountDownLatch publishingCompleted) throws Exception {
 		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
 		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
 		event.setInstance(TARGET.toString());
@@ -224,6 +225,7 @@ public class PublishingNotificationListenerTest {
 		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
 		event.setInstance(TARGET.toString());
 		new Expectations() {{
+			ApplicationContext.getInstance();this.times=0;
 			PublishingNotificationListenerTest.this.notification.discard((Exception)this.any);
 		}};
 		final CountDownLatch l=new CountDownLatch(1);
@@ -247,6 +249,27 @@ public class PublishingNotificationListenerTest {
 		t2.start();
 		t2.join();
 		t1.join();
+	}
+
+	@Test
+	public void testListenerFailsOnUnexpectedException(@Mocked final ApplicationContext context, @Mocked final WriteSession session, @Mocked final PublisherHelper helper, @Mocked final CountDownLatch publishingCompleted) throws Exception {
+		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
+		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
+		event.setInstance(TARGET.toString());
+		final RuntimeException failure = new RuntimeException("Failure");
+		new Expectations() {{
+			publishingCompleted.await();
+			ApplicationContext.getInstance();this.result=context;
+			context.createSession();this.result=session;
+			PublisherHelper.updateRepository(session, event);this.result=failure;
+			session.close();
+		}};
+		try {
+			this.sut.onRepositoryUpdate(this.notification, event);
+			fail("Should fail on runtime exception");
+		} catch (final RuntimeException e) {
+			assertThat(e.getMessage(),equalTo("Failure"));
+		}
 	}
 
 }

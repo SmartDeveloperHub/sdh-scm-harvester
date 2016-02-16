@@ -26,56 +26,30 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
-
-import com.google.common.base.Stopwatch;
 
 abstract class PublisherThread extends Thread {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(PublisherThread.class);
 
-	private final BackendController controller;
-
-	PublisherThread(final String threadName, final BackendController controller) {
-		super();
+	PublisherThread(final String threadName, final PublisherTask task) {
+		super(
+			new Runnable() {
+				@Override
+				public void run() {
+					task.call();
+				}
+			}
+		);
 		setName(threadName+"Publisher");
 		setUncaughtExceptionHandler(
 			new UncaughtExceptionHandler() {
 				@Override
 				public void uncaughtException(final Thread t, final Throwable e) {
-					LOGGER.error("{} Publisher thread died unexpectedly. Full stacktrace follows",e);
+					LOGGER.error("{} Publisher thread died unexpectedly. Full stacktrace follows",threadName,e);
 				}
 			});
-		this.controller = controller;
 	}
-
-	@Override
-	public final void run(){
-		LOGGER.info("Running {}...",getName());
-		final Stopwatch watch = Stopwatch.createStarted();
-		try {
-			doPublish();
-		} finally {
-			watch.stop();
-			LOGGER.info("{} Elapsed time (ms): {}",getName(),watch.elapsed(TimeUnit.MILLISECONDS));
-		}
-	}
-
-	@Override
-	public final void start() {
-		LOGGER.info("Starting {}...",getName());
-		super.start();
-	}
-
-	protected abstract void doPublish();
-
-	protected final BackendController getController() {
-		return this.controller;
-	}
-
 
 }

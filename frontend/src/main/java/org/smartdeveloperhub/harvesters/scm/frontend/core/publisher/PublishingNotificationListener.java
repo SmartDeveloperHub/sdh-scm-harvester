@@ -50,19 +50,33 @@ final class PublishingNotificationListener implements NotificationListener {
 
 	abstract class NotificationHandler<T extends Event> {
 
+		final void consumeEvent(final Notification notification, final T event) {
+			WriteSession session=null;
+			try {
+				session=session();
+				doConsumeEvent(notification, event, session);
+			} catch(final InterruptedException e) {
+				Thread.currentThread().interrupt();
+				notification.discard(e);
+			} catch(final WriteSessionException | ApplicationContextException e) {
+				notification.discard(e);
+			} finally {
+				closeGracefully(session);
+			}
+		}
+
 		private WriteSession session() throws InterruptedException, ApplicationContextException {
 			PublishingNotificationListener.this.publishingCompleted.await();
 			return ApplicationContext.getInstance().createSession();
 		}
 
-		final void consumeEvent(final Notification notification, final T event) {
-			try(WriteSession session=session()) {
-				doConsumeEvent(notification, event, session);
-			} catch(final InterruptedException e) {
-				Thread.currentThread().interrupt();
-				notification.discard(e);
-			} catch(final WriteSessionException | SessionTerminationException | ApplicationContextException e) {
-				notification.discard(e);
+		private void closeGracefully(final WriteSession session) {
+			if(session!=null) {
+				try {
+					session.close();
+				} catch (final SessionTerminationException e) {
+					LOGGER.warn("Could not terminate session",e);
+				}
 			}
 		}
 
@@ -77,14 +91,14 @@ final class PublishingNotificationListener implements NotificationListener {
 			}
 		}
 
-		abstract void handleEvent(final T event, final WriteSession session) throws IOException;
+		protected abstract void handleEvent(final T event, final WriteSession session) throws IOException;
 
 	}
 
 	final class CommitterCreationHandler extends NotificationHandler<CommitterCreatedEvent> {
 
 		@Override
-		void handleEvent(final CommitterCreatedEvent event, final WriteSession session) {
+		protected void handleEvent(final CommitterCreatedEvent event, final WriteSession session) {
 			PublisherHelper.
 				publishUsers(
 					session,
@@ -97,7 +111,7 @@ final class PublishingNotificationListener implements NotificationListener {
 	final class CommitterDeletionHandler extends NotificationHandler<CommitterDeletedEvent> {
 
 		@Override
-		void handleEvent(final CommitterDeletedEvent event, final WriteSession session) {
+		protected void handleEvent(final CommitterDeletedEvent event, final WriteSession session) {
 			PublisherHelper.unpublishUsers(session, event.getDeletedCommitters());
 		}
 
@@ -106,7 +120,7 @@ final class PublishingNotificationListener implements NotificationListener {
 	final class RepositoryCreationHandler extends NotificationHandler<RepositoryCreatedEvent> {
 
 		@Override
-		void handleEvent(final RepositoryCreatedEvent event, final WriteSession session) {
+		protected void handleEvent(final RepositoryCreatedEvent event, final WriteSession session) {
 			PublisherHelper.
 				publishRepositories(
 					session,
@@ -119,7 +133,7 @@ final class PublishingNotificationListener implements NotificationListener {
 	final class RepositoryDeletionHandler extends NotificationHandler<RepositoryDeletedEvent> {
 
 		@Override
-		void handleEvent(final RepositoryDeletedEvent event, final WriteSession session) {
+		protected void handleEvent(final RepositoryDeletedEvent event, final WriteSession session) {
 			PublisherHelper.unpublishRepositories(session,event.getDeletedRepositories());
 		}
 
@@ -128,13 +142,12 @@ final class PublishingNotificationListener implements NotificationListener {
 	final class RepositoryUpdateHandler extends NotificationHandler<RepositoryUpdatedEvent> {
 
 		@Override
-		void handleEvent(final RepositoryUpdatedEvent event, final WriteSession session) throws IOException {
+		protected void handleEvent(final RepositoryUpdatedEvent event, final WriteSession session) throws IOException {
 			PublisherHelper.updateRepository(session,event);
 		}
 
 	}
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER=LoggerFactory.getLogger(PublishingNotificationListener.class);
 
 	private final CountDownLatch publishingCompleted;
