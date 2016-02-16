@@ -26,6 +26,7 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
+import java.io.IOException;
 import java.util.Date;
 
 import org.ldp4j.application.data.DataSet;
@@ -33,38 +34,35 @@ import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
-import org.ldp4j.application.ext.ApplicationRuntimeException;
-import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 @Resource(id=CommitHandler.ID)
-public class CommitHandler implements ResourceHandler {
+public final class CommitHandler extends AbstractEntityResourceHandler<Commit,CommitKey> {
 
 	public static final String ID="CommitHandler";
 
-	private final BackendController backendController;
-
 	public CommitHandler(final BackendController backendController) {
-		this.backendController = backendController;
+		super(backendController);
 	}
 
 	@Override
-	public DataSet get(final ResourceSnapshot resource) {
-		final CommitKey commitKey=IdentityUtil.commitId(resource);
-		try{
-			final Commit commit= this.backendController.getCommit(commitKey.getRepoId(), commitKey.getCommitId());
-			return maptoDataSet(commit,commitKey);
-		} catch(final Exception e){
-			 throw new ApplicationRuntimeException(e);
-		}
+	protected CommitKey getId(final ResourceSnapshot resource) {
+		return IdentityUtil.commitId(resource);
 	}
 
-	private DataSet maptoDataSet(final Commit commit, final CommitKey key) {
+	@Override
+	protected Commit getEntity(final BackendController controller, final CommitKey key) throws IOException {
+		return controller.getCommit(key.getRepoId(), key.getCommitId());
+	}
+
+	@Override
+	protected DataSet toDataSet(final Commit commit, final CommitKey key) {
 		final Name<CommitKey> commitName = IdentityUtil.commitName(key);
 		final Name<String> userName = IdentityUtil.userName(commit.getAuthor());
 

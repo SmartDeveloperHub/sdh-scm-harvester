@@ -24,22 +24,25 @@
  *   Bundle      : scm-harvester.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.frontend.core.branch;
+package org.smartdeveloperhub.harvesters.scm.frontend.core.user;
 
-import org.ldp4j.application.ext.annotations.DirectContainer;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedContainerHandler;
+import mockit.integration.junit4.JMockit;
 
-@DirectContainer(
-	id = BranchContainerHandler.ID,
-	memberHandler = BranchHandler.class,
-	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasBranch"
-)
-public class BranchContainerHandler extends AbstractCappedContainerHandler {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedContainerHandlerTestHelper;
 
-	public static final String ID   = "BranchContainerHandler";
+@RunWith(JMockit.class)
+public class UserContainerHandlerTest extends AbstractCappedContainerHandlerTestHelper {
 
-	public BranchContainerHandler() {
-		super("branch");
+	@Test
+	public void testGet() throws Exception {
+		super.verifyGetReturnsEmptyDataset(new UserContainerHandler());
+	}
+
+	@Test
+	public void testCreate() throws Exception {
+		super.verifyFactoryMethodIsDisabled("user",new UserContainerHandler());
 	}
 
 }

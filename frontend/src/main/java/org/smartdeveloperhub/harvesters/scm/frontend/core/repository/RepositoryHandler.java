@@ -26,6 +26,7 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.repository;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 
@@ -34,8 +35,6 @@ import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
-import org.ldp4j.application.ext.ApplicationRuntimeException;
-import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Attachment;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
@@ -44,6 +43,7 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 
@@ -62,7 +62,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 		)
 	}
 )
-public class RepositoryHandler implements ResourceHandler {
+public final class RepositoryHandler extends AbstractEntityResourceHandler<Repository,Integer> {
 
 	public static final String ID="RepositoryHandler";
 	public static final String REPOSITORY_BRANCHES="REPOSITORYBRANCHES";
@@ -70,25 +70,23 @@ public class RepositoryHandler implements ResourceHandler {
 
 	private static final URI DEPICTION_PATH = URI.create("#depiction");
 
-	private final BackendController backendController;
-
 	public RepositoryHandler(final BackendController backendController) {
-		this.backendController = backendController;
+		super(backendController);
 	}
 
 	@Override
-	public DataSet get(final ResourceSnapshot resource) {
-		final Integer repositoryId=IdentityUtil.repositoryId(resource);
-		try{
-			final Repository repository = this.backendController.getRepository(repositoryId);
-			return maptoDataSet(repository);
-		} catch(final Exception e){
-			 throw new ApplicationRuntimeException(e);
-		}
+	protected Integer getId(final ResourceSnapshot resource) {
+		return IdentityUtil.repositoryId(resource);
 	}
 
-	private DataSet maptoDataSet(final Repository repository) {
-		final Name<Integer> repoName=IdentityUtil.repositoryName(repository.getId());
+	@Override
+	protected Repository getEntity(final BackendController controller, final Integer key) throws IOException {
+		return controller.getRepository(key);
+	}
+
+	@Override
+	protected DataSet toDataSet(final Repository repository, final Integer repositoryId) {
+		final Name<Integer> repoName=IdentityUtil.repositoryName(repositoryId);
 		final Name<String> ownerName=IdentityUtil.userName(repository.getOwner().getId());
 
 		final DataSet dataSet=DataSets.createDataSet(repoName);
@@ -115,7 +113,7 @@ public class RepositoryHandler implements ResourceHandler {
 				property(RepositoryVocabulary.OWNER).
 					withIndividual(ownerName, UserHandler.ID).
 				property(RepositoryVocabulary.REPOSITORY_ID).
-					withLiteral(repository.getId().toString()).
+					withLiteral(repositoryId.toString()).
 				property(RepositoryVocabulary.TAGS).
 					withLiteral(repository.getTags());
 

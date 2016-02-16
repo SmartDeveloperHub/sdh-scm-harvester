@@ -31,7 +31,11 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ BranchVocabularyTest.class })
+@SuiteClasses({
+	BranchKeyTest.class,
+	BranchContainerHandlerTest.class,
+	BranchVocabularyTest.class
+})
 public class UnitTestSuite {
 
 }

@@ -31,7 +31,10 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ RepositoryVocabularyTest.class })
+@SuiteClasses({
+	RepositoryContainerHandlerTest.class,
+	RepositoryVocabularyTest.class
+})
 public class UnitTestSuite {
 
 }

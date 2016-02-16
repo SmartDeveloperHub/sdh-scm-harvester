@@ -26,20 +26,23 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.branch;
 
-import org.ldp4j.application.ext.annotations.DirectContainer;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedContainerHandler;
+import mockit.integration.junit4.JMockit;
 
-@DirectContainer(
-	id = BranchContainerHandler.ID,
-	memberHandler = BranchHandler.class,
-	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasBranch"
-)
-public class BranchContainerHandler extends AbstractCappedContainerHandler {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedContainerHandlerTestHelper;
 
-	public static final String ID   = "BranchContainerHandler";
+@RunWith(JMockit.class)
+public class BranchContainerHandlerTest extends AbstractCappedContainerHandlerTestHelper {
 
-	public BranchContainerHandler() {
-		super("branch");
+	@Test
+	public void testGet() throws Exception {
+		super.verifyGetReturnsEmptyDataset(new BranchContainerHandler());
+	}
+
+	@Test
+	public void testCreate() throws Exception {
+		super.verifyFactoryMethodIsDisabled("branch",new BranchContainerHandler());
 	}
 
 }

@@ -26,6 +26,7 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.branch;
 
+import java.io.IOException;
 import java.util.Date;
 
 import org.ldp4j.application.data.DataSet;
@@ -33,39 +34,36 @@ import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
-import org.ldp4j.application.ext.ApplicationRuntimeException;
-import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 @Resource(id=BranchHandler.ID)
-public class BranchHandler implements ResourceHandler {
+public final class BranchHandler extends AbstractEntityResourceHandler<Branch,BranchKey> {
 
 	public static final String ID="BranchHandler";
 
-	private final BackendController backendController;
-
 	public BranchHandler(final BackendController backendController) {
-		this.backendController = backendController;
+		super(backendController);
 	}
 
 	@Override
-	public DataSet get(final ResourceSnapshot resource) {
-		final BranchKey branchKey=IdentityUtil.branchId(resource);
-		try{
-			final Branch branch= this.backendController.getBranch(branchKey.getRepoId(), branchKey.getBranchId());
-			return maptoDataSet(branchKey,branch);
-		} catch(final Exception e){
-			 throw new ApplicationRuntimeException(e);
-		}
+	protected BranchKey getId(final ResourceSnapshot resource) {
+		return IdentityUtil.branchId(resource);
 	}
 
-	private DataSet maptoDataSet(final BranchKey key, final Branch branch) {
+	@Override
+	protected Branch getEntity(final BackendController controller, final BranchKey key) throws IOException {
+		return controller.getBranch(key.getRepoId(),key.getBranchId());
+	}
+
+	@Override
+	protected DataSet toDataSet(final Branch branch, final BranchKey key) {
 		final Name<BranchKey> branchName=IdentityUtil.branchName(key);
 
 		final DataSet dataSet=DataSets.createDataSet(branchName);

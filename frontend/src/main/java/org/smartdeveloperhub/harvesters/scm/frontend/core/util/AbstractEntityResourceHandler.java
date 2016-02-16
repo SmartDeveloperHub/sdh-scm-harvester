@@ -24,22 +24,41 @@
  *   Bundle      : scm-harvester.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.frontend.core.branch;
+package org.smartdeveloperhub.harvesters.scm.frontend.core.util;
 
-import org.ldp4j.application.ext.annotations.DirectContainer;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedContainerHandler;
+import java.io.IOException;
 
-@DirectContainer(
-	id = BranchContainerHandler.ID,
-	memberHandler = BranchHandler.class,
-	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/scm#hasBranch"
-)
-public class BranchContainerHandler extends AbstractCappedContainerHandler {
+import org.ldp4j.application.data.DataSet;
+import org.ldp4j.application.ext.ApplicationRuntimeException;
+import org.ldp4j.application.ext.ResourceHandler;
+import org.ldp4j.application.session.ResourceSnapshot;
+import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 
-	public static final String ID   = "BranchContainerHandler";
+public abstract class AbstractEntityResourceHandler<E,K> extends Serviceable implements ResourceHandler {
 
-	public BranchContainerHandler() {
-		super("branch");
+	private final BackendController backendController;
+
+	public AbstractEntityResourceHandler(final BackendController backendController) {
+		this.backendController = backendController;
 	}
+
+	@Override
+	public final DataSet get(final ResourceSnapshot resource) {
+		final K userId=getId(resource);
+		try {
+			return
+				toDataSet(
+					getEntity(this.backendController,userId),
+					userId);
+		} catch(final Exception e){
+			 throw new ApplicationRuntimeException(e);
+		}
+	}
+
+	protected abstract E getEntity(BackendController controller, final K key) throws IOException;
+
+	protected abstract K getId(final ResourceSnapshot resource) ;
+
+	protected abstract DataSet toDataSet(E entity, K key);
 
 }

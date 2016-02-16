@@ -31,7 +31,11 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ IdentityUtilTest.class })
+@SuiteClasses({
+	IdentityUtilTest.class,
+	ServiceableTest.class,
+	AbstractEntityResourceHandlerTest.class
+})
 public class UnitTestSuite {
 
 }

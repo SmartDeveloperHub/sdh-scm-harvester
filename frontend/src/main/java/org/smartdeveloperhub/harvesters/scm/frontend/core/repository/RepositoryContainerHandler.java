@@ -36,7 +36,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedCon
 )
 public class RepositoryContainerHandler extends AbstractCappedContainerHandler {
 
-	public static final String ID="RepositoryContainerHandler";
+	public static final String ID = "RepositoryContainerHandler";
 
 	public RepositoryContainerHandler() {
 		super("repository");
