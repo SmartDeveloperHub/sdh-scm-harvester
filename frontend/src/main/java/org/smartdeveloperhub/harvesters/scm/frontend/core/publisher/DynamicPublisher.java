@@ -51,8 +51,8 @@ final class DynamicPublisher implements Publisher {
 	private final class PublicationTerminationHandler implements FutureCallback<Boolean> {
 		@Override
 		public void onSuccess(final Boolean result) {
+			DynamicPublisher.this.publishingCompleted.countDown();
 			if(result) {
-				DynamicPublisher.this.publishingCompleted.countDown();
 				LOGGER.info("Initial publication completed. Started notification handling...");
 			} else {
 				DynamicPublisher.this.manager.shutdown();
@@ -62,7 +62,8 @@ final class DynamicPublisher implements Publisher {
 
 		@Override
 		public void onFailure(final Throwable t) {
-			LOGGER.error("Error :-(", t);
+			DynamicPublisher.this.publishingCompleted.countDown();
+			LOGGER.error("Publication failed", t);
 		}
 	}
 
@@ -104,8 +105,11 @@ final class DynamicPublisher implements Publisher {
 		this.publishingCompleted = new CountDownLatch(1);
 		this.manager=
 			NotificationManager.
-				newInstance(controller.getTarget(),
-				new PublishingNotificationListener(this.publishingCompleted,controller.getTarget()));
+				newInstance(
+					controller.getTarget(),
+					new PublishingNotificationListener(
+						this.publishingCompleted,
+						controller.getTarget()));
 	}
 
 	void awaitPublicationCompletion() throws InterruptedException {

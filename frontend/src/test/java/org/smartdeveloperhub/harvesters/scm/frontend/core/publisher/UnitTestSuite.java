@@ -35,6 +35,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	PublisherTaskTest.class,
 	UserPublisherTaskTest.class,
 	RepositoryContentPublisherTaskTest.class,
+	SimplePublisherTest.class,
 	DynamicPublisherTest.class,
 	PublisherHelperTest.class,
 	PublishingNotificationListenerTest.class,
