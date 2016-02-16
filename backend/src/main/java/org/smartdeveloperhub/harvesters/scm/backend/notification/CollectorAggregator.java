@@ -167,8 +167,10 @@ final class CollectorAggregator {
 	}
 
 	private void stopNotificationPump() {
-		this.pump.stop();
-		this.pump=null;
+		if(this.pump!=null) {
+			this.pump.stop();
+			this.pump=null;
+		}
 	}
 	private void drainPendingNotifications() {
 		final List<SuspendedNotification> discarded=new ArrayList<>();

@@ -37,6 +37,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -207,6 +208,14 @@ public class CollectorAggregatorTest extends NotificationTestHelper {
 		latch.await();
 		controller.publishEvent(event);
 		controller.publishEvent(event);
+		sut.disconnect();
+	}
+
+	@Test
+	public void testDisconnect$isSafe(@Mocked final NotificationListener listener) throws Exception {
+		final CollectorAggregator sut = CollectorAggregator.newInstance("example", listener);
+		sut.connect(Collections.<Collector>emptyList());
+		sut.disconnect();
 		sut.disconnect();
 	}
 

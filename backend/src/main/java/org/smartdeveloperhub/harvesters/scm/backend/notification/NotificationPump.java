@@ -149,6 +149,7 @@ final class NotificationPump {
 		try {
 			this.thread.join(SHUTDOWN_TIMEUNIT.toMillis(SHUTDOWN_TIMEOUT));
 		} catch (final InterruptedException e) {
+			Thread.currentThread().interrupt();
 			LOGGER.warn("Interrupted while awaiting the termination of the worker thread",e);
 		}
 	}
