@@ -166,7 +166,7 @@ public class RepositoryReaderTest extends ReaderTestHelper {
 	}
 
 	private void verifyRepository(final Repository defaultRepo, final Repository readRepo) {
-		assertThat(readRepo.getArchived(),equalTo(defaultRepo.getArchived()));
+		assertThat(readRepo.getState(),equalTo(defaultRepo.getState()));
 		assertThat(readRepo.getAvatarUrl(),equalTo(defaultRepo.getAvatarUrl()));
 		assertThat(readRepo.getContributors(),equalTo(defaultRepo.getContributors()));
 		assertThat(readRepo.getCreatedAt(),equalTo(defaultRepo.getCreatedAt()));

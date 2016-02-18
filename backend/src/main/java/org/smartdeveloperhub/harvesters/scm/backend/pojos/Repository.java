@@ -38,28 +38,28 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
 	"first_commit_at",
-	"archived",
 	"last_activity_at",
 	"name",
 	"contributors",
 	"tags",
 	"created_at",
 	"default_branch",
+	"avatar_url",
 	"id",
 	"http_url_to_repo",
+	"state",
 	"web_url",
 	"owner",
 	"last_commit_at",
 	"public",
-	"avatar_url"
 })
-public class Repository extends Contributable {
+public class Repository extends Contributable<Integer> {
 
 	@JsonProperty("first_commit_at")
 	private Long firstCommitAt;
 
-	@JsonProperty("archived")
-	private String archived;
+	@JsonProperty("state")
+	private String state;
 
 	@JsonProperty("last_activity_at")
 	private Long lastActivityAt;
@@ -121,21 +121,21 @@ public class Repository extends Contributable {
 
 	/**
 	 *
-	 * @return The archived
+	 * @return The state
 	 */
-	@JsonProperty("archived")
-	public String getArchived() {
-		return this.archived;
+	@JsonProperty("state")
+	public String getState() {
+		return this.state;
 	}
 
 	/**
 	 *
-	 * @param archived
+	 * @param state
 	 *            The archived
 	 */
-	@JsonProperty("archived")
-	public void setArchived(final String archived) {
-		this.archived = archived;
+	@JsonProperty("state")
+	public void setState(final String state) {
+		this.state = state;
 	}
 
 	/**
@@ -193,25 +193,6 @@ public class Repository extends Contributable {
 	@JsonProperty("default_branch")
 	public void setDefaultBranch(final String defaultBranch) {
 		this.defaultBranch = defaultBranch;
-	}
-
-	/**
-	 *
-	 * @return The id
-	 */
-	@JsonProperty("id")
-	public Integer getId() {
-		return this.id;
-	}
-
-	/**
-	 *
-	 * @param id
-	 *            The id
-	 */
-	@JsonProperty("id")
-	public void setId(final Integer id) {
-		this.id = id;
 	}
 
 	/**

@@ -31,7 +31,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public abstract class Contributable extends Extensible {
+public abstract class Contributable<T> extends Identifiable<T> {
 
 	@JsonProperty("name")
 	private String name;

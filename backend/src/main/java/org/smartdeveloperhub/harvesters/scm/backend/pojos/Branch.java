@@ -38,13 +38,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 	"contributors",
 	"last_commit"
 })
-public class Branch extends Contributable {
+public class Branch extends Contributable<String> {
 
 	@JsonProperty("protected")
 	private String prot;
 
 	@JsonProperty("last_commit")
-	private String lastCommit;
+	private Long lastCommit;
 
 	private Commits commits;
 
@@ -80,7 +80,7 @@ public class Branch extends Contributable {
 	 * @return The lastCommit
 	 */
 	@JsonProperty("last_commit")
-	public String getLastCommit() {
+	public Long getLastCommit() {
 		return this.lastCommit;
 	}
 
@@ -90,7 +90,7 @@ public class Branch extends Contributable {
 	 *            The last_commit
 	 */
 	@JsonProperty("last_commit")
-	public void setLastCommit(final String lastCommit) {
+	public void setLastCommit(final Long lastCommit) {
 		this.lastCommit = lastCommit;
 	}
 

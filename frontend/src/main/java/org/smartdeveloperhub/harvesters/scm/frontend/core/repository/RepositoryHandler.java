@@ -107,7 +107,7 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 				property(RepositoryVocabulary.LAST_COMMIT).
 					withLiteral(new Date(repository.getLastCommitAt())).
 				property(RepositoryVocabulary.ARCHIVED).
-					withLiteral(new Boolean(repository.getArchived())).
+					withLiteral(new Boolean(repository.getState())).
 				property(RepositoryVocabulary.PUBLIC).
 					withLiteral(new Boolean(repository.getPublic())).
 				property(RepositoryVocabulary.OWNER).
