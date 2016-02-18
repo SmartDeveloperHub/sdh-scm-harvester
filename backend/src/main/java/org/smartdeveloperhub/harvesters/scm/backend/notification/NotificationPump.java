@@ -61,8 +61,7 @@ final class NotificationPump {
 
 		@Override
 		public void run() {
-			this.stopped=false;
-			LOGGER.info("Started pumping notifications");
+			LOGGER.info("Started pumping notifications...");
 			while(!this.stopped) {
 				try {
 					final SuspendedNotification notification=this.notifications.poll(QUEUE_POLL_TIMEOUT,QUEUE_POLL_TIMEUNIT);
@@ -80,6 +79,7 @@ final class NotificationPump {
 				}
 			}
 			LOGGER.info("Notification pumping finished");
+			this.stopped=false;
 		}
 
 		/**

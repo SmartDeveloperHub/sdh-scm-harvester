@@ -469,6 +469,7 @@ public class ConnectionManagerTest {
 		assertThat(aChannel,sameInstance(currentChannel));
 		this.sut.discardChannel();
 	}
+
 	@Test
 	public void testCloseQuietlySwallowsRegularExceptions(@Mocked final Channel currentChannel) throws Exception {
 		new MockUp<ConnectionFactory>() {
@@ -499,6 +500,44 @@ public class ConnectionManagerTest {
 		final Channel aChannel=this.sut.currentChannel();
 		assertThat(aChannel,sameInstance(currentChannel));
 		this.sut.discardChannel();
+	}
+
+	@Test
+	public void testCloseQuietlyFailsOnRuntimeExceptions(@Mocked final Channel currentChannel) throws Exception {
+		new MockUp<ConnectionFactory>() {
+			@Mock
+			public void setHost(final String host) {
+			}
+			@Mock
+			public void setPort(final int port) {
+			}
+			@Mock
+			public void setVirtualHost(final String virtualHost) {
+			}
+			@Mock
+			public void setThreadFactory(final ThreadFactory threadFactory) {
+			}
+			@Mock
+			public Connection newConnection() throws IOException, TimeoutException {
+				return ConnectionManagerTest.this.connection;
+			}
+		};
+		new Expectations() {{
+			ConnectionManagerTest.this.connection.createChannel();returns(ConnectionManagerTest.this.channel,currentChannel);
+			ConnectionManagerTest.this.connection.isOpen();this.result=true;
+			currentChannel.isOpen();this.times=1;this.result=true;
+			currentChannel.close();this.times=1;this.result=new Error("Failure");
+		}};
+		this.sut.connect();
+		final Channel aChannel=this.sut.currentChannel();
+		assertThat(aChannel,sameInstance(currentChannel));
+		try {
+			this.sut.discardChannel();
+			fail("Should fail on runtime exception");
+		} catch(final AssertionError e) {
+		} catch (final Error e) {
+			assertThat(e.getMessage(),equalTo("Failure"));
+		}
 	}
 
 	@Test
