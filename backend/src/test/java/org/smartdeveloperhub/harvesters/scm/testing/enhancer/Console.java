@@ -28,37 +28,46 @@ package org.smartdeveloperhub.harvesters.scm.testing.enhancer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
 
-final class NullCommitterState implements CommitterState {
+final class Console {
 
-	private static final Logger LOGGER=LoggerFactory.getLogger(State.class);
-
-	private final String id;
-
-	NullCommitterState(final String committerId) {
-		this.id = committerId;
+	private static final class NullConsumer implements Consumer {
+		@Override
+		public void log(final String message) {
+		}
 	}
 
-	@Override
-	public String getId() {
-		return this.id;
+	private static final Logger LOGGER=LoggerFactory.getLogger(Console.class);
+
+	private static ThreadLocal<Consumer> CURRENT=new ThreadLocal<Consumer>() {
+
+		@Override
+		protected Consumer initialValue() {
+			return new NullConsumer();
+		}
+
+	};
+
+	private Console() {
 	}
 
-	@Override
-	public String getName() {
-		return "<unknown>";
+	void log(final String format, final Object... args) {
+		final String message = String.format(format, args);
+		LOGGER.debug(message);
+		CURRENT.get().log(message);
 	}
 
-	@Override
-	public User toEntity() {
-		LOGGER.debug("Unknown committer {}: cannot return representation",this.id);
-		return null;
+	static Console currentConsole() {
+		return new Console();
 	}
 
-	@Override
-	public void logActivity(final long timestamp) {
-		LOGGER.debug("Unknown committer {}: cannot log activity ({})",this.id,timestamp);
+	static Console logTo(final Consumer consumer) {
+		CURRENT.set(consumer);
+		return new Console();
+	}
+
+	static void remove() {
+		CURRENT.remove();
 	}
 
 }

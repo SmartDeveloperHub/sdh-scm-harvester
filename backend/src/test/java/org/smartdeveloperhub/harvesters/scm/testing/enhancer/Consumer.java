@@ -26,39 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.scm.testing.enhancer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
+public interface Consumer {
 
-final class NullCommitterState implements CommitterState {
-
-	private static final Logger LOGGER=LoggerFactory.getLogger(State.class);
-
-	private final String id;
-
-	NullCommitterState(final String committerId) {
-		this.id = committerId;
-	}
-
-	@Override
-	public String getId() {
-		return this.id;
-	}
-
-	@Override
-	public String getName() {
-		return "<unknown>";
-	}
-
-	@Override
-	public User toEntity() {
-		LOGGER.debug("Unknown committer {}: cannot return representation",this.id);
-		return null;
-	}
-
-	@Override
-	public void logActivity(final long timestamp) {
-		LOGGER.debug("Unknown committer {}: cannot log activity ({})",this.id,timestamp);
-	}
+	void log(String message);
 
 }
