@@ -62,7 +62,11 @@ final class Console {
 	}
 
 	static Console logTo(final Consumer consumer) {
-		CURRENT.set(consumer);
+		if(consumer==null) {
+			CURRENT.remove();
+		} else {
+			CURRENT.set(consumer);
+		}
 		return new Console();
 	}
 
