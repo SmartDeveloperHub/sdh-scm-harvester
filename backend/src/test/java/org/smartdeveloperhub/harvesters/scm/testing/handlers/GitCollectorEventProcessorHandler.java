@@ -65,12 +65,15 @@ final class GitCollectorEventProcessorHandler extends HandlerUtil implements Htt
 			Event processEvent=this.event;
 			String action="ignored";
 			final UpdateReport report = this.enhancer.update(processEvent);
-			if(report.wasSuccesful()) {
+			if(report.notificationSent()) {
 				processEvent=report.curatedEvent();
 				action="sent";
 			}
 			final String entity=marshall(processEvent);
 			answer(exchange,StatusCodes.OK, "Notification %s:\n%s",action,entity);
+			for(final String warning:report.warnings()) {
+				LOGGER.debug("{}",warning);
+			}
 			LOGGER.debug("Notification {} {}:\n{}",processEvent.getClass().getSimpleName(),action,entity);
 		} catch (final Throwable e) {
 			fail(exchange,e,"Could not update enhancer");
