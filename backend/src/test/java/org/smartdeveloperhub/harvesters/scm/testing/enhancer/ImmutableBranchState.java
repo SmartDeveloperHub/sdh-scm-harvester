@@ -65,11 +65,11 @@ final class ImmutableBranchState implements BranchState {
 	}
 
 	@Override
-	public void addContribution(final String commitId, final String contributor) {
-		if(this.contributors.add(contributor)) {
-			Console.currentConsole().log("Added contributor %s to branch %s of repository %s",contributor,this.id,this.repositoryId);
+	public void addContribution(final CommitState commit, final CommitterState contributor) {
+		if(this.contributors.add(contributor.getId())) {
+			Console.currentConsole().log("Committer %s (%s) is now a contributor of branch %s (%s) of repository %s",contributor.getId(),contributor.getName(),this.id,this.name,this.repositoryId);
 		}
-		this.commits.add(commitId);
+		this.commits.add(commit.getId());
 		this.lastCommit=System.currentTimeMillis();
 	}
 

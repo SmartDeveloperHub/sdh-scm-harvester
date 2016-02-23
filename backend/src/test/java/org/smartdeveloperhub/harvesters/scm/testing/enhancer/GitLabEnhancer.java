@@ -281,7 +281,7 @@ public final class GitLabEnhancer {
 			}
 			for(final String id:event.getNewCommits()) {
 				final String contributor=candidateContributors.next();
-				if(state.createCommit(id,contributor)) {
+				if(state.createCommit(id,this.committers.get(contributor))) {
 					curated.getNewCommits().add(id);
 					contributingContributors.add(contributor);
 				}

@@ -67,7 +67,7 @@ final class NullBranchState implements BranchState {
 	}
 
 	@Override
-	public void addContribution(final String commitId, final String contributor) {
-		LOGGER.debug("Unknown branch <{}>{{}}: cannot add commit {} from committer {}",this.repositoryId,this.id,commitId,contributor);
+	public void addContribution(final CommitState commit, final CommitterState contributor) {
+		LOGGER.debug("Unknown branch <{}>{{}}: cannot add commit {} from committer {}",this.repositoryId,this.id,commit.getId(),contributor.getId());
 	}
 }

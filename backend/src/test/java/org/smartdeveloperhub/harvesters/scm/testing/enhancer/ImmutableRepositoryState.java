@@ -34,6 +34,7 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Owner;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -58,8 +59,7 @@ final class ImmutableRepositoryState implements RepositoryState {
 	private int revision=0;
 	private int feature=0;
 
-	private Long firstCommitAt;
-	private Long lastActivityAt;
+	private final String description;
 
 	ImmutableRepositoryState(final Integer id, final CommitterState owner) {
 		this.id=id;
@@ -73,6 +73,7 @@ final class ImmutableRepositoryState implements RepositoryState {
 		this.branches=Maps.newLinkedHashMap();
 		this.contributors=Sets.newLinkedHashSet();
 		this.tags=Lists.newArrayList();
+		this.description = StateUtil.generateSentences(2,5);
 		Console.currentConsole().log("Created repository %s (%s) with owner %s (%s)",this.id,this.name,this.owner,owner.getName());
 	}
 
@@ -115,37 +116,17 @@ final class ImmutableRepositoryState implements RepositoryState {
 	}
 
 	@Override
-	public Repository toEntity() {
-		final Repository repository = new Repository();
-		repository.setAvatarUrl(this.avatarUrl);
-		repository.setContributors(Lists.newArrayList(this.contributors));
-		repository.setCreatedAt(this.createdAt);
-		repository.setDefaultBranch("1");
-		repository.setDescription(StateUtil.generateSentences(2,5));
-		repository.setFirstCommitAt(this.firstCommitAt);
-		repository.setHttpUrlToRepo(this.httpUrlToRepo);
-		repository.setId(this.id);
-		repository.setLastActivityAt(this.lastActivityAt);
-		repository.setName(this.name);
-		final Owner owner = new Owner();
-		owner.setType("user");
-		owner.setId(this.owner);
-		repository.setOwner(owner);
-		repository.setPublic(Boolean.toString(this.id%2==0));
-		repository.setState("active");
-		repository.setTags(this.tags);
-		repository.setWebUrl(this.webUrl);
-		return repository;
-	}
-
-	@Override
-	public boolean createCommit(final String commitId, final String contributor) {
+	public boolean createCommit(final String commitId, final CommitterState contributor) {
 		final ImmutableCommitState state = this.commits.get(commitId);
 		if(state==null) {
-			this.commits.put(commitId,new ImmutableCommitState(commitId,contributor));
-			final String branchId = selectBranch(commitId);
-			this.branches.get(branchId).addContribution(commitId, contributor);
-			Console.currentConsole().log("Contributed commit %s by committer %s to branch %s of repository %s",commitId,contributor,branchId,this.id);
+			final ImmutableCommitState commit = new ImmutableCommitState(commitId,contributor);
+			final ImmutableBranchState branch = selectTargetBranch(commitId);
+			this.commits.put(commitId,commit);
+			Console.currentConsole().log("Contributed commit %s by committer %s (%s) to branch %s (%s) of repository %s (%s)",commitId,contributor.getId(),contributor.getName(),branch.getId(),branch.getName(),this.id,this.name);
+			if(this.contributors.add(contributor.getId())) {
+				Console.currentConsole().log("Committer %s (%s) is now a contributor of repository %s (%s)",contributor.getId(),contributor.getName(),this.id,this.name);
+			}
+			branch.addContribution(commit,contributor);
 		} else {
 			Reports.currentReport().warn("Cannot create commit %s in repository %s (%s): commit already exists", state.getId(),this.id,this.name);
 		}
@@ -158,7 +139,7 @@ final class ImmutableRepositoryState implements RepositoryState {
 		if(state==null) {
 			final String name = nextBranchName(branchId);
 			this.branches.put(branchId,new ImmutableBranchState(this.id,branchId,name));
-			Console.currentConsole().log("Added branch %s (%s) to repository %s (%s)",branchId,name,this.id,this.name);
+			Console.currentConsole().log("Created branch %s (%s) in repository %s (%s)",branchId,name,this.id,this.name);
 		} else {
 			Reports.currentReport().warn("Cannot create branch %s (%s) in repository %s (%s): branch already exists", state.getId(),state.getName(),this.id,this.name);
 		}
@@ -182,14 +163,59 @@ final class ImmutableRepositoryState implements RepositoryState {
 		if(branch!=null) {
 			Console.currentConsole().log("Deleted branch %s (%s) from repository %s (%s)",branch.getId(),branch.getName(),this.id,this.name);
 		} else {
-			Reports.currentReport().warn("Cannot delete branch %s of repository %s (%s): commit does not exist", branchId,this.id,this.name);
+			Reports.currentReport().warn("Cannot delete branch %s of repository %s (%s): branch does not exist", branchId,this.id,this.name);
 		}
 		return branch!=null;
 	}
 
-	private String selectBranch(final String commitId) {
+	@Override
+	public Repository toEntity() {
+		final Repository repository = new Repository();
+		repository.setAvatarUrl(this.avatarUrl);
+		repository.setCreatedAt(this.createdAt);
+		repository.setDescription(this.description);
+		repository.setHttpUrlToRepo(this.httpUrlToRepo);
+		repository.setId(this.id);
+		repository.setName(this.name);
+		repository.setState("active");
+		repository.setTags(this.tags);
+		repository.setWebUrl(this.webUrl);
+		final Owner owner = new Owner();
+		owner.setType("user");
+		owner.setId(this.owner);
+		repository.setOwner(owner);
+		repository.setDefaultBranch(defaultBranch());
+		repository.setPublic(Boolean.toString(this.id%2==0));
+		repository.setContributors(Lists.newArrayList(this.contributors));
+		repository.setFirstCommitAt(firstCommitAt());
+		repository.setLastActivityAt(lastActivityAt());
+		return repository;
+	}
+
+	private String defaultBranch() {
+		if(this.branches.size()==0) {
+			return null;
+		}
+		return Iterables.getFirst(this.branches.values(),null).getId();
+	}
+
+	private Long firstCommitAt() {
+		if(this.commits.size()==0) {
+			return null;
+		}
+		return Iterables.getFirst(this.commits.values(),null).toEntity().getCommittedDate();
+	}
+
+	private Long lastActivityAt() {
+		if(this.commits.size()==0) {
+			return null;
+		}
+		return Iterables.getLast(this.commits.values(),null).toEntity().getCommittedDate();
+	}
+
+	private ImmutableBranchState selectTargetBranch(final String commitId) {
 		final List<String> branchIds=Lists.newArrayList(this.branches.keySet());
-		return branchIds.get(commitId.hashCode()%branchIds.size());
+		return this.branches.get(branchIds.get(commitId.hashCode()%branchIds.size()));
 	}
 
 	private String nextBranchName(final String branchId) {

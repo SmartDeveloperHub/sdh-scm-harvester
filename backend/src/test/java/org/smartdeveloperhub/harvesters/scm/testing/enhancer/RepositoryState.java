@@ -34,7 +34,7 @@ interface RepositoryState extends State<Integer,Repository> {
 
 	String getName();
 
-	boolean createCommit(String commitId, String contributor);
+	boolean createCommit(String commitId, CommitterState contributor);
 
 	boolean createBranch(String name);
 

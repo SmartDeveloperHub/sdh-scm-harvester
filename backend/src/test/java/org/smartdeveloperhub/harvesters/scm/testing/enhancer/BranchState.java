@@ -36,6 +36,6 @@ interface BranchState extends State<String,Branch> {
 
 	List<String> commits();
 
-	void addContribution(String commitId, String contributor);
+	void addContribution(CommitState commit, CommitterState contributor);
 
 }

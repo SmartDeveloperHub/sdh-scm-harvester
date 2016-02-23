@@ -71,8 +71,8 @@ final class NullRepositoryState implements RepositoryState {
 	}
 
 	@Override
-	public boolean createCommit(final String commitId, final String contributor) {
-		LOGGER.debug("Unknown repository {}: cannot create commit {} by committer {}",this.id,commitId,contributor);
+	public boolean createCommit(final String commitId, final CommitterState contributor) {
+		LOGGER.debug("Unknown repository {}: cannot create commit {} by committer {} ({})",this.id,commitId,contributor.getId(),contributor.getName());
 		return false;
 	}
 

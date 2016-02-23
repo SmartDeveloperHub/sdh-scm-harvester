@@ -43,9 +43,9 @@ final class ImmutableCommitState implements CommitState  {
 	private final String shortId;
 	private final String title;
 
-	ImmutableCommitState(final String id, final String contributor) {
+	ImmutableCommitState(final String id, final CommitterState contributor) {
 		this.id=id;
-		this.author = contributor;
+		this.author = contributor.getId();
 		this.createdAt=System.currentTimeMillis();
 		final Random random = new Random();
 		this.authoredDate=System.currentTimeMillis()-(random.nextInt(10000000)+1000000);
