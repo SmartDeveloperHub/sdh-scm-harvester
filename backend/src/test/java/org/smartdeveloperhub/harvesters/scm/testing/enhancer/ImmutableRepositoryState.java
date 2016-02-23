@@ -146,6 +146,8 @@ final class ImmutableRepositoryState implements RepositoryState {
 			final String branchId = selectBranch(commitId);
 			this.branches.get(branchId).addContribution(commitId, contributor);
 			Console.currentConsole().log("Contributed commit %s by committer %s to branch %s of repository %s",commitId,contributor,branchId,this.id);
+		} else {
+			Reports.currentReport().warn("Cannot create commit %s in repository %s (%s): commit already exists", state.getId(),this.id,this.name);
 		}
 		return state==null;
 	}
@@ -157,6 +159,8 @@ final class ImmutableRepositoryState implements RepositoryState {
 			final String name = nextBranchName(branchId);
 			this.branches.put(branchId,new ImmutableBranchState(this.id,branchId,name));
 			Console.currentConsole().log("Added branch %s (%s) to repository %s (%s)",branchId,name,this.id,this.name);
+		} else {
+			Reports.currentReport().warn("Cannot create branch %s (%s) in repository %s (%s): branch already exists", state.getId(),state.getName(),this.id,this.name);
 		}
 		return state==null;
 	}
@@ -165,7 +169,9 @@ final class ImmutableRepositoryState implements RepositoryState {
 	public boolean deleteCommit(final String commitId) {
 		final ImmutableCommitState commit = this.commits.remove(commitId);
 		if(commit!=null) {
-			Console.currentConsole().log("Removed commit %s from repository %s (%s)",commitId,this.id,this.name);
+			Console.currentConsole().log("Deleted commit %s from repository %s (%s)",commitId,this.id,this.name);
+		} else {
+			Reports.currentReport().warn("Cannot delete commit %s of repository %s (%s): commit does not exist", commitId,this.id,this.name);
 		}
 		return commit!=null;
 	}
@@ -174,7 +180,9 @@ final class ImmutableRepositoryState implements RepositoryState {
 	public boolean deleteBranch(final String branchId) {
 		final ImmutableBranchState branch = this.branches.remove(branchId);
 		if(branch!=null) {
-			Console.currentConsole().log("Removed branch %s from repository %s (%s)",branchId,this.id,this.name);
+			Console.currentConsole().log("Deleted branch %s (%s) from repository %s (%s)",branch.getId(),branch.getName(),this.id,this.name);
+		} else {
+			Reports.currentReport().warn("Cannot delete branch %s of repository %s (%s): commit does not exist", branchId,this.id,this.name);
 		}
 		return branch!=null;
 	}

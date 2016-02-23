@@ -61,8 +61,12 @@ abstract class HandlerUtil {
 	}
 
 	final void answer(final HttpServerExchange exchange, final int statusCode, final String message, final Object... args) {
+		answer(exchange, statusCode, "text/plain", message, args);
+	}
+
+	final void answer(final HttpServerExchange exchange, final int statusCode, final String contentType, final String message, final Object... args) {
 		exchange.setStatusCode(statusCode);
-		exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
+		exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType);
 		exchange.getResponseSender().send(String.format(message,args));
 	}
 

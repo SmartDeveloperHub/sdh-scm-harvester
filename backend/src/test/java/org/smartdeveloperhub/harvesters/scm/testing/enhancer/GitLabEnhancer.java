@@ -178,50 +178,52 @@ public final class GitLabEnhancer {
 	}
 
 	public UpdateReport update(final Event event) {
+		Reports.remove();
 		Console.logTo(this.consumer);
 		try {
-			final UpdateReport report = updateEnhancer(event);
-			notifyUpdate(report);
-			return report;
+			updateEnhancer(event);
+			notifyUpdate(Reports.currentReport().curatedEvent());
+			return Reports.currentReport();
 		} finally {
 			Console.remove();
 		}
 	}
 
-	private void notifyUpdate(final UpdateReport report) {
-		if(report.curatedEvent()!=null) {
-			report.curatedEvent().setInstance(this.collector.getInstance());
-			report.curatedEvent().setTimestamp(System.currentTimeMillis());
+	private void notifyUpdate(final Event event) {
+		if(event!=null) {
+			event.setInstance(this.collector.getInstance());
+			event.setTimestamp(System.currentTimeMillis());
 			try {
-				this.collector.notify(report.curatedEvent());
+				this.collector.notify(event);
 			} catch (final IOException e) {
-				report.updateFailed(e);
+				Reports.currentReport().updateFailed(e);
 			}
 		}
 	}
 
-	private UpdateReport updateEnhancer(final Event event) {
-		UpdateReport report=null;
+	private void updateEnhancer(final Event event) {
 		if(event instanceof CommitterCreatedEvent) {
-			report=createCommitters((CommitterCreatedEvent)event);
+			createCommitters((CommitterCreatedEvent)event);
 		} else if(event instanceof CommitterDeletedEvent) {
-			report=deleteCommitters((CommitterDeletedEvent)event);
+			deleteCommitters((CommitterDeletedEvent)event);
 		} else if(event instanceof RepositoryCreatedEvent) {
-			report=createRepositories((RepositoryCreatedEvent)event);
+			createRepositories((RepositoryCreatedEvent)event);
 		} else if(event instanceof RepositoryDeletedEvent) {
-			report=deleteRepositories((RepositoryDeletedEvent)event);
+			deleteRepositories((RepositoryDeletedEvent)event);
 		} else if(event instanceof RepositoryUpdatedEvent) {
-			report=updateRepository((RepositoryUpdatedEvent)event);
+			updateRepository((RepositoryUpdatedEvent)event);
 		} else {
-			report=new UpdateReport();
-			report.updateFailed(new IOException("Unsupported event type "+event.getClass().getSimpleName()));
+			Reports.
+				currentReport().
+					updateFailed(
+						new IOException("Unsupported event type "+event.getClass().getSimpleName()));
 		}
-		return report;
 	}
 
 	private CommitterState findCommitter(final String committerId) {
 		CommitterState state = this.committers.get(committerId);
 		if(state==null) {
+			Reports.currentReport().warn("Committer %s does not exist",committerId);
 			state=new NullCommitterState(committerId);
 		}
 		return state;
@@ -230,75 +232,64 @@ public final class GitLabEnhancer {
 	private RepositoryState findRepository(final Integer repositoryId) {
 		RepositoryState state = this.repositories.get(repositoryId);
 		if(state==null) {
+			Reports.currentReport().warn("Repository %s does not exist",repositoryId);
 			state=new NullRepositoryState(repositoryId);
 		}
 		return state;
 	}
 
-	private UpdateReport updateRepository(final RepositoryUpdatedEvent event) {
-		final UpdateReport report = new UpdateReport();
+	private void  updateRepository(final RepositoryUpdatedEvent event) {
+		final UpdateReport report = Reports.currentReport();
+
+		final RepositoryState state = this.repositories.get(event.getRepository());
+		if(state==null) {
+			Reports.currentReport().warn("Repository %s does not exist",event.getRepository());
+			return;
+		}
+
 		final RepositoryUpdatedEvent curated=new RepositoryUpdatedEvent();
 		curated.setRepository(event.getRepository());
-
 		curated.getContributors().addAll(event.getContributors());
 		curated.getContributors().retainAll(getCommitters());
 
-		final List<String> dismissed=Lists.newArrayList(event.getContributors());
-		dismissed.removeAll(curated.getContributors());
-		if(!dismissed.isEmpty()) {
-			report.warn("Dismissing activity for non-existing contributors (%s)",Joiner.on(", ").join(dismissed));
-		}
-
-		final RepositoryState state = findRepository(event.getRepository());
 		for(final String id:event.getDeletedBranches()) {
 			if(state.deleteBranch(id)) {
 				curated.getDeletedBranches().add(id);
-			} else {
-				report.warn("Could not delete branch %s of repository %s",state.getId(),id);
 			}
 		}
 		for(final String id:event.getDeletedCommits()) {
 			if(state.deleteCommit(id)) {
 				curated.getDeletedCommits().add(id);
-			} else {
-				report.warn("Could not delete commit %s of repository %s",state.getId(),id);
 			}
+		}
+
+		final List<String> dismissed=Lists.newArrayList(event.getContributors());
+		dismissed.removeAll(curated.getContributors());
+		if(!dismissed.isEmpty()) {
+			report.warn("Dismissing non-existing contributors (%s)",Joiner.on(", ").join(dismissed));
 		}
 
 		if(!curated.getContributors().isEmpty()) {
 			final Set<String> contributingContributors=Sets.newHashSet();
-
-			final Iterator<String> candidateContributors =
-					Iterators.
-						cycle(curated.getContributors());
-
+			final Iterator<String> candidateContributors=Iterators.cycle(curated.getContributors());
 			for(final String id:event.getNewBranches()) {
 				final String contributor=candidateContributors.next();
 				if(state.createBranch(id)) {
 					curated.getNewBranches().add(id);
 					contributingContributors.add(contributor);
-				} else {
-					report.warn("Could not create branch %s for repository %s",state.getId(),id);
 				}
 			}
-
 			for(final String id:event.getNewCommits()) {
 				final String contributor=candidateContributors.next();
 				if(state.createCommit(id,contributor)) {
 					curated.getNewCommits().add(id);
 					contributingContributors.add(contributor);
-				} else {
-					report.warn("Could not create commit %s for repository %s",state.getId(),id);
 				}
 			}
-
 			curated.getContributors().retainAll(contributingContributors);
 		} else {
-			if(!event.getNewBranches().isEmpty()) {
-				report.warn("Dismissing new branches (%s) as no existing contributors were specified",Joiner.on(", ").join(event.getNewBranches()));
-			} else if(!event.getNewCommits().isEmpty()) {
-				report.warn("Dismissing new commits (%s) as no existing contributors were specified",Joiner.on(", ").join(event.getNewCommits()));
-			}
+			logDismissal(event.getNewBranches(), "branches");
+			logDismissal(event.getNewCommits(), "commits");
 		}
 		if (!curated.getDeletedBranches().isEmpty() ||
 			!curated.getDeletedCommits().isEmpty()  ||
@@ -306,14 +297,24 @@ public final class GitLabEnhancer {
 			!curated.getNewCommits().isEmpty()) {
 			report.curatedEvent(curated);
 		}
-		return report;
+	}
+
+	private void logDismissal(final List<String> members, final String memberType) {
+		if(!members.isEmpty()) {
+			Reports.
+				currentReport().
+					warn(
+						"Dismissing new %s (%s) as no existing contributors were specified",
+						memberType,
+						Joiner.on(", ").join(members));
+		}
 	}
 
 	/**
 	 * NOTE: What happens to all the committers related to the repositories?
 	 */
-	private UpdateReport deleteRepositories(final RepositoryDeletedEvent event) {
-		final UpdateReport report = new UpdateReport();
+	private void deleteRepositories(final RepositoryDeletedEvent event) {
+		final UpdateReport report = Reports.currentReport();
 		final RepositoryDeletedEvent curated=new RepositoryDeletedEvent();
 		for(final Integer repositoryId:event.getDeletedRepositories()) {
 			if(this.repositories.remove(repositoryId)!=null) {
@@ -326,11 +327,10 @@ public final class GitLabEnhancer {
 		if(!curated.getDeletedRepositories().isEmpty()) {
 			report.curatedEvent(curated);
 		}
-		return report;
 	}
 
-	private UpdateReport createRepositories(final RepositoryCreatedEvent event) {
-		final UpdateReport report = new UpdateReport();
+	private void createRepositories(final RepositoryCreatedEvent event) {
+		final UpdateReport report = Reports.currentReport();
 		if(!this.committers.isEmpty()) {
 			final RepositoryCreatedEvent curated=new RepositoryCreatedEvent();
 			final Iterator<String> committerIds = Iterators.cycle(this.committers.keySet());
@@ -351,14 +351,13 @@ public final class GitLabEnhancer {
 				report.curatedEvent(curated);
 			}
 		}
-		return report;
 	}
 
 	/**
 	 * NOTE: What happens to all the artifacts associated to this committers?
 	 */
-	private UpdateReport deleteCommitters(final CommitterDeletedEvent event) {
-		final UpdateReport report = new UpdateReport();
+	private void deleteCommitters(final CommitterDeletedEvent event) {
+		final UpdateReport report = Reports.currentReport();
 		final CommitterDeletedEvent curated=new CommitterDeletedEvent();
 		for(final String committerId:event.getDeletedCommitters()) {
 			final CommitterState committer = this.committers.remove(committerId);
@@ -372,11 +371,10 @@ public final class GitLabEnhancer {
 		if(!curated.getDeletedCommitters().isEmpty()) {
 			report.curatedEvent(curated);
 		}
-		return report;
 	}
 
-	private UpdateReport createCommitters(final CommitterCreatedEvent event) {
-		final UpdateReport report = new UpdateReport();
+	private void createCommitters(final CommitterCreatedEvent event) {
+		final UpdateReport report = Reports.currentReport();
 		final CommitterCreatedEvent curated=new CommitterCreatedEvent();
 		for(final String committerId:event.getNewCommitters()) {
 			if(!this.committers.containsKey(committerId)) {
@@ -390,7 +388,6 @@ public final class GitLabEnhancer {
 		if(!curated.getNewCommitters().isEmpty()) {
 			report.curatedEvent(curated);
 		}
-		return report;
 	}
 
 	public static GitLabEnhancer newInstance(final GitCollector collector) {

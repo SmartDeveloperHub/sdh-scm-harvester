@@ -57,13 +57,12 @@ final class GitLabEnhancerHandler<T> extends HandlerUtil implements HttpHandler 
 			fail(exchange, StatusCodes.NOT_ACCEPTABLE, "Only application/json representations can be retrieved");
 		} else {
 			try {
-				final Object entity=this.provider.getEntity(new Parameters(exchange));
+				final T entity=this.provider.getEntity(new Parameters(exchange));
 				String body="false";
 				if(entity!=null) {
 					body=JsonUtil.marshall(entity);
 				}
-				answer(exchange,StatusCodes.OK,body);
-				exchange.getResponseHeaders().put(Headers.CONTENT_TYPE,APPLICATION_JSON);
+				answer(exchange,StatusCodes.OK,APPLICATION_JSON,body);
 			} catch (final Exception e) {
 				fail(exchange,e,"Upps!!\n%s",Throwables.getStackTraceAsString(e));
 			}
