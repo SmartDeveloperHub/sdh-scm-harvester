@@ -215,7 +215,7 @@ final class ImmutableRepositoryState implements RepositoryState {
 
 	private ImmutableBranchState selectTargetBranch(final String commitId) {
 		final List<String> branchIds=Lists.newArrayList(this.branches.keySet());
-		return this.branches.get(branchIds.get(commitId.hashCode()%branchIds.size()));
+		return this.branches.get(branchIds.get(Math.abs(commitId.hashCode())%branchIds.size()));
 	}
 
 	private String nextBranchName(final String branchId) {
