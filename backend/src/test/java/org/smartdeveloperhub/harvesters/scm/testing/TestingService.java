@@ -26,6 +26,9 @@
  */
 package org.smartdeveloperhub.harvesters.scm.testing;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static io.undertow.Handlers.pathTemplate;
 import static org.smartdeveloperhub.harvesters.scm.testing.handlers.MoreHandlers.allow;
 import static org.smartdeveloperhub.harvesters.scm.testing.handlers.MoreHandlers.consume;
@@ -36,10 +39,10 @@ import io.undertow.util.Methods;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.Event;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.GitCollector;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Collector;
@@ -48,37 +51,74 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Enhancer;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
 import org.smartdeveloperhub.harvesters.scm.testing.enhancer.GitLabEnhancer;
+import org.smartdeveloperhub.harvesters.scm.testing.enhancer.GitLabEnhancer.UpdateReport;
 import org.smartdeveloperhub.harvesters.scm.testing.handlers.EntityProvider;
 import org.smartdeveloperhub.harvesters.scm.testing.handlers.Parameters;
 
-public class TestingService {
+public final class TestingService {
+
+	public static class Builder {
+
+		private int port=8080;
+		private String exchangeName="git.collector.mock";
+
+		private Builder() {
+		}
+
+		public Builder port(final int port) {
+			checkArgument(port>0 && port <65536, "Port '%s' cannot be used",port);
+			this.port=port;
+			return this;
+		}
+
+		public Builder exchangeName(final String exchangeName) {
+			checkNotNull(exchangeName, "Git Collector broker exchange name cannot be null");
+			checkArgument(exchangeName.isEmpty(), "Git Collector broker exchange name cannot be empty");
+			this.exchangeName=exchangeName;
+			return this;
+		}
+
+		public TestingService build() {
+			return new TestingService(this.port, this.exchangeName);
+		}
+
+	}
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(TestingService.class);
 
-	public static void main(final String[] args) throws IOException {
-		final Collector config = new Collector();
-		config.setInstance("http://localhost:8080/collector");
-		config.setBrokerHost("localhost");
-		config.setExchangeName("git.collector.mock");
-		final GitCollector collector=GitCollector.newInstance(config);
-		final GitLabEnhancer enhancer=GitLabEnhancer.newInstance(collector);
-		final Undertow server =
+	private final Collector config;
+
+	private final GitCollector collector;
+
+	private final GitLabEnhancer enhancer;
+
+	private final Undertow server;
+
+	private boolean collectorStarted;
+
+	private boolean serverStarted;
+
+	private TestingService(final int port, final String exchangeName) {
+		this.config=createControllerConfiguration(port, exchangeName);
+		this.collector = GitCollector.newInstance(this.config);
+		this.enhancer = GitLabEnhancer.newInstance(this.collector);
+		this.server =
 			Undertow.
 				builder().
-					addHttpListener(8080, "localhost").
+					addHttpListener(port, "localhost").
 					setHandler(
 						pathTemplate(false).
 							add("/collector",
 								allow(Methods.POST,
 									consume("application/psr.sdh.gitcollector+json",
-										handleEvents(enhancer)))
+										handleEvents(this.enhancer)))
 							).
 							add("/enhancer/api",
 								provideEntity(
 									new EntityProvider<Enhancer>() {
 										@Override
 										public Enhancer getEntity(final Parameters parameters) {
-											return enhancer.getEnhancer(parameters.requestURL());
+											return TestingService.this.enhancer.getEnhancer(parameters.requestURL());
 										}
 									}
 								)
@@ -88,7 +128,7 @@ public class TestingService {
 									new EntityProvider<List<String>>() {
 										@Override
 										public List<String> getEntity(final Parameters parameters) {
-											return enhancer.getCommitters();
+											return TestingService.this.enhancer.getCommitters();
 										}
 									}
 								)
@@ -98,7 +138,7 @@ public class TestingService {
 									new EntityProvider<User>() {
 										@Override
 										public User getEntity(final Parameters parameters) {
-											return enhancer.getCommitter(parameters.get("userId"));
+											return TestingService.this.enhancer.getCommitter(parameters.get("userId"));
 										}
 									}
 								)
@@ -108,7 +148,7 @@ public class TestingService {
 									new EntityProvider<List<Integer>>() {
 										@Override
 										public List<Integer> getEntity(final Parameters parameters) {
-											return enhancer.getRepositories();
+											return TestingService.this.enhancer.getRepositories();
 										}
 									}
 								)
@@ -118,7 +158,7 @@ public class TestingService {
 									new EntityProvider<Repository>() {
 										@Override
 										public Repository getEntity(final Parameters parameters) {
-											return enhancer.getRepository(parameters.getInteger("rid"));
+											return TestingService.this.enhancer.getRepository(parameters.getInteger("rid"));
 										}
 									}
 								)
@@ -128,7 +168,7 @@ public class TestingService {
 									new EntityProvider<List<String>>() {
 										@Override
 										public List<String> getEntity(final Parameters parameters) {
-											return enhancer.getRepositoryCommits(parameters.getInteger("rid"));
+											return TestingService.this.enhancer.getRepositoryCommits(parameters.getInteger("rid"));
 										}
 									}
 								)
@@ -138,7 +178,7 @@ public class TestingService {
 									new EntityProvider<Commit>() {
 										@Override
 										public Commit getEntity(final Parameters parameters) {
-											return enhancer.getRepositoryCommit(parameters.getInteger("rid"),parameters.get("cid"));
+											return TestingService.this.enhancer.getRepositoryCommit(parameters.getInteger("rid"),parameters.get("cid"));
 										}
 									}
 								)
@@ -148,7 +188,7 @@ public class TestingService {
 									new EntityProvider<List<String>>() {
 										@Override
 										public List<String> getEntity(final Parameters parameters) {
-											return enhancer.getRepositoryBranches(parameters.getInteger("rid"));
+											return TestingService.this.enhancer.getRepositoryBranches(parameters.getInteger("rid"));
 										}
 									}
 								)
@@ -158,7 +198,7 @@ public class TestingService {
 									new EntityProvider<Branch>() {
 										@Override
 										public Branch getEntity(final Parameters parameters) {
-											return enhancer.getRepositoryBranch(parameters.getInteger("rid"),parameters.get("bid"));
+											return TestingService.this.enhancer.getRepositoryBranch(parameters.getInteger("rid"),parameters.get("bid"));
 										}
 									}
 								)
@@ -168,46 +208,58 @@ public class TestingService {
 									new EntityProvider<List<String>>() {
 										@Override
 										public List<String> getEntity(final Parameters parameters) {
-											return enhancer.getRepositoryBranchCommits(parameters.getInteger("rid"),parameters.get("bid"));
+											return TestingService.this.enhancer.getRepositoryBranchCommits(parameters.getInteger("rid"),parameters.get("bid"));
 										}
 									}
 								)
 							)
 					).
 					build();
-		try {
-			LOGGER.info("Starting Git Collector Publisher Service...");
-			collector.start();
-			LOGGER.info("Git Collector Publisher Service started.");
-			LOGGER.info("Starting GitLab Enhancer Service...");
-			server.start();
-			LOGGER.info("GitLab Enhancer Service started.");
-			awaitTerminationRequest();
-			LOGGER.info("Stopping GitLab Enhancer Service...");
-			server.stop();
-			LOGGER.info("GitLab Enhancer Service stopped.");
-		} finally {
-			LOGGER.info("Stopping Git Collector Publisher Service...");
-			collector.shutdown();
-			LOGGER.info("Git Collector Publisher Service stopped.");
 		}
 
+	public TestingService start() throws IOException {
+		LOGGER.info("Starting Git Collector Publisher Service...");
+		this.collector.start();
+		LOGGER.info("Git Collector Publisher Service started.");
+		this.collectorStarted=true;
+		LOGGER.info("Starting GitLab Enhancer Service...");
+		this.server.start();
+		LOGGER.info("GitLab Enhancer Service started.");
+		this.serverStarted=true;
+		return this;
 	}
 
-	private static void awaitTerminationRequest() {
-		try(final Scanner scanner = new Scanner(System.in)) {
-		String readString = scanner.nextLine();
-			while(readString != null) {
-				if (readString.isEmpty()) {
-					break;
-				}
-				if (scanner.hasNextLine()) {
-					readString = scanner.nextLine();
-				} else {
-					readString = null;
-				}
-			}
+	public UpdateReport update(final Event event) {
+		checkState(this.serverStarted,"Testing service not started");
+		return this.enhancer.update(event);
+	}
+
+	public TestingService shutdown() {
+		if(this.serverStarted) {
+			LOGGER.info("Stopping GitLab Enhancer Service...");
+			this.server.stop();
+			LOGGER.info("GitLab Enhancer Service stopped.");
+			this.serverStarted=false;
 		}
+		if(this.collectorStarted) {
+			LOGGER.info("Stopping Git Collector Publisher Service...");
+			this.collector.shutdown();
+			LOGGER.info("Git Collector Publisher Service stopped.");
+			this.collectorStarted=false;
+		}
+		return this;
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	private static Collector createControllerConfiguration(final int port, final String exchangeName) {
+		final Collector config = new Collector();
+		config.setInstance("http://localhost:"+port+"/collector");
+		config.setBrokerHost("localhost");
+		config.setExchangeName(exchangeName);
+		return config;
 	}
 
 }
