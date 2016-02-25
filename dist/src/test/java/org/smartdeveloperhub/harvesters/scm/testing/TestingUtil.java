@@ -26,9 +26,13 @@
  */
 package org.smartdeveloperhub.harvesters.scm.testing;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
@@ -60,15 +64,28 @@ public final class TestingUtil {
 		return base.toString()+path;
 	}
 
-	public static Model asModel(final Response response, final URL base, final String path) {
+	public static String relativize(final URL base, final String path) {
+		try {
+			return base.toURI().relativize(URI.create(path)).toString();
+		} catch (final URISyntaxException e) {
+			fail(String.format("Could not relativize %s from %s (%s)",path,base,e.getMessage()));
+			return null;
+		}
+	}
+
+	public static Model asModel(final Response response, final String base) {
 		final String language="TURTLE";
 		return
 			ModelFactory.
 				createDefaultModel().
 					read(
 						new StringReader(response.asString()),
-						resolve(base,path),
+						base,
 						language);
+	}
+
+	public static Model asModel(final Response response, final URL base, final String path) {
+		return asModel(response,resolve(base,path));
 	}
 
 	public static String interpolate(final String input, final String parameter, final String value) {

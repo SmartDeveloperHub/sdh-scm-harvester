@@ -28,7 +28,13 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assume.assumeThat;
+import static org.smartdeveloperhub.testing.hamcrest.RDFMatchers.hasTriple;
+import static org.smartdeveloperhub.testing.hamcrest.References.property;
+import static org.smartdeveloperhub.testing.hamcrest.References.typedLiteral;
+import static org.smartdeveloperhub.testing.hamcrest.References.uriRef;
 
 import java.io.IOException;
 import java.net.URL;
@@ -50,9 +56,11 @@ import org.smartdeveloperhub.harvesters.scm.testing.QueryHelper.ResultProcessor;
 import org.smartdeveloperhub.harvesters.scm.testing.SmokeTest;
 import org.smartdeveloperhub.harvesters.scm.testing.TestingService;
 import org.smartdeveloperhub.harvesters.scm.testing.TestingUtil;
+import org.smartdeveloperhub.harvesters.scm.testing.enhancer.GitLabEnhancer.UpdateReport;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.jayway.restassured.response.Response;
 
 @RunWith(Arquillian.class)
@@ -86,18 +94,40 @@ public class HarvesterApplicationITest {
 
 	@Test
 	@OperateOnDeployment("default")
-	public void testService(@ArquillianResource final URL contextURL) throws Exception {
-		System.out.println("Testing for "+contextURL);
-		TimeUnit.SECONDS.sleep(10);
-		System.out.println("Checking... "+contextURL);
-		assertThat(getCommitters(contextURL),hasSize(0));
+	public void testCommitterCreation(@ArquillianResource final URL contextURL) throws Exception {
+		final List<String> originalCommitters = getCommitters(contextURL);
 		final CommitterCreatedEvent event = new CommitterCreatedEvent();
-		event.getNewCommitters().add("1234");
-		System.out.println("Updating GitLab Enhancer... "+event);
-		service.update(event);
+		final String id = "1234";
+		event.getNewCommitters().add(id);
+		final UpdateReport report = service.update(event);
+		assumeThat(report.notificationSent(),equalTo(true));
+		System.out.println("Created committer 1234. Awaiting frontend update");
 		TimeUnit.SECONDS.sleep(10);
-		System.out.println("Checking... "+contextURL);
-		assertThat(getCommitters(contextURL),hasSize(1));
+		System.out.println("Verifying id...");
+		final List<String> newCommitters = Lists.newArrayList(getCommitters(contextURL));
+		newCommitters.removeAll(originalCommitters);
+		assertThat(newCommitters,hasSize(1));
+		commiterHasIdentifier(newCommitters.get(0),id);
+	}
+
+	private void commiterHasIdentifier(final String committer, final String id) {
+		final Response response=
+				given().
+					accept(TEXT_TURTLE).
+					baseUri(committer).
+				expect().
+					statusCode(OK).
+					contentType(TEXT_TURTLE).
+				when().
+					get();
+		final Model model = TestingUtil.asModel(response,committer);
+		model.write(System.out, "TURTLE");
+		assertThat(
+			model,
+			hasTriple(
+				uriRef(committer),
+				property("http://www.smartdeveloperhub.org/vocabulary/scm#committerId"),
+				typedLiteral(id,"http://www.w3.org/2001/XMLSchema#string")));
 	}
 
 	protected static final String TEXT_TURTLE = "text/turtle";

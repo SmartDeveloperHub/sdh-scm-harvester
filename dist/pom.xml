@@ -149,6 +149,13 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.smartdeveloperhub.testing</groupId>
+			<artifactId>sdh-testing-hamcrest</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- To be removed iff any of the compile dependencies depends on Jena -->
 		<dependency>
 			<groupId>org.apache.jena</groupId>
