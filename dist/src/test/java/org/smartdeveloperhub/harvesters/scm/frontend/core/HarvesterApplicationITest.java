@@ -121,7 +121,6 @@ public class HarvesterApplicationITest {
 				when().
 					get();
 		final Model model = TestingUtil.asModel(response,committer);
-		model.write(System.out, "TURTLE");
 		assertThat(
 			model,
 			hasTriple(

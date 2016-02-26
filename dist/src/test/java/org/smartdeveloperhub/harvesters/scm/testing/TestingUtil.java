@@ -37,7 +37,9 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.riot.RiotException;
 
+import com.google.common.io.BaseEncoding;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.jayway.restassured.response.Response;
@@ -74,14 +76,21 @@ public final class TestingUtil {
 	}
 
 	public static Model asModel(final Response response, final String base) {
-		final String language="TURTLE";
-		return
-			ModelFactory.
-				createDefaultModel().
-					read(
-						new StringReader(response.asString()),
-						base,
-						language);
+		final String rawData = response.asString();
+		try {
+			return
+				ModelFactory.
+					createDefaultModel().
+						read(
+							new StringReader(rawData),
+							base,
+							"TURTLE");
+		} catch (final RiotException e) {
+			final String encode = BaseEncoding.base64().encode(rawData.getBytes());
+			System.err.printf("> Base: %s%n> Failure: %s%n> Response body:%n%s%n> Base64 encoded body:%n%s%n",base,e.getMessage(),rawData,encode);
+			fail("Could not parse response for "+base+" as Turtle RDF data");
+			return null; // Should not get to here...
+		}
 	}
 
 	public static Model asModel(final Response response, final URL base, final String path) {
