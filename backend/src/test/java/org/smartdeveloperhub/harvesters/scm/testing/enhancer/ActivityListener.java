@@ -26,8 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.scm.testing.enhancer;
 
-public interface Consumer {
+public interface ActivityListener {
 
-	void log(String message);
+	void onActivity(Activity<?> activity);
 
 }

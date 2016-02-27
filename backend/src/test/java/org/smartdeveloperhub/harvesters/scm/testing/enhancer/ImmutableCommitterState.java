@@ -55,7 +55,8 @@ final class ImmutableCommitterState implements CommitterState {
 		this.avatarUrl=StateUtil.generateAvatarUrl("committers", committerId);
 		this.emails=Lists.newArrayList(this.username+"@example.org");
 		this.external=committerId.length()%2==0;
-		Console.currentConsole().log("Created committer %s (%s)",this.id,this.name);
+		ActivityTracker.currentTracker().created(this);
+		ActivityTracker.currentTracker().log("Created committer %s (%s)",this.id,this.name);
 	}
 
 	@Override
@@ -64,7 +65,22 @@ final class ImmutableCommitterState implements CommitterState {
 	}
 
 	@Override
-	public User toEntity() {
+	public State.Entity getEntity() {
+		return State.Entity.COMMITTER;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	@Override
+	public void accept(final StateVisitor visitor) {
+		visitor.visitCommitter(this);
+	}
+
+	@Override
+	public User getRepresentation() {
 		final User user = new User();
 		user.setAvatarUrl(this.avatarUrl);
 		user.setCreatedAt(this.createdAt);
@@ -82,11 +98,6 @@ final class ImmutableCommitterState implements CommitterState {
 	@Override
 	public void logActivity(final long timestamp) {
 		this.lastCommitAt=timestamp;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
 	}
 
 	private static String toUserName(final String name) {

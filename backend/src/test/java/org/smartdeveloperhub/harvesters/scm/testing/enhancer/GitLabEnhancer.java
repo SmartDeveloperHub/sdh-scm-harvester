@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.testing.enhancer;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +46,7 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Enhancer;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
+import org.smartdeveloperhub.harvesters.scm.testing.enhancer.ActivityTracker.ActivityContext;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
@@ -55,6 +57,23 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public final class GitLabEnhancer {
+
+	private final class InnerOwner implements ActivityContext {
+
+		@Override
+		public String resolve(final String path, final Object... args) {
+			return GitLabEnhancer.this.base.resolve(String.format(path,args)).toString();
+		}
+
+		@Override
+		public void onActivity(final Activity<?> activity) {
+			final ActivityListener current=GitLabEnhancer.this.listener;
+			if(current!=null) {
+				current.onActivity(activity);
+			}
+		}
+
+	}
 
 	public static class UpdateReport {
 
@@ -117,17 +136,19 @@ public final class GitLabEnhancer {
 	private final Map<String,CommitterState> committers;
 	private final Map<Integer,RepositoryState> repositories;
 	private final GitCollector collector;
+	private final URI base;
 
-	private Consumer consumer;
+	private ActivityListener listener;
 
-	private GitLabEnhancer(final GitCollector collector) {
+	private GitLabEnhancer(final GitCollector collector, final URI base) {
 		this.collector = collector;
+		this.base = base;
 		this.committers=Maps.newLinkedHashMap();
 		this.repositories=Maps.newLinkedHashMap();
 	}
 
-	public GitLabEnhancer logTo(final Consumer consumer) {
-		this.consumer = consumer;
+	public GitLabEnhancer registerListener(final ActivityListener listener) {
+		this.listener = listener;
 		return this;
 	}
 
@@ -146,7 +167,7 @@ public final class GitLabEnhancer {
 	}
 
 	public User getCommitter(final String committerId) {
-		return findCommitter(committerId).toEntity();
+		return findCommitter(committerId).getRepresentation();
 	}
 
 	public List<Integer> getRepositories() {
@@ -154,7 +175,7 @@ public final class GitLabEnhancer {
 	}
 
 	public Repository getRepository(final Integer repositoryId) {
-		return findRepository(repositoryId).toEntity();
+		return findRepository(repositoryId).getRepresentation();
 	}
 
 	public List<String> getRepositoryBranches(final Integer repositoryId) {
@@ -166,11 +187,11 @@ public final class GitLabEnhancer {
 	}
 
 	public Commit getRepositoryCommit(final Integer repositoryId, final String commitId) {
-		return findRepository(repositoryId).commit(commitId).toEntity();
+		return findRepository(repositoryId).commit(commitId).getRepresentation();
 	}
 
 	public Branch getRepositoryBranch(final Integer repositoryId, final String name) {
-		return findRepository(repositoryId).branch(name).toEntity();
+		return findRepository(repositoryId).branch(name).getRepresentation();
 	}
 
 	public List<String> getRepositoryBranchCommits(final Integer repositoryId, final String name) {
@@ -179,13 +200,13 @@ public final class GitLabEnhancer {
 
 	public UpdateReport update(final Event event) {
 		Reports.remove();
-		Console.logTo(this.consumer);
+		ActivityTracker.useContext(new InnerOwner());
 		try {
 			updateEnhancer(event);
 			notifyUpdate(Reports.currentReport().curatedEvent());
 			return Reports.currentReport();
 		} finally {
-			Console.remove();
+			ActivityTracker.remove();
 		}
 	}
 
@@ -317,9 +338,11 @@ public final class GitLabEnhancer {
 		final UpdateReport report = Reports.currentReport();
 		final RepositoryDeletedEvent curated=new RepositoryDeletedEvent();
 		for(final Integer repositoryId:event.getDeletedRepositories()) {
-			if(this.repositories.remove(repositoryId)!=null) {
+			final RepositoryState repository = this.repositories.remove(repositoryId);
+			if(repository!=null) {
 				curated.getDeletedRepositories().add(repositoryId);
-				Console.currentConsole().log("Deleted repository %s",repositoryId);
+				ActivityTracker.currentTracker().deleted(repository);
+				ActivityTracker.currentTracker().log("Deleted repository %s (%s)",repository.getId(),repository.getName());
 			} else {
 				report.warn("Repository %s does not exist",repositoryId);
 			}
@@ -363,7 +386,8 @@ public final class GitLabEnhancer {
 			final CommitterState committer = this.committers.remove(committerId);
 			if(committer!=null) {
 				curated.getDeletedCommitters().add(committerId);
-				Console.currentConsole().log("Deleted committer %s (%s)",committerId,committer.getName());
+				ActivityTracker.currentTracker().deleted(committer);
+				ActivityTracker.currentTracker().log("Deleted committer %s (%s)",committerId,committer.getName());
 			} else {
 				report.warn("Committer %s does not exist",committerId);
 			}
@@ -390,8 +414,8 @@ public final class GitLabEnhancer {
 		}
 	}
 
-	public static GitLabEnhancer newInstance(final GitCollector collector) {
-		return new GitLabEnhancer(collector);
+	public static GitLabEnhancer newInstance(final GitCollector collector, final URI base) {
+		return new GitLabEnhancer(collector,base);
 	}
 
 }

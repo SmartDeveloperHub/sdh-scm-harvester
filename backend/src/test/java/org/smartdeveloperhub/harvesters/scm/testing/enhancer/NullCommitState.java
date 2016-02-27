@@ -46,8 +46,24 @@ final class NullCommitState implements CommitState {
 	public String getId() {
 		return this.id;
 	}
+
 	@Override
-	public Commit toEntity() {
+	public State.Entity getEntity() {
+		return State.Entity.COMMIT;
+	}
+
+	@Override
+	public Integer getRepositoryId() {
+		return this.repositoryId;
+	}
+
+	@Override
+	public void accept(final StateVisitor visitor) {
+		visitor.visitCommit(this);
+	}
+
+	@Override
+	public Commit getRepresentation() {
 		LOGGER.debug("Unknown commit <{}>{{}}: cannot return representation",this.repositoryId,this.id);
 		return null;
 	}

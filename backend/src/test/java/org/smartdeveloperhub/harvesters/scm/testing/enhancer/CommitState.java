@@ -30,4 +30,6 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 
 interface CommitState extends State<String,Commit> {
 
+	Integer getRepositoryId();
+
 }

@@ -38,6 +38,7 @@ import io.undertow.Undertow;
 import io.undertow.util.Methods;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -98,10 +99,13 @@ public final class TestingService {
 
 	private boolean serverStarted;
 
+	private final int port;
+
 	private TestingService(final int port, final String exchangeName) {
+		this.port = port;
 		this.config=createControllerConfiguration(port, exchangeName);
 		this.collector = GitCollector.newInstance(this.config);
-		this.enhancer = GitLabEnhancer.newInstance(this.collector);
+		this.enhancer = GitLabEnhancer.newInstance(this.collector,URI.create("http://localhost:"+port+"/enhancer/api"));
 		this.server =
 			Undertow.
 				builder().
@@ -220,11 +224,11 @@ public final class TestingService {
 	public TestingService start() throws IOException {
 		LOGGER.info("Starting Git Collector Publisher Service...");
 		this.collector.start();
-		LOGGER.info("Git Collector Publisher Service started.");
+		LOGGER.info("Git Collector Publisher Service started. Using exchange {}",this.config.getExchangeName());
 		this.collectorStarted=true;
 		LOGGER.info("Starting GitLab Enhancer Service...");
 		this.server.start();
-		LOGGER.info("GitLab Enhancer Service started.");
+		LOGGER.info("GitLab Enhancer Service started. Service available locally at port {}",this.port);
 		this.serverStarted=true;
 		return this;
 	}

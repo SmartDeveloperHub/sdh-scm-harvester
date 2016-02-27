@@ -31,7 +31,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-final class JsonUtil {
+public final class JsonUtil {
 
 	private JsonUtil() {
 	}
@@ -42,11 +42,11 @@ final class JsonUtil {
 		return mapper;
 	}
 
-	static <T> String marshall(final T object) throws IOException {
+	public static <T> String marshall(final T object) throws IOException {
 		return newMapper().writeValueAsString(object);
 	}
 
-	static <T> T unmarshall(final String payload, final Class<? extends T> clazz) throws IOException {
+	public static <T> T unmarshall(final String payload, final Class<? extends T> clazz) throws IOException {
 		return newMapper().readValue(payload,clazz);
 	}
 

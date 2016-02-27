@@ -26,52 +26,22 @@
  */
 package org.smartdeveloperhub.harvesters.scm.testing.enhancer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+abstract class StateVisitor {
 
-final class Console {
-
-	private static final class NullConsumer implements Consumer {
-		@Override
-		public void log(final String message) {
-		}
+	void visitCommitter(final CommitterState state) {
+		// To be overriden by subclasses
 	}
 
-	private static final Logger LOGGER=LoggerFactory.getLogger(Console.class);
-
-	private static ThreadLocal<Consumer> CURRENT=new ThreadLocal<Consumer>() {
-
-		@Override
-		protected Consumer initialValue() {
-			return new NullConsumer();
-		}
-
-	};
-
-	private Console() {
+	void visitRepository(final RepositoryState state) {
+		// To be overriden by subclasses
 	}
 
-	void log(final String format, final Object... args) {
-		final String message = String.format(format, args);
-		LOGGER.debug(message);
-		CURRENT.get().log(message);
+	void visitBranch(final BranchState state) {
+		// To be overriden by subclasses
 	}
 
-	static Console currentConsole() {
-		return new Console();
-	}
-
-	static Console logTo(final Consumer consumer) {
-		if(consumer==null) {
-			CURRENT.remove();
-		} else {
-			CURRENT.set(consumer);
-		}
-		return new Console();
-	}
-
-	static void remove() {
-		CURRENT.remove();
+	void visitCommit(final CommitState state) {
+		// To be overriden by subclasses
 	}
 
 }

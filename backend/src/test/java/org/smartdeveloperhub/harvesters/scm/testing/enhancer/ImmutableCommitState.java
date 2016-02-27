@@ -32,8 +32,10 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 
 final class ImmutableCommitState implements CommitState  {
 
+	private final ImmutableRepositoryState repository;
+	private final CommitterState contributor;
+
 	private final String id;
-	private final String author;
 	private final Long authoredDate;
 	private final Long committedDate;
 	private final Long createdAt;
@@ -43,9 +45,10 @@ final class ImmutableCommitState implements CommitState  {
 	private final String shortId;
 	private final String title;
 
-	ImmutableCommitState(final String id, final CommitterState contributor) {
+	ImmutableCommitState(final ImmutableRepositoryState repository, final String id, final CommitterState contributor) {
+		this.repository = repository;
 		this.id=id;
-		this.author = contributor.getId();
+		this.contributor = contributor;
 		this.createdAt=System.currentTimeMillis();
 		final Random random = new Random();
 		this.authoredDate=System.currentTimeMillis()-(random.nextInt(10000000)+1000000);
@@ -55,6 +58,7 @@ final class ImmutableCommitState implements CommitState  {
 		this.shortId=id.length()>10?id.substring(0,5):id;
 		this.message=StateUtil.generateSentences(2,5);
 		this.title=StateUtil.generateSentence();
+		ActivityTracker.currentTracker().created(this);
 	}
 
 	@Override
@@ -63,9 +67,24 @@ final class ImmutableCommitState implements CommitState  {
 	}
 
 	@Override
-	public Commit toEntity() {
+	public Integer getRepositoryId() {
+		return this.repository.getId();
+	}
+
+	@Override
+	public State.Entity getEntity() {
+		return State.Entity.COMMIT;
+	}
+
+	@Override
+	public void accept(final StateVisitor visitor) {
+		visitor.visitCommit(this);
+	}
+
+	@Override
+	public Commit getRepresentation() {
 		final Commit commit = new Commit();
-		commit.setAuthor(this.author);
+		commit.setAuthor(this.contributor.getId());
 		commit.setAuthoredDate(this.authoredDate);
 		commit.setCommittedDate(this.committedDate);
 		commit.setCreatedAt(this.createdAt);

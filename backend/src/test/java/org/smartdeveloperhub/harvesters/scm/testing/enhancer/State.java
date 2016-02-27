@@ -26,11 +26,21 @@
  */
 package org.smartdeveloperhub.harvesters.scm.testing.enhancer;
 
-
 interface State<K,T> {
+
+	public static enum Entity {
+		COMMITTER,
+		REPOSITORY,
+		COMMIT,
+		BRANCH,
+	}
 
 	K getId();
 
-	T toEntity();
+	Entity getEntity();
+
+	T getRepresentation();
+
+	void accept(StateVisitor visitor);
 
 }

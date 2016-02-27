@@ -46,12 +46,22 @@ final class NullCommitterState implements CommitterState {
 	}
 
 	@Override
+	public State.Entity getEntity() {
+		return State.Entity.COMMITTER;
+	}
+
+	@Override
 	public String getName() {
 		return "<unknown>";
 	}
 
 	@Override
-	public User toEntity() {
+	public void accept(final StateVisitor visitor) {
+		visitor.visitCommitter(this);
+	}
+
+	@Override
+	public User getRepresentation() {
 		LOGGER.debug("Unknown committer {}: cannot return representation",this.id);
 		return null;
 	}

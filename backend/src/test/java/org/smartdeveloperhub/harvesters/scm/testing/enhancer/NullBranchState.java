@@ -50,8 +50,23 @@ final class NullBranchState implements BranchState {
 	}
 
 	@Override
+	public Integer getRepositoryId() {
+		return this.repositoryId;
+	}
+
+	@Override
 	public String getName() {
 		return "<unknown>";
+	}
+
+	@Override
+	public Entity getEntity() {
+		return Entity.BRANCH;
+	}
+
+	@Override
+	public void accept(final StateVisitor visitor) {
+		visitor.visitBranch(this);
 	}
 
 	@Override
@@ -61,7 +76,7 @@ final class NullBranchState implements BranchState {
 	}
 
 	@Override
-	public Branch toEntity() {
+	public Branch getRepresentation() {
 		LOGGER.debug("Unknown branch <{}>{{}}: cannot return representation",this.repositoryId,this.id);
 		return null;
 	}

@@ -74,12 +74,23 @@ final class ImmutableRepositoryState implements RepositoryState {
 		this.contributors=Sets.newLinkedHashSet();
 		this.tags=Lists.newArrayList();
 		this.description = StateUtil.generateSentences(2,5);
-		Console.currentConsole().log("Created repository %s (%s) with owner %s (%s)",this.id,this.name,this.owner,owner.getName());
+		ActivityTracker.currentTracker().created(this);
+		ActivityTracker.currentTracker().log("Created repository %s (%s) with owner %s (%s)",this.id,this.name,this.owner,owner.getName());
 	}
 
 	@Override
 	public Integer getId() {
 		return this.id;
+	}
+
+	@Override
+	public Entity getEntity() {
+		return Entity.REPOSITORY;
+	}
+
+	@Override
+	public void accept(final StateVisitor visitor) {
+		visitor.visitRepository(this);
 	}
 
 	@Override
@@ -119,14 +130,15 @@ final class ImmutableRepositoryState implements RepositoryState {
 	public boolean createCommit(final String commitId, final CommitterState contributor) {
 		final ImmutableCommitState state = this.commits.get(commitId);
 		if(state==null) {
-			final ImmutableCommitState commit = new ImmutableCommitState(commitId,contributor);
+			final ImmutableCommitState commit = new ImmutableCommitState(this,commitId,contributor);
 			final ImmutableBranchState branch = selectTargetBranch(commitId);
 			this.commits.put(commitId,commit);
-			Console.currentConsole().log("Contributed commit %s by committer %s (%s) to branch %s (%s) of repository %s (%s)",commitId,contributor.getId(),contributor.getName(),branch.getId(),branch.getName(),this.id,this.name);
-			if(this.contributors.add(contributor.getId())) {
-				Console.currentConsole().log("Committer %s (%s) is now a contributor of repository %s (%s)",contributor.getId(),contributor.getName(),this.id,this.name);
-			}
+			ActivityTracker.currentTracker().log("Contributed commit %s by committer %s (%s) to branch %s (%s) of repository %s (%s)",commit.getId(),contributor.getId(),contributor.getName(),branch.getId(),branch.getName(),this.id,this.name);
 			branch.addContribution(commit,contributor);
+			if(this.contributors.add(contributor.getId())) {
+				ActivityTracker.currentTracker().log("Committer %s (%s) is now a contributor of repository %s (%s)",contributor.getId(),contributor.getName(),this.id,this.name);
+			}
+			ActivityTracker.currentTracker().updated(this);
 		} else {
 			Reports.currentReport().warn("Cannot create commit %s in repository %s (%s): commit already exists", state.getId(),this.id,this.name);
 		}
@@ -138,8 +150,10 @@ final class ImmutableRepositoryState implements RepositoryState {
 		final ImmutableBranchState state = this.branches.get(branchId);
 		if(state==null) {
 			final String name = nextBranchName(branchId);
-			this.branches.put(branchId,new ImmutableBranchState(this.id,branchId,name));
-			Console.currentConsole().log("Created branch %s (%s) in repository %s (%s)",branchId,name,this.id,this.name);
+			final ImmutableBranchState branch = new ImmutableBranchState(this,branchId,name);
+			this.branches.put(branchId,branch);
+			ActivityTracker.currentTracker().log("Created branch %s (%s) in repository %s (%s)",branchId,name,this.id,this.name);
+			ActivityTracker.currentTracker().updated(this);
 		} else {
 			Reports.currentReport().warn("Cannot create branch %s (%s) in repository %s (%s): branch already exists", state.getId(),state.getName(),this.id,this.name);
 		}
@@ -150,7 +164,8 @@ final class ImmutableRepositoryState implements RepositoryState {
 	public boolean deleteCommit(final String commitId) {
 		final ImmutableCommitState commit = this.commits.remove(commitId);
 		if(commit!=null) {
-			Console.currentConsole().log("Deleted commit %s from repository %s (%s)",commitId,this.id,this.name);
+			ActivityTracker.currentTracker().deleted(commit);
+			ActivityTracker.currentTracker().log("Deleted commit %s from repository %s (%s)",commitId,this.id,this.name);
 		} else {
 			Reports.currentReport().warn("Cannot delete commit %s of repository %s (%s): commit does not exist", commitId,this.id,this.name);
 		}
@@ -161,7 +176,8 @@ final class ImmutableRepositoryState implements RepositoryState {
 	public boolean deleteBranch(final String branchId) {
 		final ImmutableBranchState branch = this.branches.remove(branchId);
 		if(branch!=null) {
-			Console.currentConsole().log("Deleted branch %s (%s) from repository %s (%s)",branch.getId(),branch.getName(),this.id,this.name);
+			ActivityTracker.currentTracker().deleted(branch);
+			ActivityTracker.currentTracker().log("Deleted branch %s (%s) from repository %s (%s)",branch.getId(),branch.getName(),this.id,this.name);
 		} else {
 			Reports.currentReport().warn("Cannot delete branch %s of repository %s (%s): branch does not exist", branchId,this.id,this.name);
 		}
@@ -169,7 +185,7 @@ final class ImmutableRepositoryState implements RepositoryState {
 	}
 
 	@Override
-	public Repository toEntity() {
+	public Repository getRepresentation() {
 		final Repository repository = new Repository();
 		repository.setAvatarUrl(this.avatarUrl);
 		repository.setCreatedAt(this.createdAt);
@@ -203,14 +219,14 @@ final class ImmutableRepositoryState implements RepositoryState {
 		if(this.commits.size()==0) {
 			return null;
 		}
-		return Iterables.getFirst(this.commits.values(),null).toEntity().getCommittedDate();
+		return Iterables.getFirst(this.commits.values(),null).getRepresentation().getCommittedDate();
 	}
 
 	private Long lastActivityAt() {
 		if(this.commits.size()==0) {
 			return null;
 		}
-		return Iterables.getLast(this.commits.values(),null).toEntity().getCommittedDate();
+		return Iterables.getLast(this.commits.values(),null).getRepresentation().getCommittedDate();
 	}
 
 	private ImmutableBranchState selectTargetBranch(final String commitId) {

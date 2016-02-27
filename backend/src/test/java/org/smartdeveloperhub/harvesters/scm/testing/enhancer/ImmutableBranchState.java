@@ -36,7 +36,7 @@ import com.google.common.collect.Sets;
 
 final class ImmutableBranchState implements BranchState {
 
-	private final Integer repositoryId;
+	private final ImmutableRepositoryState repository;
 	private final String id;
 	private final String name;
 	private final Long createdAt;
@@ -45,13 +45,14 @@ final class ImmutableBranchState implements BranchState {
 
 	private Long lastCommit;
 
-	ImmutableBranchState(final Integer repositoryId, final String id, final String name) {
-		this.repositoryId = repositoryId;
+	ImmutableBranchState(final ImmutableRepositoryState repository, final String id, final String name) {
+		this.repository = repository;
 		this.id = id;
 		this.name=name;
 		this.createdAt=System.currentTimeMillis();
 		this.contributors=Sets.newLinkedHashSet();
 		this.commits=Sets.newLinkedHashSet();
+		ActivityTracker.currentTracker().created(this);
 	}
 
 	@Override
@@ -60,17 +61,33 @@ final class ImmutableBranchState implements BranchState {
 	}
 
 	@Override
+	public Entity getEntity() {
+		return Entity.BRANCH;
+	}
+
+	@Override
+	public Integer getRepositoryId() {
+		return this.repository.getId();
+	}
+
+	@Override
 	public String getName() {
 		return this.name;
 	}
 
 	@Override
+	public void accept(final StateVisitor visitor) {
+		visitor.visitBranch(this);
+	}
+
+	@Override
 	public void addContribution(final CommitState commit, final CommitterState contributor) {
-		if(this.contributors.add(contributor.getId())) {
-			Console.currentConsole().log("Committer %s (%s) is now a contributor of branch %s (%s) of repository %s",contributor.getId(),contributor.getName(),this.id,this.name,this.repositoryId);
-		}
-		this.commits.add(commit.getId());
 		this.lastCommit=System.currentTimeMillis();
+		this.commits.add(commit.getId());
+		if(this.contributors.add(contributor.getId())) {
+			ActivityTracker.currentTracker().log("Committer %s (%s) is now a contributor of branch %s (%s) of repository %s (%s)",contributor.getId(),contributor.getName(),this.id,this.name,this.repository.getId(),this.repository.getName());
+		}
+		ActivityTracker.currentTracker().updated(this);
 	}
 
 	@Override
@@ -79,7 +96,7 @@ final class ImmutableBranchState implements BranchState {
 	}
 
 	@Override
-	public Branch toEntity() {
+	public Branch getRepresentation() {
 		final Branch branch = new Branch();
 		branch.setId(this.id);
 		branch.setName(this.name);

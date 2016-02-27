@@ -53,9 +53,19 @@ final class NullRepositoryState implements RepositoryState {
 	}
 
 	@Override
-	public Repository toEntity() {
+	public State.Entity getEntity() {
+		return State.Entity.REPOSITORY;
+	}
+
+	@Override
+	public Repository getRepresentation() {
 		LOGGER.debug("Unknown repository {}: cannot return representation",this.id);
 		return null;
+	}
+
+	@Override
+	public void accept(final StateVisitor visitor) {
+		visitor.visitRepository(this);
 	}
 
 	@Override
