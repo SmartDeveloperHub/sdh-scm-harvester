@@ -35,9 +35,12 @@ import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
+import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.annotations.Attachment;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainerHandler;
@@ -63,6 +66,8 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 	}
 )
 public final class RepositoryHandler extends AbstractEntityResourceHandler<Repository,Integer> {
+
+	public static final Logger LOGGER=LoggerFactory.getLogger(RepositoryHandler.class);
 
 	public static final String ID="RepositoryHandler";
 	public static final String REPOSITORY_BRANCHES="REPOSITORYBRANCHES";
@@ -92,24 +97,27 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 		final DataSet dataSet=DataSets.createDataSet(repoName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
+
 		helper.
 			managedIndividual(repoName, RepositoryHandler.ID).
 				property(RepositoryVocabulary.TYPE).
 					withIndividual(RepositoryVocabulary.SCM_REPOSITORY).
 				property(RepositoryVocabulary.LOCATION).
 					withLiteral(repository.getHttpUrlToRepo()).
+				property(RepositoryVocabulary.CODEBASE).
+					withLiteral(repository.getWebUrl()).
 				property(RepositoryVocabulary.NAME).
 					withLiteral(repository.getName()).
 				property(RepositoryVocabulary.CREATED_ON).
-					withLiteral(new Date(repository.getCreatedAt())).
+					withLiteral(toDate(repository.getCreatedAt(),true,"createdAt",repository)).
 				property(RepositoryVocabulary.FIRST_COMMIT).
-					withLiteral(new Date(repository.getFirstCommitAt())).
+					withLiteral(toDate(repository.getFirstCommitAt(),false,"firstCommitAt",repository)).
 				property(RepositoryVocabulary.LAST_COMMIT).
-					withLiteral(new Date(repository.getLastCommitAt())).
+					withLiteral(toDate(repository.getLastCommitAt(),false,"lastCommitAt",repository)).
 				property(RepositoryVocabulary.ARCHIVED).
-					withLiteral(new Boolean(repository.getState())).
+					withLiteral(isArchived(repository)).
 				property(RepositoryVocabulary.PUBLIC).
-					withLiteral(new Boolean(repository.getPublic())).
+					withLiteral(isPublic(repository)).
 				property(RepositoryVocabulary.OWNER).
 					withIndividual(ownerName, UserHandler.ID).
 				property(RepositoryVocabulary.REPOSITORY_ID).
@@ -139,6 +147,38 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 		}
 
 		return dataSet;
+	}
+
+	private Boolean isPublic(final Repository repository) {
+		final String value = repository.getPublic();
+		if(value!=null) {
+			return Boolean.parseBoolean(value);
+		} else {
+			LOGGER.warn("Repository {} ({}) does not declare whether it is public or not",repository.getId(),repository.getHttpUrlToRepo());
+			return null;
+		}
+	}
+
+	private Boolean isArchived(final Repository repository) {
+		final String value = repository.getState();
+		if(value!=null) {
+			return "archived".equalsIgnoreCase(value);
+		} else {
+			LOGGER.warn("Repository {} ({}) does not declare its state",repository.getId(),repository.getHttpUrlToRepo());
+			return null;
+		}
+	}
+
+	private Date toDate(final Long millis, final boolean mandatory, final String property, final Repository repository) {
+		if(millis!=null) {
+			return new Date(millis);
+		} else if(mandatory) {
+			LOGGER.warn("Could not create date for property {} of repository {} ({})",property,repository.getId(),repository.getHttpUrlToRepo());
+			throw new ApplicationRuntimeException("Could not create date for property "+property+" of repository "+repository);
+		} else {
+			LOGGER.debug("Ignored date for missing property {} of repository {} ({})",property,repository.getId(),repository.getHttpUrlToRepo());
+			return null;
+		}
 	}
 
 }
