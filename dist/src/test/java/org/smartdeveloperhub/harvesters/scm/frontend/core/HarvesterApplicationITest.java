@@ -52,7 +52,10 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.CommitterCreatedEvent;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.CommitterDeletedEvent;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryCreatedEvent;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryDeletedEvent;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryUpdatedEvent;
 import org.smartdeveloperhub.harvesters.scm.testing.LDPUtil;
 import org.smartdeveloperhub.harvesters.scm.testing.QueryHelper;
 import org.smartdeveloperhub.harvesters.scm.testing.QueryHelper.ResultProcessor;
@@ -73,16 +76,6 @@ public class HarvesterApplicationITest {
 
 	private static TestingService service;
 
-	@Rule
-	public TestName test=new TestName();
-
-	@Deployment(name="default",testable=false)
-	@TargetsContainer("tomcat")
-	public static WebArchive createDeployment() throws Exception {
-		service=startMockService();
-		return SmokeTest.createWebArchive("default-harvester.war");
-	}
-
 	private static TestingService startMockService() throws IOException {
 		final String property = System.getProperty("undertow.http.port","8080");
 		return
@@ -91,6 +84,16 @@ public class HarvesterApplicationITest {
 					port(Integer.parseInt(property)).
 					build().
 						start();
+	}
+
+	@Rule
+	public TestName test=new TestName();
+
+	@Deployment(name="default",testable=false)
+	@TargetsContainer("tomcat")
+	public static WebArchive createDeployment() throws Exception {
+		service=startMockService();
+		return SmokeTest.createWebArchive("default-harvester.war");
 	}
 
 	@AfterClass
@@ -103,43 +106,153 @@ public class HarvesterApplicationITest {
 	@Test
 	@OperateOnDeployment("default")
 	public void testCommitterCreation(@ArquillianResource final URL contextURL) throws Exception {
-		final List<String> originalCommitters = getCommitters(contextURL);
-		final CommitterCreatedEvent event = new CommitterCreatedEvent();
-		final String id = this.test.getMethodName();
-		event.getNewCommitters().add(id);
-		final UpdateReport report = service.update(event);
-		assumeThat(report.notificationSent(),equalTo(true));
-		System.out.println("Created committer "+id+". Awaiting frontend update");
-		TimeUnit.SECONDS.sleep(5);
-		System.out.println("Verifying committer id...");
-		final List<String> newCommitters = Lists.newArrayList(getCommitters(contextURL));
-		newCommitters.removeAll(originalCommitters);
-		assertThat(newCommitters,hasSize(1));
-		commiterHasIdentifier(newCommitters.get(0),id);
+		createCommitter(contextURL, getCommitters(contextURL));
+	}
+
+	@Test
+	@OperateOnDeployment("default")
+	public void testCommitterDeletion(@ArquillianResource final URL contextURL) throws Exception {
+		final List<String> originalCommitters =
+				getCommitters(contextURL);
+
+		final List<String> afterCreatingCommitters =
+				createCommitter(contextURL, originalCommitters);
+
+		deleteCommitter();
+
+		System.out.println("Verifying committer availability...");
+		final List<String> finalCommitters = Lists.newArrayList(getCommitters(contextURL));
+		finalCommitters.removeAll(originalCommitters);
+		assertThat(finalCommitters,hasSize(0));
+		LDPUtil.assertIsGone(afterCreatingCommitters.get(0));
 	}
 
 	@Test
 	@OperateOnDeployment("default")
 	public void testRepositoryCreation(@ArquillianResource final URL contextURL) throws Exception {
-		final CommitterCreatedEvent event = new CommitterCreatedEvent();
-		event.getNewCommitters().add(this.test.getMethodName());
-		final UpdateReport report = service.update(event);
-		assumeThat(report.notificationSent(),equalTo(true));
+		createCommitter();
+		createRepository(
+			contextURL,
+			getRepositories(contextURL));
+	}
+
+	@Test
+	@OperateOnDeployment("default")
+	public void testRepositoryDeletion(@ArquillianResource final URL contextURL) throws Exception {
+		createCommitter();
 
 		final List<String> originalRepositories = getRepositories(contextURL);
-		final RepositoryCreatedEvent rEvent=new RepositoryCreatedEvent();
-		rEvent.getNewRepositories().add(1);
-		final UpdateReport rReport = service.update(rEvent);
-		assumeThat(rReport.notificationSent(),equalTo(true));
 
-		System.out.println("Created repository 1. Awaiting frontend update");
-		TimeUnit.SECONDS.sleep(5);
-		System.out.println("Verifying repository id...");
+		final List<String> afterCreatingRepositories = createRepository(contextURL,originalRepositories);
 
+		deleteRepository();
+
+		System.out.println("Verifying repository availability...");
+		final List<String> finalRepositories = Lists.newArrayList(getRepositories(contextURL));
+		finalRepositories.removeAll(originalRepositories);
+		assertThat(finalRepositories,hasSize(0));
+		LDPUtil.assertIsGone(afterCreatingRepositories.get(0));
+	}
+
+	@Test
+	@OperateOnDeployment("default")
+	public void testBranchCreation(@ArquillianResource final URL contextURL) throws Exception {
+		createCommitter();
+
+		final List<String> createdRepositories=
+				createRepository(contextURL,getRepositories(contextURL));
+
+		final List<String> originalBranches =
+				Lists.newArrayList(getBranches(createdRepositories.get(0)));
+
+		createBranch();
+
+		System.out.println("Verifying branch availability...");
+		final List<String> finalBranches = Lists.newArrayList(getBranches(createdRepositories.get(0)));
+		finalBranches.removeAll(originalBranches);
+		assertThat(finalBranches,hasSize(1));
+		branchHasName(finalBranches.get(0),service.getBranch(repositoryId(),branchId()).getName());
+	}
+
+	private int repositoryId() {
+		return this.test.getMethodName().hashCode();
+	}
+
+	private String committerId() {
+		return this.test.getMethodName();
+	}
+
+	private List<String> createCommitter(final URL contextURL, final List<String> originalCommitters) throws InterruptedException, IOException {
+		createCommitter();
+
+		System.out.println("Verifying committer availability...");
+		final List<String> afterCreatingCommitters = Lists.newArrayList(getCommitters(contextURL));
+		afterCreatingCommitters.removeAll(originalCommitters);
+		assertThat(afterCreatingCommitters,hasSize(1));
+		commiterHasIdentifier(afterCreatingCommitters.get(0),committerId());
+		return afterCreatingCommitters;
+	}
+
+	private List<String> createRepository(final URL contextURL, final List<String> originalRepositories) throws InterruptedException, IOException {
+		createRepository();
+
+		System.out.println("Verifying repository availability...");
 		final List<String> newRepositories = Lists.newArrayList(getRepositories(contextURL));
 		newRepositories.removeAll(originalRepositories);
 		assertThat(newRepositories,hasSize(1));
-		repositoryHasIdentifier(newRepositories.get(0),1);
+		repositoryHasIdentifier(newRepositories.get(0),repositoryId());
+		return newRepositories;
+	}
+
+	private void createRepository() throws InterruptedException {
+		final RepositoryCreatedEvent rEvent=new RepositoryCreatedEvent();
+		rEvent.getNewRepositories().add(repositoryId());
+		final UpdateReport rReport = service.update(rEvent);
+		assumeThat(rReport.notificationSent(),equalTo(true));
+		System.out.println("Created repository "+repositoryId()+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private void createBranch() throws InterruptedException {
+		final RepositoryUpdatedEvent rEvent=new RepositoryUpdatedEvent();
+		rEvent.setRepository(repositoryId());
+		rEvent.getNewBranches().add(branchId());
+		rEvent.getContributors().add(committerId());
+		final UpdateReport rReport = service.update(rEvent);
+		assumeThat(rReport.notificationSent(),equalTo(true));
+		System.out.println("Created branch "+branchId()+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private String branchId() {
+		return this.test.getMethodName();
+	}
+
+	private void deleteRepository() throws InterruptedException {
+		final RepositoryDeletedEvent rEvent=new RepositoryDeletedEvent();
+		rEvent.getDeletedRepositories().add(repositoryId());
+		final UpdateReport rReport = service.update(rEvent);
+		assumeThat(rReport.notificationSent(),equalTo(true));
+		System.out.println("Deleted repository "+repositoryId()+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private void createCommitter() throws InterruptedException {
+		final CommitterCreatedEvent event = new CommitterCreatedEvent();
+		event.getNewCommitters().add(committerId());
+		final UpdateReport report = service.update(event);
+		assumeThat(report.notificationSent(),equalTo(true));
+		System.out.println("Created committer "+committerId()+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private void deleteCommitter() throws InterruptedException {
+		final CommitterDeletedEvent event = new CommitterDeletedEvent();
+		event.getDeletedCommitters().add(committerId());
+		final UpdateReport report = service.update(event);
+		assumeThat(report.notificationSent(),equalTo(true));
+		System.out.println("Deleted committer "+committerId()+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(2);
 	}
 
 	private void commiterHasIdentifier(final String committer, final String id) {
@@ -164,12 +277,27 @@ public class HarvesterApplicationITest {
 				typedLiteral(id.toString(),"http://www.w3.org/2001/XMLSchema#string")));
 	}
 
+	private void branchHasName(final String resource, final String name) {
+		final Response response = LDPUtil.assertIsAccessible(resource);
+		final Model model = TestingUtil.asModel(response,resource);
+		assertThat(
+			model,
+			hasTriple(
+				uriRef(resource),
+				property("http://usefulinc.com/ns/doap#name"),
+				typedLiteral(name,"http://www.w3.org/2001/XMLSchema#string")));
+	}
+
 	private static final List<String> getCommitters(final URL contextURL) throws IOException {
 		return queryResourceVariable(TestingUtil.resolve(contextURL,SERVICE), "queries/committers.sparql", "committer");
 	}
 
 	private static final List<String> getRepositories(final URL contextURL) throws IOException {
 		return queryResourceVariable(TestingUtil.resolve(contextURL,SERVICE), "queries/repositories.sparql", "repository");
+	}
+
+	private static final List<String> getBranches(final String resource) throws IOException {
+		return queryResourceVariable(resource, "queries/branches.sparql", "branch");
 	}
 
 	private static List<String> queryResourceVariable(final String resource, final String query, final String variable) throws IOException {

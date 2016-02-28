@@ -28,12 +28,14 @@ package org.smartdeveloperhub.harvesters.scm.testing;
 
 import static com.jayway.restassured.RestAssured.given;
 
+import org.apache.http.HttpStatus;
+
 import com.jayway.restassured.response.Response;
 
 public final class LDPUtil {
 
+	private static final String TEXT_PLAIN = "text/plain";
 	private static final String TEXT_TURTLE = "text/turtle";
-	private static final int    OK          = 200;
 
 	public static Response assertIsAccessible(final String resource) {
 		return
@@ -41,12 +43,23 @@ public final class LDPUtil {
 				accept(TEXT_TURTLE).
 				baseUri(resource).
 			expect().
-				statusCode(OK).
+				statusCode(HttpStatus.SC_OK).
 				contentType(TEXT_TURTLE).
 			when().
 				get();
 	}
 
+	public static Response assertIsGone(final String resource) {
+		return
+			given().
+				accept(TEXT_TURTLE).
+				baseUri(resource).
+			expect().
+				statusCode(HttpStatus.SC_GONE).
+				contentType(TEXT_PLAIN).
+			when().
+				get();
+	}
 
 
 }
