@@ -26,7 +26,6 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core;
 
-import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -48,9 +47,13 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.smartdeveloperhub.harvesters.scm.backend.notification.CommitterCreatedEvent;
+import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryCreatedEvent;
+import org.smartdeveloperhub.harvesters.scm.testing.LDPUtil;
 import org.smartdeveloperhub.harvesters.scm.testing.QueryHelper;
 import org.smartdeveloperhub.harvesters.scm.testing.QueryHelper.ResultProcessor;
 import org.smartdeveloperhub.harvesters.scm.testing.SmokeTest;
@@ -66,30 +69,35 @@ import com.jayway.restassured.response.Response;
 @RunWith(Arquillian.class)
 public class HarvesterApplicationITest {
 
+	private static final String SERVICE = "ldp4j/api/service/";
+
 	private static TestingService service;
+
+	@Rule
+	public TestName test=new TestName();
 
 	@Deployment(name="default",testable=false)
 	@TargetsContainer("tomcat")
 	public static WebArchive createDeployment() throws Exception {
-		startMockService();
+		service=startMockService();
 		return SmokeTest.createWebArchive("default-harvester.war");
 	}
 
-	private static void startMockService() throws IOException {
+	private static TestingService startMockService() throws IOException {
 		final String property = System.getProperty("undertow.http.port","8080");
-		final int port = Integer.parseInt(property);
-		System.out.println("Publishing mock GitLab Enhancer Service at port "+port);
-		service =
+		return
 			TestingService.
 				builder().
-					port(port).
+					port(Integer.parseInt(property)).
 					build().
 						start();
 	}
 
 	@AfterClass
 	public static void tearDown() {
-		service.shutdown();
+		if(service!=null) {
+			service.shutdown();
+		}
 	}
 
 	@Test
@@ -97,29 +105,45 @@ public class HarvesterApplicationITest {
 	public void testCommitterCreation(@ArquillianResource final URL contextURL) throws Exception {
 		final List<String> originalCommitters = getCommitters(contextURL);
 		final CommitterCreatedEvent event = new CommitterCreatedEvent();
-		final String id = "1234";
+		final String id = this.test.getMethodName();
 		event.getNewCommitters().add(id);
 		final UpdateReport report = service.update(event);
 		assumeThat(report.notificationSent(),equalTo(true));
-		System.out.println("Created committer 1234. Awaiting frontend update");
-		TimeUnit.SECONDS.sleep(10);
-		System.out.println("Verifying id...");
+		System.out.println("Created committer "+id+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(5);
+		System.out.println("Verifying committer id...");
 		final List<String> newCommitters = Lists.newArrayList(getCommitters(contextURL));
 		newCommitters.removeAll(originalCommitters);
 		assertThat(newCommitters,hasSize(1));
 		commiterHasIdentifier(newCommitters.get(0),id);
 	}
 
+	@Test
+	@OperateOnDeployment("default")
+	public void testRepositoryCreation(@ArquillianResource final URL contextURL) throws Exception {
+		final CommitterCreatedEvent event = new CommitterCreatedEvent();
+		event.getNewCommitters().add(this.test.getMethodName());
+		final UpdateReport report = service.update(event);
+		assumeThat(report.notificationSent(),equalTo(true));
+
+		final List<String> originalRepositories = getRepositories(contextURL);
+		final RepositoryCreatedEvent rEvent=new RepositoryCreatedEvent();
+		rEvent.getNewRepositories().add(1);
+		final UpdateReport rReport = service.update(rEvent);
+		assumeThat(rReport.notificationSent(),equalTo(true));
+
+		System.out.println("Created repository 1. Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(5);
+		System.out.println("Verifying repository id...");
+
+		final List<String> newRepositories = Lists.newArrayList(getRepositories(contextURL));
+		newRepositories.removeAll(originalRepositories);
+		assertThat(newRepositories,hasSize(1));
+		repositoryHasIdentifier(newRepositories.get(0),1);
+	}
+
 	private void commiterHasIdentifier(final String committer, final String id) {
-		final Response response=
-				given().
-					accept(TEXT_TURTLE).
-					baseUri(committer).
-				expect().
-					statusCode(OK).
-					contentType(TEXT_TURTLE).
-				when().
-					get();
+		final Response response = LDPUtil.assertIsAccessible(committer);
 		final Model model = TestingUtil.asModel(response,committer);
 		assertThat(
 			model,
@@ -129,41 +153,47 @@ public class HarvesterApplicationITest {
 				typedLiteral(id,"http://www.w3.org/2001/XMLSchema#string")));
 	}
 
-	protected static final String TEXT_TURTLE = "text/turtle";
-	protected static final int    OK          = 200;
+	private void repositoryHasIdentifier(final String resource, final Integer id) {
+		final Response response = LDPUtil.assertIsAccessible(resource);
+		final Model model = TestingUtil.asModel(response,resource);
+		assertThat(
+			model,
+			hasTriple(
+				uriRef(resource),
+				property("http://www.smartdeveloperhub.org/vocabulary/scm#repositoryId"),
+				typedLiteral(id.toString(),"http://www.w3.org/2001/XMLSchema#string")));
+	}
 
-	protected static final String SERVICE     = "ldp4j/api/service/";
+	private static final List<String> getCommitters(final URL contextURL) throws IOException {
+		return queryResourceVariable(TestingUtil.resolve(contextURL,SERVICE), "queries/committers.sparql", "committer");
+	}
 
-	protected final List<String> getCommitters(final URL contextURL) throws IOException {
-		final Response response=
-			given().
-				accept(TEXT_TURTLE).
-				baseUri(contextURL.toString()).
-			expect().
-				statusCode(OK).
-				contentType(TEXT_TURTLE).
-			when().
-				get(SERVICE);
+	private static final List<String> getRepositories(final URL contextURL) throws IOException {
+		return queryResourceVariable(TestingUtil.resolve(contextURL,SERVICE), "queries/repositories.sparql", "repository");
+	}
 
+	private static List<String> queryResourceVariable(final String resource, final String query, final String variable) throws IOException {
 		return
 			QueryHelper.
 				newInstance().
 					withModel(
 						TestingUtil.
-							asModel(response,contextURL,SERVICE)).
+							asModel(
+								LDPUtil.assertIsAccessible(resource),
+								resource)).
 					withQuery().
-						fromResource("queries/committers.sparql").
-						withURIRefParam("service",TestingUtil.resolve(contextURL,SERVICE)).
+						fromResource(query).
+						withURIRefParam("service",resource).
 					select(
 						new ResultProcessor<List<String>>() {
-							private final List<String> builds=Lists.newArrayList();
+							private final List<String> bindings=Lists.newArrayList();
 							@Override
 							protected void processSolution() {
-								this.builds.add(resource("committer").getURI());
+								this.bindings.add(resource(variable).getURI());
 							}
 							@Override
 							public List<String> getResult() {
-								return ImmutableList.copyOf(this.builds);
+								return ImmutableList.copyOf(this.bindings);
 							}
 						}
 					);
