@@ -81,13 +81,20 @@ public final class GitLabEnhancer {
 		private final List<String> warnings;
 		private IOException failure;
 		private String failureMessage;
+		private final List<Event> sideEffects;
 
 		UpdateReport() {
 			this.warnings=Lists.newArrayList();
+			this.sideEffects=Lists.newArrayList();
 		}
 
 		UpdateReport curatedEvent(final Event event) {
 			this.event = event;
+			return this;
+		}
+
+		UpdateReport sideEffect(final Event event) {
+			this.sideEffects.add(event);
 			return this;
 		}
 
@@ -125,6 +132,10 @@ public final class GitLabEnhancer {
 
 		public Event curatedEvent() {
 			return this.event;
+		}
+
+		public List<Event> sideEffects() {
+			return Collections.unmodifiableList(this.sideEffects);
 		}
 
 		public List<String> warnings() {
@@ -204,6 +215,9 @@ public final class GitLabEnhancer {
 		try {
 			updateEnhancer(event);
 			notifyUpdate(Reports.currentReport().curatedEvent());
+			for(final Event sideEffect:Reports.currentReport().sideEffects()) {
+				notifyUpdate(sideEffect);
+			}
 			return Reports.currentReport();
 		} finally {
 			ActivityTracker.remove();
@@ -359,13 +373,19 @@ public final class GitLabEnhancer {
 			final Iterator<String> committerIds = Iterators.cycle(this.committers.keySet());
 			for(final Integer repositoryId:event.getNewRepositories()) {
 				if(!this.repositories.containsKey(repositoryId)) {
+					final CommitterState owner = this.committers.get(committerIds.next());
 					final RepositoryState repository =
 						new ImmutableRepositoryState(
 							repositoryId,
-							this.committers.get(committerIds.next()));
+							owner);
 					repository.createBranch("1");
 					this.repositories.put(repositoryId, repository);
 					curated.getNewRepositories().add(repositoryId);
+					final RepositoryUpdatedEvent event2 = new RepositoryUpdatedEvent();
+					event2.setRepository(repositoryId);
+					event2.getNewBranches().add("1");
+					event2.getContributors().add(owner.getId());
+					report.sideEffect(event2);
 				} else {
 					report.warn("Repository %s already exists",repositoryId);
 				}

@@ -266,4 +266,8 @@ public final class TestingService {
 		return config;
 	}
 
+	public Branch getBranch(final int repositoryId, final String branchId) {
+		return this.enhancer.getRepositoryBranch(repositoryId, branchId);
+	}
+
 }

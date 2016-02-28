@@ -101,6 +101,7 @@ final class GitCollectorEventProcessorHandler extends HandlerUtil implements Htt
 			}
 		}
 		data.put("warnings", report.warnings());
+		data.put("sideEffects", report.sideEffects());
 		return data;
 	}
 
