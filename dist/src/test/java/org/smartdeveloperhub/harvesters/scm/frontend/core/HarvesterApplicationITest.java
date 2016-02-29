@@ -174,12 +174,96 @@ public class HarvesterApplicationITest {
 		branchHasName(finalBranches.get(0),service.getBranch(repositoryId(),branchId()).getName());
 	}
 
-	private int repositoryId() {
-		return this.test.getMethodName().hashCode();
+	@Test
+	@OperateOnDeployment("default")
+	public void testBranchDeletion(@ArquillianResource final URL contextURL) throws Exception {
+		createCommitter();
+
+		final List<String> createdRepositories=
+				createRepository(contextURL,getRepositories(contextURL));
+
+		final List<String> originalBranches =
+				Lists.newArrayList(getBranches(createdRepositories.get(0)));
+
+		createBranch();
+
+		System.out.println("Verifying branch availability...");
+		final List<String> afterCreatingBranches = Lists.newArrayList(getBranches(createdRepositories.get(0)));
+		afterCreatingBranches.removeAll(originalBranches);
+		assertThat(afterCreatingBranches,hasSize(1));
+		branchHasName(afterCreatingBranches.get(0),service.getBranch(repositoryId(),branchId()).getName());
+
+		deleteBranch();
+
+		System.out.println("Verifying branch availability...");
+		final List<String> finalBranches = Lists.newArrayList(getBranches(createdRepositories.get(0)));
+		finalBranches.removeAll(originalBranches);
+		assertThat(finalBranches,hasSize(0));
+		LDPUtil.assertIsGone(afterCreatingBranches.get(0));
+	}
+
+	@Test
+	@OperateOnDeployment("default")
+	public void testCommitCreation(@ArquillianResource final URL contextURL) throws Exception {
+		createCommitter();
+
+		final List<String> createdRepositories=
+				createRepository(contextURL,getRepositories(contextURL));
+
+		final List<String> originalCommits =
+				Lists.newArrayList(getCommits(createdRepositories.get(0)));
+
+		createCommit();
+
+		System.out.println("Verifying commit availability...");
+		final List<String> finalCommits = Lists.newArrayList(getCommits(createdRepositories.get(0)));
+		finalCommits.removeAll(originalCommits);
+		assertThat(finalCommits,hasSize(1));
+		commitHasIdentifier(finalCommits.get(0),commitId());
+	}
+
+	@Test
+	@OperateOnDeployment("default")
+	public void testCommitDeletion(@ArquillianResource final URL contextURL) throws Exception {
+		createCommitter();
+
+		final List<String> createdRepositories=
+				createRepository(contextURL,getRepositories(contextURL));
+
+		final List<String> originalCommits =
+				Lists.newArrayList(getCommits(createdRepositories.get(0)));
+
+		createCommit();
+
+		System.out.println("Verifying commit availability...");
+		final List<String> afterCreatingCommits = Lists.newArrayList(getCommits(createdRepositories.get(0)));
+		afterCreatingCommits.removeAll(originalCommits);
+		assertThat(afterCreatingCommits,hasSize(1));
+		commitHasIdentifier(afterCreatingCommits.get(0),commitId());
+
+		deleteCommit();
+
+		System.out.println("Verifying commit availability...");
+		final List<String> finalCommits = Lists.newArrayList(getCommits(createdRepositories.get(0)));
+		finalCommits.removeAll(originalCommits);
+		assertThat(finalCommits,hasSize(0));
+		LDPUtil.assertIsGone(afterCreatingCommits.get(0));
 	}
 
 	private String committerId() {
 		return this.test.getMethodName();
+	}
+
+	private int repositoryId() {
+		return this.test.getMethodName().hashCode();
+	}
+
+	private String branchId() {
+		return this.test.getMethodName();
+	}
+
+	private String commitId() {
+		return String.format("c%08X",this.test.getMethodName().hashCode());
 	}
 
 	private List<String> createCommitter(final URL contextURL, final List<String> originalCommitters) throws InterruptedException, IOException {
@@ -213,21 +297,6 @@ public class HarvesterApplicationITest {
 		TimeUnit.SECONDS.sleep(2);
 	}
 
-	private void createBranch() throws InterruptedException {
-		final RepositoryUpdatedEvent rEvent=new RepositoryUpdatedEvent();
-		rEvent.setRepository(repositoryId());
-		rEvent.getNewBranches().add(branchId());
-		rEvent.getContributors().add(committerId());
-		final UpdateReport rReport = service.update(rEvent);
-		assumeThat(rReport.notificationSent(),equalTo(true));
-		System.out.println("Created branch "+branchId()+". Awaiting frontend update");
-		TimeUnit.SECONDS.sleep(2);
-	}
-
-	private String branchId() {
-		return this.test.getMethodName();
-	}
-
 	private void deleteRepository() throws InterruptedException {
 		final RepositoryDeletedEvent rEvent=new RepositoryDeletedEvent();
 		rEvent.getDeletedRepositories().add(repositoryId());
@@ -252,6 +321,48 @@ public class HarvesterApplicationITest {
 		final UpdateReport report = service.update(event);
 		assumeThat(report.notificationSent(),equalTo(true));
 		System.out.println("Deleted committer "+committerId()+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private void createBranch() throws InterruptedException {
+		final RepositoryUpdatedEvent rEvent=new RepositoryUpdatedEvent();
+		rEvent.setRepository(repositoryId());
+		rEvent.getNewBranches().add(branchId());
+		rEvent.getContributors().add(committerId());
+		final UpdateReport rReport = service.update(rEvent);
+		assumeThat(rReport.notificationSent(),equalTo(true));
+		System.out.println("Created branch "+branchId()+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private void deleteBranch() throws InterruptedException {
+		final RepositoryUpdatedEvent rEvent=new RepositoryUpdatedEvent();
+		rEvent.setRepository(repositoryId());
+		rEvent.getDeletedBranches().add(branchId());
+		final UpdateReport rReport = service.update(rEvent);
+		assumeThat(rReport.notificationSent(),equalTo(true));
+		System.out.println("Deleted branch "+branchId()+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private void createCommit() throws InterruptedException {
+		final RepositoryUpdatedEvent rEvent=new RepositoryUpdatedEvent();
+		rEvent.setRepository(repositoryId());
+		rEvent.getNewCommits().add(commitId());
+		rEvent.getContributors().add(committerId());
+		final UpdateReport rReport = service.update(rEvent);
+		assumeThat(rReport.notificationSent(),equalTo(true));
+		System.out.println("Created commit "+commitId()+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private void deleteCommit() throws InterruptedException {
+		final RepositoryUpdatedEvent rEvent=new RepositoryUpdatedEvent();
+		rEvent.setRepository(repositoryId());
+		rEvent.getDeletedCommits().add(commitId());
+		final UpdateReport rReport = service.update(rEvent);
+		assumeThat(rReport.notificationSent(),equalTo(true));
+		System.out.println("Deleted commit "+commitId()+". Awaiting frontend update");
 		TimeUnit.SECONDS.sleep(2);
 	}
 
@@ -288,6 +399,17 @@ public class HarvesterApplicationITest {
 				typedLiteral(name,"http://www.w3.org/2001/XMLSchema#string")));
 	}
 
+	private void commitHasIdentifier(final String commit, final String id) {
+		final Response response = LDPUtil.assertIsAccessible(commit);
+		final Model model = TestingUtil.asModel(response,commit);
+		assertThat(
+			model,
+			hasTriple(
+				uriRef(commit),
+				property("http://www.smartdeveloperhub.org/vocabulary/scm#commitId"),
+				typedLiteral(id,"http://www.w3.org/2001/XMLSchema#string")));
+	}
+
 	private static final List<String> getCommitters(final URL contextURL) throws IOException {
 		return queryResourceVariable(TestingUtil.resolve(contextURL,SERVICE), "queries/committers.sparql", "committer");
 	}
@@ -298,6 +420,10 @@ public class HarvesterApplicationITest {
 
 	private static final List<String> getBranches(final String resource) throws IOException {
 		return queryResourceVariable(resource, "queries/branches.sparql", "branch");
+	}
+
+	private static final List<String> getCommits(final String resource) throws IOException {
+		return queryResourceVariable(resource, "queries/commits.sparql", "commit");
 	}
 
 	private static List<String> queryResourceVariable(final String resource, final String query, final String variable) throws IOException {
