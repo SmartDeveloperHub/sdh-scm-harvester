@@ -41,17 +41,18 @@ import com.jayway.restassured.response.Response;
 @RunWith(JMockit.class)
 public class TestingUtilTest {
 
+	private final String badData=
+			"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"+
+			"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n"+
+			"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"+
+			"@prefix uri:   <urn:nuñez> ;";
+
 	@Mocked Response response;
 
 	@Test
 	public void testAsModelResponseString() throws Exception {
 		new Expectations() {{
-			TestingUtilTest.this.response.asString();
-			this.result=
-				"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"+
-				"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n"+
-				"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"+
-				"@prefix uri:   <bad\\uri> .";
+			TestingUtilTest.this.response.asByteArray();this.result=TestingUtilTest.this.badData.getBytes();
 		}};
 		try {
 			TestingUtil.asModel(this.response, "http://localhost:8080/iri");

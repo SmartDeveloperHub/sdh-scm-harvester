@@ -34,7 +34,7 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.riot.RiotException;
@@ -56,7 +56,7 @@ public final class TestingUtil {
 			if(resourceAsStream==null) {
 				throw new AssertionError("Could not find resource '"+resourceName+"'");
 			}
-			return IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
+			return IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8);
 		} catch (final IOException e) {
 			throw new AssertionError("Could not load resource '"+resourceName+"'");
 		}
@@ -76,7 +76,7 @@ public final class TestingUtil {
 	}
 
 	public static Model asModel(final Response response, final String base) {
-		final String rawData = response.asString();
+		final String rawData = new String(response.asByteArray(),StandardCharsets.UTF_8);
 		try {
 			return
 				ModelFactory.

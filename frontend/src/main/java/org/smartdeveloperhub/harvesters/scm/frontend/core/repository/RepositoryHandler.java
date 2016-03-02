@@ -49,6 +49,8 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
+import com.google.common.base.Optional;
+
 
 @Resource(
 	id=RepositoryHandler.ID,
@@ -67,7 +69,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 )
 public final class RepositoryHandler extends AbstractEntityResourceHandler<Repository,Integer> {
 
-	public static final Logger LOGGER=LoggerFactory.getLogger(RepositoryHandler.class);
+	private static final Logger LOGGER=LoggerFactory.getLogger(RepositoryHandler.class);
 
 	public static final String ID="RepositoryHandler";
 	public static final String REPOSITORY_BRANCHES="REPOSITORYBRANCHES";
@@ -97,7 +99,6 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 		final DataSet dataSet=DataSets.createDataSet(repoName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
-
 		helper.
 			managedIndividual(repoName, RepositoryHandler.ID).
 				property(RepositoryVocabulary.TYPE).
@@ -109,15 +110,15 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 				property(RepositoryVocabulary.NAME).
 					withLiteral(repository.getName()).
 				property(RepositoryVocabulary.CREATED_ON).
-					withLiteral(toDate(repository.getCreatedAt(),true,"createdAt",repository)).
+					withLiteral(toDate(repository.getCreatedAt(),true,"createdAt",repository).get()).
 				property(RepositoryVocabulary.FIRST_COMMIT).
-					withLiteral(toDate(repository.getFirstCommitAt(),false,"firstCommitAt",repository)).
+					withLiteral(toDate(repository.getFirstCommitAt(),false,"firstCommitAt",repository).orNull()).
 				property(RepositoryVocabulary.LAST_COMMIT).
-					withLiteral(toDate(repository.getLastCommitAt(),false,"lastCommitAt",repository)).
+					withLiteral(toDate(repository.getLastCommitAt(),false,"lastCommitAt",repository).orNull()).
 				property(RepositoryVocabulary.ARCHIVED).
-					withLiteral(isArchived(repository)).
+					withLiteral(isArchived(repository).orNull()).
 				property(RepositoryVocabulary.PUBLIC).
-					withLiteral(isPublic(repository)).
+					withLiteral(isPublic(repository).orNull()).
 				property(RepositoryVocabulary.OWNER).
 					withIndividual(ownerName, UserHandler.ID).
 				property(RepositoryVocabulary.REPOSITORY_ID).
@@ -125,7 +126,7 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 				property(RepositoryVocabulary.TAGS).
 					withLiteral(repository.getTags());
 
-		for (final String userId:repository.getContributors()){
+		for(final String userId:repository.getContributors()) {
 			final Name<String> userName = IdentityUtil.userName(userId);
 			helper.
 				managedIndividual(repoName, RepositoryHandler.ID).
@@ -133,7 +134,7 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 							withIndividual(userName,UserHandler.ID);
 		}
 
-		if(repository.getAvatarUrl() !=null) {
+		if(repository.getAvatarUrl()!=null) {
 			helper.
 				managedIndividual(repoName, RepositoryHandler.ID).
 					property(RepositoryVocabulary.DEPICTION).
@@ -149,35 +150,35 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 		return dataSet;
 	}
 
-	private Boolean isPublic(final Repository repository) {
+	private Optional<Boolean> isPublic(final Repository repository) {
 		final String value = repository.getPublic();
 		if(value!=null) {
-			return Boolean.parseBoolean(value);
+			return Optional.of(Boolean.parseBoolean(value));
 		} else {
 			LOGGER.warn("Repository {} ({}) does not declare whether it is public or not",repository.getId(),repository.getHttpUrlToRepo());
-			return null;
+			return Optional.absent();
 		}
 	}
 
-	private Boolean isArchived(final Repository repository) {
+	private Optional<Boolean> isArchived(final Repository repository) {
 		final String value = repository.getState();
 		if(value!=null) {
-			return "archived".equalsIgnoreCase(value);
+			return Optional.of("archived".equalsIgnoreCase(value));
 		} else {
 			LOGGER.warn("Repository {} ({}) does not declare its state",repository.getId(),repository.getHttpUrlToRepo());
-			return null;
+			return Optional.absent();
 		}
 	}
 
-	private Date toDate(final Long millis, final boolean mandatory, final String property, final Repository repository) {
+	private Optional<Date> toDate(final Long millis, final boolean mandatory, final String property, final Repository repository) {
 		if(millis!=null) {
-			return new Date(millis);
-		} else if(mandatory) {
+			return Optional.of(new Date(millis));
+		} else if(!mandatory) {
+			LOGGER.debug("Ignored date for missing property {} of repository {} ({})",property,repository.getId(),repository.getHttpUrlToRepo());
+			return Optional.absent();
+		} else {
 			LOGGER.warn("Could not create date for property {} of repository {} ({})",property,repository.getId(),repository.getHttpUrlToRepo());
 			throw new ApplicationRuntimeException("Could not create date for property "+property+" of repository "+repository);
-		} else {
-			LOGGER.debug("Ignored date for missing property {} of repository {} ({})",property,repository.getId(),repository.getHttpUrlToRepo());
-			return null;
 		}
 	}
 
