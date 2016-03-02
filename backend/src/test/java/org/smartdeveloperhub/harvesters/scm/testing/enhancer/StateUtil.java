@@ -353,13 +353,12 @@ final class StateUtil {
 		"ANA",
 	};
 
-	private static final Converter<String, String> CONVERTER = CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL);
-
 	private static final Haikunator HAIKUNATOR =
 			new HaikunatorBuilder().
 				setTokenLength(0).
 				setDelimiter("_").
 				build();
+
 	private static final Function<String,String> TO_CAMEL=new Function<String,String>() {
 
 		private final Converter<String, String> converter = CaseFormat.LOWER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL);
@@ -375,7 +374,8 @@ final class StateUtil {
 	}
 
 	private static String select(final String[] target) {
-		return CONVERTER.convert(target[RANDOM.nextInt(target.length-1)]);
+		final String next = target[RANDOM.nextInt(target.length-1)];
+		return next.substring(0,1)+ next.substring(1,next.length()).toLowerCase();
 	}
 
 	static String generateUserName() {
