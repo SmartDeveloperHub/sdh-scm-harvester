@@ -1,0 +1,79 @@
+<!--
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+      This file is part of the Smart Developer Hub Project:
+        http://www.smartdeveloperhub.org/
+
+      Center for Open Middleware
+        http://www.centeropenmiddleware.com/
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+      Copyright (C) 2015-2016 Center for Open Middleware.
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+                http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+      Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-testing:0.3.0-SNAPSHOT
+      Bundle      : scm-harvester-testing-0.3.0-SNAPSHOT.jar
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+
+-->
+<html>
+	<head>
+		<title>Testing GitLab Enhancer Service</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+		<script type="text/javascript" src="assets/client.js"></script>
+		<link rel="stylesheet" type="text/css" href="assets/main.css"/>
+	</head>
+	<body>
+		<div class="page" style="height: 100%;">
+			<div class="center" style="height:50%;">
+				<form onsubmit="return false;" class="chatform" action="">
+					<h1>Testing GitLab Enhancer Service</h1>
+					<h2>GitLab Enhancer Update Client</h2>
+					<label for="types"><b>Action</b></label>
+					<select id="types" name="type" onchange="createScript();">
+						<option value="CommitterCreatedEvent">Create committers</option>
+						<option value="CommitterDeletedEvent">Delete committers</option>
+						<option value="RepositoryCreatedEvent">Create repositories</option>
+						<option value="RepositoryUpdatedEvent">Create repository branches</option>
+						<option value="RepositoryUpdatedEvent">Create repository commits</option>
+						<option value="RepositoryUpdatedEvent">Delete repository branches</option>
+						<option value="RepositoryUpdatedEvent">Delete repository commits</option>
+						<option value="RepositoryUpdatedEvent">Free-form repository update</option>
+						<option value="RepositoryDeletedEvent">Delete repositories</option>
+					</select>
+					<br/>
+					<label for="msg"><b>Update specification</b> (hint: simplified Git Collector Notification events)</label>
+					<textarea rows="4" cols="50" id="msg" name="message" style="height: 70%; width: 100%; resize: none;")>Input your notification!!!</textarea>
+					<table width="100%">
+						<tr>
+							<th align="left"><input type="checkbox" id="displayEvent"><b>Show sent notifications</b></input></th>
+							<th align="right"><button type="button" id="submit" name="submit" onclick="send(this.form.message.value,this.form.type.value)">Update</button></th>
+						</tr>
+					</table>
+				</form>
+			</div>
+			<div class="center" style="height:50%;">
+				<form onsubmit="return false;" class="chatform" action="">
+					<h2>GitLab Enhancer Activity Console</h2>
+					<textarea rows="4" cols="50" id="console" style="height: 90%; width: 100%; resize: none;"></textarea>
+				</form>
+			</div>
+		</div>
+		<div id="modal" class="modal">
+			<div id="content" class="modal-content">
+				<span id="button" class="close">x</span>
+				<div id="body" style="overflow-y: auto ; height: auto; max-height : 300px ; width: 100%; resize: none;"/>
+			</div>
+		</div>
+	</body>
+</html>
