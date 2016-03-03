@@ -28,12 +28,16 @@ package org.smartdeveloperhub.harvesters.scm.backend.readers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 
 import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Collector;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Enhancer;
+
+import com.google.common.collect.Iterables;
 
 
 public class EnhancerReaderTest extends ReaderTestHelper {
@@ -46,16 +50,10 @@ public class EnhancerReaderTest extends ReaderTestHelper {
 	}
 
 	@Test
-	public void testReadCommit() throws Exception {
-		final Enhancer defaultEnhancer=new Enhancer();
-		defaultEnhancer.setId("http://russell.dia.fi.upm.es:5000/api");
-		defaultEnhancer.setName("Gitlab Enhancer");
-		defaultEnhancer.setVersion("1.0.3");
-		defaultEnhancer.setStatus("OK");
-		defaultEnhancer.setRepositories(Arrays.asList(1,2));
-		defaultEnhancer.setUsers(Arrays.asList("u1","u2"));
-		defaultEnhancer.setAdditionalProperty("notifications", "not-supported");
-
+	public void testReadEnhancer() throws Exception {
+		final Collector defaultCollector = defaultCollector();
+		final Enhancer defaultEnhancer = defaultEnhancer();
+		defaultEnhancer.setCollectors(Arrays.asList(defaultCollector));
 
 		final String serialize = serialize(defaultEnhancer);
 		System.out.println(serialize);
@@ -68,6 +66,13 @@ public class EnhancerReaderTest extends ReaderTestHelper {
 					serializeList(defaultEnhancer.getRepositories()),
 					serializeList(defaultEnhancer.getUsers()));
 
+		verifyEnhancer(defaultEnhancer, readEnhancer);
+		final Collector readCollector = Iterables.getFirst(readEnhancer.getCollectors(), null);
+		verifyCollector(defaultCollector, readCollector);
+	}
+
+	private void verifyEnhancer(final Enhancer defaultEnhancer,
+			final Enhancer readEnhancer) {
 		assertThat(readEnhancer.getAdditionalProperties(),equalTo(defaultEnhancer.getAdditionalProperties()));
 		assertThat(readEnhancer.getId(),equalTo(defaultEnhancer.getId()));
 		assertThat(readEnhancer.getName(),equalTo(defaultEnhancer.getName()));
@@ -75,6 +80,40 @@ public class EnhancerReaderTest extends ReaderTestHelper {
 		assertThat(readEnhancer.getStatus(),equalTo(defaultEnhancer.getStatus()));
 		assertThat(readEnhancer.getRepositories(),equalTo(defaultEnhancer.getRepositories()));
 		assertThat(readEnhancer.getUsers(),equalTo(defaultEnhancer.getUsers()));
+
+		assertThat(readEnhancer.getCollectors(),hasSize(1));
+	}
+
+	private void verifyCollector(final Collector defaultCollector,
+			final Collector readCollector) {
+		assertThat(readCollector.getAdditionalProperties(),equalTo(defaultCollector.getAdditionalProperties()));
+		assertThat(readCollector.getInstance(),equalTo(defaultCollector.getInstance()));
+		assertThat(readCollector.getBrokerHost(),equalTo(defaultCollector.getBrokerHost()));
+		assertThat(readCollector.getBrokerPort(),equalTo(defaultCollector.getBrokerPort()));
+		assertThat(readCollector.getVirtualHost(),equalTo(defaultCollector.getVirtualHost()));
+		assertThat(readCollector.getExchangeName(),equalTo(defaultCollector.getExchangeName()));
+	}
+
+	private Enhancer defaultEnhancer() {
+		final Enhancer defaultEnhancer=new Enhancer();
+		defaultEnhancer.setId("http://russell.dia.fi.upm.es:5000/api");
+		defaultEnhancer.setName("Gitlab Enhancer");
+		defaultEnhancer.setVersion("1.0.3");
+		defaultEnhancer.setStatus("OK");
+		defaultEnhancer.setRepositories(Arrays.asList(1,2));
+		defaultEnhancer.setUsers(Arrays.asList("u1","u2"));
+		defaultEnhancer.setAdditionalProperty("notifications", "not-supported");
+		return defaultEnhancer;
+	}
+
+	private Collector defaultCollector() {
+		final Collector collector=new Collector();
+		collector.setInstance("instance");
+		collector.setBrokerHost("brokerHost");
+		collector.setBrokerPort(1234);
+		collector.setVirtualHost("/virtualHost");
+		collector.setExchangeName("exchangeName");
+		return collector;
 	}
 
 }

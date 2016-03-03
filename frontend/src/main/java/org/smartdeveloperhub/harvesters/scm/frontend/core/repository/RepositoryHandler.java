@@ -26,6 +26,7 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.repository;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 
@@ -35,16 +36,20 @@ import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
-import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Attachment;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
+
+import com.google.common.base.Optional;
 
 
 @Resource(
@@ -62,7 +67,9 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 		)
 	}
 )
-public class RepositoryHandler implements ResourceHandler {
+public final class RepositoryHandler extends AbstractEntityResourceHandler<Repository,Integer> {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(RepositoryHandler.class);
 
 	public static final String ID="RepositoryHandler";
 	public static final String REPOSITORY_BRANCHES="REPOSITORYBRANCHES";
@@ -70,25 +77,23 @@ public class RepositoryHandler implements ResourceHandler {
 
 	private static final URI DEPICTION_PATH = URI.create("#depiction");
 
-	private final BackendController backendController;
-
 	public RepositoryHandler(final BackendController backendController) {
-		this.backendController = backendController;
+		super(backendController);
 	}
 
 	@Override
-	public DataSet get(final ResourceSnapshot resource) {
-		final Integer repositoryId=IdentityUtil.repositoryId(resource);
-		try{
-			final Repository repository = this.backendController.getRepository(repositoryId);
-			return maptoDataSet(repository);
-		} catch(final Exception e){
-			 throw new ApplicationRuntimeException(e);
-		}
+	protected Integer getId(final ResourceSnapshot resource) {
+		return IdentityUtil.repositoryId(resource);
 	}
 
-	private DataSet maptoDataSet(final Repository repository) {
-		final Name<Integer> repoName=IdentityUtil.repositoryName(repository.getId());
+	@Override
+	protected Repository getEntity(final BackendController controller, final Integer key) throws IOException {
+		return controller.getRepository(key);
+	}
+
+	@Override
+	protected DataSet toDataSet(final Repository repository, final Integer repositoryId) {
+		final Name<Integer> repoName=IdentityUtil.repositoryName(repositoryId);
 		final Name<String> ownerName=IdentityUtil.userName(repository.getOwner().getId());
 
 		final DataSet dataSet=DataSets.createDataSet(repoName);
@@ -100,26 +105,28 @@ public class RepositoryHandler implements ResourceHandler {
 					withIndividual(RepositoryVocabulary.SCM_REPOSITORY).
 				property(RepositoryVocabulary.LOCATION).
 					withLiteral(repository.getHttpUrlToRepo()).
+				property(RepositoryVocabulary.CODEBASE).
+					withLiteral(repository.getWebUrl()).
 				property(RepositoryVocabulary.NAME).
 					withLiteral(repository.getName()).
 				property(RepositoryVocabulary.CREATED_ON).
-					withLiteral(new Date(repository.getCreatedAt())).
+					withLiteral(toDate(repository.getCreatedAt(),true,"createdAt",repository).get()).
 				property(RepositoryVocabulary.FIRST_COMMIT).
-					withLiteral(new Date(repository.getFirstCommitAt())).
+					withLiteral(toDate(repository.getFirstCommitAt(),false,"firstCommitAt",repository).orNull()).
 				property(RepositoryVocabulary.LAST_COMMIT).
-					withLiteral(new Date(repository.getLastCommitAt())).
+					withLiteral(toDate(repository.getLastCommitAt(),false,"lastCommitAt",repository).orNull()).
 				property(RepositoryVocabulary.ARCHIVED).
-					withLiteral(new Boolean(repository.getArchived())).
+					withLiteral(isArchived(repository).orNull()).
 				property(RepositoryVocabulary.PUBLIC).
-					withLiteral(new Boolean(repository.getPublic())).
+					withLiteral(isPublic(repository).orNull()).
 				property(RepositoryVocabulary.OWNER).
 					withIndividual(ownerName, UserHandler.ID).
 				property(RepositoryVocabulary.REPOSITORY_ID).
-					withLiteral(repository.getId().toString()).
+					withLiteral(repositoryId.toString()).
 				property(RepositoryVocabulary.TAGS).
 					withLiteral(repository.getTags());
 
-		for (final String userId:repository.getContributors()){
+		for(final String userId:repository.getContributors()) {
 			final Name<String> userName = IdentityUtil.userName(userId);
 			helper.
 				managedIndividual(repoName, RepositoryHandler.ID).
@@ -127,7 +134,7 @@ public class RepositoryHandler implements ResourceHandler {
 							withIndividual(userName,UserHandler.ID);
 		}
 
-		if(repository.getAvatarUrl() !=null) {
+		if(repository.getAvatarUrl()!=null) {
 			helper.
 				managedIndividual(repoName, RepositoryHandler.ID).
 					property(RepositoryVocabulary.DEPICTION).
@@ -141,6 +148,38 @@ public class RepositoryHandler implements ResourceHandler {
 		}
 
 		return dataSet;
+	}
+
+	private Optional<Boolean> isPublic(final Repository repository) {
+		final String value = repository.getPublic();
+		if(value!=null) {
+			return Optional.of(Boolean.parseBoolean(value));
+		} else {
+			LOGGER.warn("Repository {} ({}) does not declare whether it is public or not",repository.getId(),repository.getHttpUrlToRepo());
+			return Optional.absent();
+		}
+	}
+
+	private Optional<Boolean> isArchived(final Repository repository) {
+		final String value = repository.getState();
+		if(value!=null) {
+			return Optional.of("archived".equalsIgnoreCase(value));
+		} else {
+			LOGGER.warn("Repository {} ({}) does not declare its state",repository.getId(),repository.getHttpUrlToRepo());
+			return Optional.absent();
+		}
+	}
+
+	private Optional<Date> toDate(final Long millis, final boolean mandatory, final String property, final Repository repository) {
+		if(millis!=null) {
+			return Optional.of(new Date(millis));
+		} else if(!mandatory) {
+			LOGGER.debug("Ignored date for missing property {} of repository {} ({})",property,repository.getId(),repository.getHttpUrlToRepo());
+			return Optional.absent();
+		} else {
+			LOGGER.warn("Could not create date for property {} of repository {} ({})",property,repository.getId(),repository.getHttpUrlToRepo());
+			throw new ApplicationRuntimeException("Could not create date for property "+property+" of repository "+repository);
+		}
 	}
 
 }

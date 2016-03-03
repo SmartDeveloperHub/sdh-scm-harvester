@@ -26,6 +26,7 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.repository;
 
+
 final class RepositoryVocabulary {
 
 	static final String TYPE           = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
@@ -40,6 +41,7 @@ final class RepositoryVocabulary {
 
 	static final String SCM_REPOSITORY = "http://www.smartdeveloperhub.org/vocabulary/scm#Repository";
 	static final String LOCATION       = "http://www.smartdeveloperhub.org/vocabulary/scm#location";
+	static final String CODEBASE       = "http://www.smartdeveloperhub.org/vocabulary/scm#codebase";
 	static final String CREATED_ON     = "http://www.smartdeveloperhub.org/vocabulary/scm#createdOn";
 	static final String DEFAULT_BRANCH = "http://www.smartdeveloperhub.org/vocabulary/scm#defaultBranch";
 	static final String FIRST_COMMIT   = "http://www.smartdeveloperhub.org/vocabulary/scm#firstCommit";
@@ -51,6 +53,7 @@ final class RepositoryVocabulary {
 	static final String REPOSITORY_ID  = "http://www.smartdeveloperhub.org/vocabulary/scm#repositoryId";
 	static final String TAGS           = "http://www.smartdeveloperhub.org/vocabulary/scm#tags";
 	static final String REPOSITORY_OF  = "http://www.smartdeveloperhub.org/vocabulary/scm#isRepositoryOf";
+
 
 	private RepositoryVocabulary() {
 	}

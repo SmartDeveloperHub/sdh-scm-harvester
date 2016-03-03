@@ -24,7 +24,7 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.readers;
+package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -32,24 +32,15 @@ import static org.hamcrest.Matchers.equalTo;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.smartdeveloperhub.harvesters.scm.backend.notification.CommitterCreatedEvent;
-import org.smartdeveloperhub.harvesters.scm.backend.notification.CommitterDeletedEvent;
-import org.smartdeveloperhub.harvesters.scm.backend.notification.Event;
-import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryCreatedEvent;
-import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryDeletedEvent;
-import org.smartdeveloperhub.harvesters.scm.backend.notification.RepositoryUpdatedEvent;
+import org.ldp4j.commons.testing.Utils;
 
 
-public class EventReaderTest extends ReaderTestHelper {
+public class EventUtilTest {
 
-	private EventReader sut;
-
-	@Before
-	public void setUp() {
-		this.sut=new EventReader();
-		showSerializations(true);
+	@Test
+	public void verifyIsUtilityClass() {
+		assertThat(Utils.isUtilityClass(EventUtil.class),equalTo(true));
 	}
 
 	@Test
@@ -59,8 +50,10 @@ public class EventReaderTest extends ReaderTestHelper {
 		fillInBasicEvent(originalEvent);
 
 		final CommitterCreatedEvent readEvent=
-			this.sut.
-				readCommitterCreatedEvent(serialize(originalEvent));
+			EventUtil.
+				unmarshall(
+					EventUtil.marshall(originalEvent),
+					CommitterCreatedEvent.class);
 
 		verifyBasicEvent(originalEvent, readEvent);
 		assertThat(readEvent.getNewCommitters(),equalTo(originalEvent.getNewCommitters()));
@@ -73,8 +66,10 @@ public class EventReaderTest extends ReaderTestHelper {
 		fillInBasicEvent(originalEvent);
 
 		final CommitterDeletedEvent readEvent=
-			this.sut.
-				readCommitterDeletedEvent(serialize(originalEvent));
+			EventUtil.
+				unmarshall(
+					EventUtil.marshall(originalEvent),
+					CommitterDeletedEvent.class);
 
 		verifyBasicEvent(originalEvent, readEvent);
 		assertThat(readEvent.getDeletedCommitters(),equalTo(originalEvent.getDeletedCommitters()));
@@ -87,8 +82,10 @@ public class EventReaderTest extends ReaderTestHelper {
 		fillInBasicEvent(originalEvent);
 
 		final RepositoryCreatedEvent readEvent=
-			this.sut.
-				readRepositoryCreatedEvent(serialize(originalEvent));
+			EventUtil.
+				unmarshall(
+					EventUtil.marshall(originalEvent),
+					RepositoryCreatedEvent.class);
 
 		verifyBasicEvent(originalEvent, readEvent);
 		assertThat(readEvent.getNewRepositories(),equalTo(originalEvent.getNewRepositories()));
@@ -106,8 +103,10 @@ public class EventReaderTest extends ReaderTestHelper {
 		fillInBasicEvent(originalEvent);
 
 		final RepositoryUpdatedEvent readEvent=
-			this.sut.
-				readRepositoryUpdatedEvent(serialize(originalEvent));
+			EventUtil.
+				unmarshall(
+					EventUtil.marshall(originalEvent),
+					RepositoryUpdatedEvent.class);
 
 		verifyBasicEvent(originalEvent, readEvent);
 		assertThat(readEvent.getRepository(),equalTo(originalEvent.getRepository()));
@@ -125,8 +124,10 @@ public class EventReaderTest extends ReaderTestHelper {
 		fillInBasicEvent(originalEvent);
 
 		final RepositoryDeletedEvent readEvent=
-			this.sut.
-				readRepositoryDeletedEvent(serialize(originalEvent));
+			EventUtil.
+				unmarshall(
+					EventUtil.marshall(originalEvent),
+					RepositoryDeletedEvent.class);
 
 		verifyBasicEvent(originalEvent, readEvent);
 		assertThat(readEvent.getDeletedRepositories(),equalTo(originalEvent.getDeletedRepositories()));

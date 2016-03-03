@@ -36,7 +36,6 @@ import org.ldp4j.application.data.NamingScheme;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 
 public final class IdentityUtil {
 
@@ -59,10 +58,6 @@ public final class IdentityUtil {
 
 	public static Integer repositoryId(final ResourceSnapshot resource) {
 		return extractNameId(resource.name(),"Repository", Integer.class);
-	}
-
-	public static Name<String> userContainerName() {
-		return NamingScheme.getDefault().name(UserContainerHandler.NAME);
 	}
 
 	public static Name<String> userName(final String userId) {

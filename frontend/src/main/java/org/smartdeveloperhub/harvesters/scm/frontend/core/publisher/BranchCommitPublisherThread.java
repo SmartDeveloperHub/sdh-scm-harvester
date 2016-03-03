@@ -26,119 +26,12 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import java.io.IOException;
-
-import org.ldp4j.application.ApplicationContext;
-import org.ldp4j.application.data.Name;
-import org.ldp4j.application.session.ContainerSnapshot;
-import org.ldp4j.application.session.ResourceSnapshot;
-import org.ldp4j.application.session.WriteSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchKey;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitKey;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryContainerHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
-public class BranchCommitPublisherThread extends PublisherThread {
+final class BranchCommitPublisherThread extends PublisherThread {
 
-	private static final Logger LOGGER=LoggerFactory.getLogger(BranchCommitPublisherThread.class);
-
-	private static final String THREAD_NAME = "BranchCommit";
-
-	public BranchCommitPublisherThread(final BackendController controller) {
-		super(THREAD_NAME,controller);
-	}
-
-	@Override
-	protected final void doPublish(){
-		LOGGER.info("Started repository population process...");
-		try {
-			for(final Integer repositoryId:getController().getRepositories()){
-				populateRepository(repositoryId);
-			}
-		} catch (final IOException e) {
-			LOGGER.error("Repository population failure",e);
-		} finally {
-			LOGGER.info("Finalized repository population process");
-		}
-	}
-
-	private void populateRepository(final Integer repositoryId) {
-		LOGGER.info("Populating repository {}...",repositoryId);
-		final ApplicationContext ctx = ApplicationContext.getInstance();
-		try(WriteSession session=ctx.createSession()) {
-			final Repository repository=getController().getRepository(repositoryId);
-			final ResourceSnapshot repositorySnapshot = findRepositoryResource(session, repositoryId);
-			publishRepositoryBranches(
-				repository,
-				getAttachedContainer(repositorySnapshot,RepositoryHandler.REPOSITORY_BRANCHES));
-			publishRepositoryCommits(
-				repository,
-				getAttachedContainer(repositorySnapshot,RepositoryHandler.REPOSITORY_COMMITS));
-			session.saveChanges();
-		} catch (final Exception e) {
-			LOGGER.error("Could not populate repository {}",repositoryId,e);
-		}
-	}
-
-	private ResourceSnapshot findRepositoryResource(final WriteSession session, final Integer repositoryId) {
-		final Name<Integer> repositoryName = IdentityUtil.repositoryName(repositoryId);
-		ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
-		if(repositorySnapshot==null) {
-			LOGGER.warn("Could not find resource for repository {}",repositoryId);
-			final ContainerSnapshot repositoryContainer =
-				session.
-					find(
-						ContainerSnapshot.class,
-						IdentityUtil.enhancerName(getController().getTarget()),
-						RepositoryContainerHandler.class);
-			repositorySnapshot=PublisherHelper.publishRepository(repositoryContainer, repositoryId);
-		}
-		return repositorySnapshot;
-	}
-
-	private void publishRepositoryBranches(final Repository repository, final ContainerSnapshot branchContainer) throws IOException {
-		if(repository.getBranches().getBranchIds().isEmpty()) {
-			LOGGER.info("No branches available for repository {}",repository.getId());
-			return;
-		}
-		try {
-			for (final String branchId:repository.getBranches().getBranchIds()){
-				branchContainer.
-					addMember(
-						IdentityUtil.
-							branchName(
-								new BranchKey(repository.getId(),branchId)));
-			}
-		} catch(final Exception e) {
-			throw new IOException("Could not add branches to repository "+repository.getId(),e);
-		}
-	}
-
-	private void publishRepositoryCommits(final Repository repository, final ContainerSnapshot commitContainer) throws IOException {
-		if(repository.getCommits().getCommitIds().isEmpty()) {
-			LOGGER.info("No commits available for repository {}",repository.getId());
-			return;
-		}
-		try {
-			for(final String commitId:repository.getCommits().getCommitIds()){
-				commitContainer.
-					addMember(
-						IdentityUtil.
-							commitName(
-								new CommitKey(repository.getId(),commitId)));
-			}
-		} catch(final Exception e) {
-			throw new IOException("Could not add commits to repository "+repository.getId(),e);
-		}
-	}
-
-	private ContainerSnapshot getAttachedContainer(final ResourceSnapshot resource, final String attachmentId) {
-		return (ContainerSnapshot)resource.attachmentById(attachmentId).resource();
+	BranchCommitPublisherThread(final BackendController controller) {
+		super("BranchCommit",new RepositoryContentPublisherTask(controller));
 	}
 
 }

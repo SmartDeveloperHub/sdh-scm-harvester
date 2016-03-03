@@ -62,7 +62,9 @@
 
 	<modules>
 		<module>backend</module>
+		<module>testing</module>
 		<module>frontend</module>
+		<module>dist</module>
 		<module>container</module>
 		<module>relocation/frontend</module>
 		<module>relocation/container</module>

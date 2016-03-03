@@ -37,8 +37,6 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedCon
 public class CommitContainerHandler extends AbstractCappedContainerHandler {
 
 	public static final String ID   = "CommitContainerHandler";
-	public static final String PATH = "commits/";
-	public static final String NAME = "CommitContainer";
 
 	public CommitContainerHandler() {
 		super("commit");

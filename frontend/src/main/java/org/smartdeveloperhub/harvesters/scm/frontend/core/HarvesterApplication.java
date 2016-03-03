@@ -42,9 +42,8 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.branch.BranchHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.commit.CommitHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.harvester.HarvesterHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BackendResourcePublisher;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.BranchCommitPublisherThread;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.UserPublisherThread;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.Publisher;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.publisher.PublisherFactory;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.repository.RepositoryHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
@@ -58,7 +57,7 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 
 	private URI target;
 
-	private BackendController controller;
+	private Publisher publisher;
 
 	@Override
 	public void setup(final Environment environment, final Bootstrap<HarvesterConfiguration> bootstrap) throws ApplicationSetupException{
@@ -70,15 +69,19 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 			throw new ApplicationSetupException("No target GitLab Enhancer configured");
 		}
 		LOGGER.info("- Target..: {}",configuration.target());
-		this.controller = new BackendController(this.target);
+
+		final BackendController controller = new BackendController(this.target);
+
+		this.publisher = PublisherFactory.createDynamicPublisher(controller);
+		environment.lifecycle().register(this.publisher);
 
 		bootstrap.addHandler(new HarvesterHandler());
-		bootstrap.addHandler(new RepositoryHandler(this.controller));
-		bootstrap.addHandler(new UserHandler(this.controller));
+		bootstrap.addHandler(new RepositoryHandler(controller));
+		bootstrap.addHandler(new UserHandler(controller));
 		bootstrap.addHandlerClass(UserContainerHandler.class);
-		bootstrap.addHandler(new BranchHandler(this.controller));
+		bootstrap.addHandler(new BranchHandler(controller));
 		bootstrap.addHandlerClass(BranchContainerHandler.class);
-		bootstrap.addHandler(new CommitHandler(this.controller));
+		bootstrap.addHandler(new CommitHandler(controller));
 		bootstrap.addHandlerClass(CommitContainerHandler.class);
 
 		environment.
@@ -93,19 +96,10 @@ public final class HarvesterApplication extends Application<HarvesterConfigurati
 	@Override
 	public void initialize(final WriteSession session) throws ApplicationInitializationException {
 		LOGGER.info("Initializing SCM Harvester Application...");
-		final BackendResourcePublisher publisher = new BackendResourcePublisher(session, this.controller);
 		try {
-			publisher.publishHarvesterResources();
+			this.publisher.initialize(session);
 			session.saveChanges();
 			LOGGER.info("SCM Harvester Application initialization completed.");
-
-			LOGGER.info("SCM Harvester: Starting thread for registering branches and commits.");
-			final BranchCommitPublisherThread branchCommitpublisher = new BranchCommitPublisherThread(this.controller);
-			branchCommitpublisher.start();
-
-			LOGGER.info("SCM Harvester: Starting thread for registering users.");
-			final UserPublisherThread userPublisher = new UserPublisherThread(this.controller);
-			userPublisher.start();
 		} catch (final Exception e) {
 			final String errorMessage = "SCM Harvester Application initialization failed";
 			LOGGER.warn(errorMessage+". Full stacktrace follows: ",e);

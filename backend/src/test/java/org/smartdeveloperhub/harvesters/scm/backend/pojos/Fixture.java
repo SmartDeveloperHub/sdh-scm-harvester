@@ -28,13 +28,6 @@ package org.smartdeveloperhub.harvesters.scm.backend.pojos;
 
 import java.util.Arrays;
 
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branches;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commits;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Owner;
-import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
-
 public class Fixture {
 
 	public static Branch defaultBranch() {
@@ -42,7 +35,7 @@ public class Fixture {
 		commit.setAdditionalProperty("additionalProperty", "value");
 		commit.setContributors(Arrays.asList("contributor1","constributor2"));
 		commit.setCreatedAt(System.nanoTime());
-		commit.setLastCommit("lastCommit");
+		commit.setLastCommit(System.nanoTime());
 		commit.setName("name");
 		commit.setProtected("protected");
 		return commit;
@@ -87,7 +80,7 @@ public class Fixture {
 
 	public static Repository defaultRepository() {
 		final Repository repository = new Repository();
-		repository.setArchived("archived");
+		repository.setState("state");
 		repository.setAvatarUrl("avatarUrl");
 		repository.setContributors(Arrays.asList("contributor1","constributor2"));
 		repository.setCreatedAt(System.nanoTime());

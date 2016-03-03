@@ -37,8 +37,6 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractCappedCon
 public class BranchContainerHandler extends AbstractCappedContainerHandler {
 
 	public static final String ID   = "BranchContainerHandler";
-	public static final String PATH = "branches/";
-	public static final String NAME = "BranchContainer";
 
 	public BranchContainerHandler() {
 		super("branch");

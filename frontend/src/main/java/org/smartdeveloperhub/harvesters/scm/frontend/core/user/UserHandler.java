@@ -26,6 +26,7 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.user;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 
@@ -34,40 +35,37 @@ import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
-import org.ldp4j.application.ext.ApplicationRuntimeException;
-import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
+import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
 @Resource(id=UserHandler.ID)
-public class UserHandler implements ResourceHandler {
+public final class UserHandler extends AbstractEntityResourceHandler<User,String> {
 
 	public static final String ID="UserHandler";
 
 	private static final URI IMG_PATH = URI.create("#img");
 
-	private final BackendController backendController;
-
 	public UserHandler(final BackendController backendController) {
-		this.backendController = backendController;
+		super(backendController);
 	}
 
 	@Override
-	public DataSet get(final ResourceSnapshot resource) {
-		final String userId=IdentityUtil.userId(resource);
-		try {
-			final User user = this.backendController.getUser(userId);
-			return maptoDataSet(user);
-		} catch(final Exception e){
-			 throw new ApplicationRuntimeException(e);
-		}
+	protected String getId(final ResourceSnapshot resource) {
+		return IdentityUtil.userId(resource);
 	}
 
-	private DataSet maptoDataSet(final User user) {
-		final Name<String> userName=IdentityUtil.userName(user.getId());
+	@Override
+	protected User getEntity(final BackendController controller, final String key) throws IOException {
+		return controller.getUser(key);
+	}
+
+	@Override
+	protected DataSet toDataSet(final User user, final String userId) {
+		final Name<String> userName=IdentityUtil.userName(userId);
 
 		final DataSet dataSet=DataSets.createDataSet(userName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);

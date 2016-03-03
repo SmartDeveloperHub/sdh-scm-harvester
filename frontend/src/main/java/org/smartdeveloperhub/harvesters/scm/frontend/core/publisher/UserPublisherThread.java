@@ -26,60 +26,12 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.publisher;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.ldp4j.application.ApplicationContext;
-import org.ldp4j.application.data.Name;
-import org.ldp4j.application.session.ContainerSnapshot;
-import org.ldp4j.application.session.WriteSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserContainerHandler;
-import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
-public class UserPublisherThread extends PublisherThread {
+final class UserPublisherThread extends PublisherThread {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(UserPublisherThread.class);
-
-	public UserPublisherThread(final BackendController controller) {
-		super("User",controller);
-	}
-
-	@Override
-	protected final void doPublish() {
-		LOGGER.info("Started user population process...");
-		try {
-			final List<String> users = getController().getCommitters();
-			if(users.isEmpty()) {
-				LOGGER.info("No committers available");
-				return;
-			}
-			publishUserResources(users);
-		} catch (final Exception e) {
-			LOGGER.error("Could not populate users", e);
-		} finally {
-			LOGGER.info("Finalized user population process");
-		}
-	}
-
-	private void publishUserResources(final List<String> users) throws IOException {
-		final ApplicationContext ctx = ApplicationContext.getInstance();
-		try(WriteSession session = ctx.createSession()){
-			final ContainerSnapshot userContainerSnapshot=
-				session.find(
-					ContainerSnapshot.class,
-					IdentityUtil.userContainerName(),
-					UserContainerHandler.class);
-			for(final String userId:users){
-				final Name<String> userName = IdentityUtil.userName(userId);
-				userContainerSnapshot.addMember(userName);
-			}
-			session.saveChanges();
-		} catch(final Exception e) {
-			throw new IOException("Could not publish user resources",e);
-		}
+	UserPublisherThread(final BackendController controller) {
+		super("User",new UserPublisherTask(controller));
 	}
 
 }
