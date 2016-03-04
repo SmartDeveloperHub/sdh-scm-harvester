@@ -61,6 +61,10 @@
 	<!--   BUILD SETTINGS                                                    -->
 	<!-- =================================================================== -->
 
+	<properties>
+		<sonar.skip>true</sonar.skip>
+	</properties>
+
 	<build>
 		<plugins>
 			<plugin>

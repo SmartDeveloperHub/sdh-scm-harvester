@@ -62,4 +62,8 @@
 		</relocation>
 	</distributionManagement>
 
+	<properties>
+		<sonar.skip>true</sonar.skip>
+	</properties>
+
 </project>
