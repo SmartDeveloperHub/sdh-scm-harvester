@@ -24,22 +24,28 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.pojos;
+package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	BranchesTest.class,
-	BranchTest.class,
-	CommitsTest.class,
-	CommitTest.class,
-	IdentifiableTest.class,
-	RepositoriesTest.class,
-	RepositoryTest.class,
-	UserTest.class
-})
-public class PojosTestsSuite {
+import java.util.regex.Pattern;
+
+final class Amqp {
+
+	private static final int MAX_SEMI_SHORT_STR_LENGTH = 127;
+
+	private static final Pattern AMQP_NAME=Pattern.compile("^[a-zA-Z0-9\\-_\\.:]*$");
+
+	private Amqp() {
+	}
+
+	static String validateName(final String name, final String target) {
+		checkNotNull(name,"%s cannot be null",target);
+		checkArgument(name.length()<=MAX_SEMI_SHORT_STR_LENGTH,"%s cannot be larger than 127 octets ("+name.length()+")",target);
+		checkArgument(AMQP_NAME.matcher(name).matches(),"Invalid %s syntax (%s)",target.toLowerCase(),name);
+		return name;
+	}
+
+
 }

@@ -24,22 +24,45 @@
  *   Bundle      : scm-harvester-backend-0.3.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.scm.backend.pojos;
+package org.smartdeveloperhub.harvesters.scm.backend.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.fail;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	BranchesTest.class,
-	BranchTest.class,
-	CommitsTest.class,
-	CommitTest.class,
-	IdentifiableTest.class,
-	RepositoriesTest.class,
-	RepositoryTest.class,
-	UserTest.class
-})
-public class PojosTestsSuite {
+import org.junit.Test;
+
+import com.google.common.base.Strings;
+
+public class AmqpTest {
+
+	@Test
+	public void testValidateName$invalid$null() throws Exception {
+		try {
+			Amqp.validateName(null,"Name");
+			fail("Should not accept null");
+		} catch (final NullPointerException e) {
+			assertThat(e.getMessage(),equalTo("Name cannot be null"));
+		}
+	}
+
+	@Test
+	public void testValidateName$invalid$tooLong() throws Exception {
+		try {
+			Amqp.validateName(Strings.padStart("", 256, 'a'),"Name");
+			fail("Should not accept names longer that the AMQP limit");
+		} catch (final IllegalArgumentException e) {
+		}
+	}
+
+	@Test
+	public void testValidateName$invalid$badChars() throws Exception {
+		try {
+			Amqp.validateName("white spaces not allowed","Name");
+			fail("Should not accept string with invalid characters");
+		} catch (final IllegalArgumentException e) {
+			assertThat(e.getMessage(),equalTo("Invalid name syntax (white spaces not allowed)"));
+		}
+	}
+
 }

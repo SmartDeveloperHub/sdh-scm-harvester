@@ -32,6 +32,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+	AmqpTest.class,
 	ConnectionManagerExceptionHandlerTest.class,
 	ConnectionManagerUncaughtExceptionHandlerTest.class,
 	ConnectionManagerTest.class,

@@ -31,6 +31,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public final class NotificationManager {
 
 	private NotificationManager(final URI target, final NotificationListener listener) {
 		this.target=target;
-		this.aggregator=CollectorAggregator.newInstance(target.toString(), listener);
+		this.aggregator=CollectorAggregator.newInstance(managerName(target), listener);
 	}
 
 	/**
@@ -90,6 +91,10 @@ public final class NotificationManager {
 		final EnhancerController controller=new EnhancerController(this.target.toString());
 		final Enhancer enhancer = controller.getEnhancer();
 		return enhancer.getCollectors();
+	}
+
+	private static String managerName(final URI target) {
+		return String.format("manager%s.enhancer.hash%8X",UUID.randomUUID(),target.hashCode());
 	}
 
 	/**

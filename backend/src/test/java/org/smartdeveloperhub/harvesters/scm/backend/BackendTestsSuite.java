@@ -43,7 +43,8 @@ import org.smartdeveloperhub.harvesters.scm.backend.util.UtilTestsSuite;
 	PojosTestsSuite.class,
 	ReaderTestsSuite.class,
 	ControllerTestsSuite.class,
-	NotificationTestsSuite.class
+	NotificationTestsSuite.class,
+	BackendControllerTest.class
 })
 public class BackendTestsSuite {
 }

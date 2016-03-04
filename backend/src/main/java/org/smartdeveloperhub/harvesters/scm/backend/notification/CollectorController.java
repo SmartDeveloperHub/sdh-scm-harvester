@@ -306,11 +306,8 @@ final class CollectorController {
 		return new CollectorController(collector,null,queue);
 	}
 
-	/**
-	 * TODO: Ensure that the queueName is AMQP valid (see CuratorConnector)
-	 */
 	static CollectorController createNamedReceiver(final Collector collector, final String queueName, final BlockingQueue<SuspendedNotification> queue) {
-		checkNotNull(queueName,"Queue name cannot be null");
+		Amqp.validateName(queueName,"Queue name");
 		checkNotNull(queue,"Notification queue cannot be null");
 		return new CollectorController(collector,queueName,queue);
 	}

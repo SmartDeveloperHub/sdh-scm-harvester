@@ -88,7 +88,7 @@ public class NotificationManagerTest {
 		new MockUp<CollectorAggregator>() {
 			@Mock(invocations=1)
 			void $init(final String name,final NotificationListener listener) {
-				assertThat(name,equalTo(ENDPOINT));
+				Amqp.validateName(name, "Collector aggregator name");
 				assertThat(listener,equalTo(NotificationManagerTest.this.listener));
 			}
 			@Mock(invocations=1)
@@ -126,7 +126,7 @@ public class NotificationManagerTest {
 		new MockUp<CollectorAggregator>() {
 			@Mock(invocations=1)
 			void $init(final String name,final NotificationListener listener) {
-				assertThat(name,equalTo(ENDPOINT));
+				Amqp.validateName(name, "Collector aggregator name");
 				assertThat(listener,equalTo(NotificationManagerTest.this.listener));
 			}
 			@Mock(invocations=1)
@@ -145,7 +145,7 @@ public class NotificationManagerTest {
 		new MockUp<CollectorAggregator>() {
 			@Mock(invocations=1)
 			void $init(final String name,final NotificationListener listener) {
-				assertThat(name,equalTo(ENDPOINT));
+				Amqp.validateName(name, "Collector aggregator name");
 				assertThat(listener,equalTo(NotificationManagerTest.this.listener));
 			}
 			@Mock(invocations=1)
