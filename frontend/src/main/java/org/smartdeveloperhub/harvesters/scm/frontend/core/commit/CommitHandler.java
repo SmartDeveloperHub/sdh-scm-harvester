@@ -27,7 +27,6 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
@@ -77,7 +76,7 @@ public final class CommitHandler extends AbstractEntityResourceHandler<Commit,Co
 				property(CommitVocabulary.COMMIT_ID).
 					withLiteral(commit.getId()).
 				property(CommitVocabulary.CREATED_ON).
-					withLiteral(new Date(commit.getCreatedAt())).
+					withLiteral(toDate(commit.getCreatedAt(),true,"createdOn",commit).get()).
 				property(CommitVocabulary.PERFORMED_BY).
 					withIndividual(userName, UserHandler.ID );
 

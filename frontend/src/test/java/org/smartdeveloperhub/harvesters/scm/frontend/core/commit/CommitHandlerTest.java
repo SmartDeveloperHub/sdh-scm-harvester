@@ -27,15 +27,23 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.commit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.fail;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ldp4j.application.data.DataSet;
+import org.ldp4j.application.data.DataSetHelper;
+import org.ldp4j.application.data.DataSetUtils;
+import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
@@ -71,5 +79,38 @@ public class CommitHandlerTest {
 		}};
 		assertThat(this.sut.getEntity(this.controller, this.key),sameInstance(this.entity));
 	}
+
+	@Test
+	public void testToDataSet$requiresCreatedAt() throws Exception {
+		new Expectations() {{
+			CommitHandlerTest.this.entity.getId();this.result=CommitHandlerTest.this.key;
+			CommitHandlerTest.this.entity.getCreatedAt();this.result=null;
+		}};
+		try {
+			this.sut.toDataSet(this.entity, this.key);
+			fail("Should not return a dataset if a mandatory property is not available");
+		} catch (final ApplicationRuntimeException e) {
+			assertThat(e.getMessage(),equalTo("Could not create date for property createdOn of commit "+this.entity));
+		}
+	}
+
+	@Test
+	public void testToDataSet$hasCreatedOnIfAvailable() throws Exception {
+		final long expected = System.currentTimeMillis();
+		new Expectations() {{
+			CommitHandlerTest.this.entity.getId();this.result=CommitHandlerTest.this.key;
+			CommitHandlerTest.this.entity.getCreatedAt();this.result=expected;
+		}};
+		final DataSet dataSet = this.sut.toDataSet(this.entity, this.key);
+		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
+		final DateTime value =
+			helper.
+				managedIndividual(IdentityUtil.commitName(this.key), CommitHandler.ID).
+					property(CommitVocabulary.CREATED_ON).
+						firstValue(DateTime.class);
+		assertThat(value,notNullValue());
+		assertThat(value.toDate().getTime(),equalTo(expected));
+	}
+
 
 }

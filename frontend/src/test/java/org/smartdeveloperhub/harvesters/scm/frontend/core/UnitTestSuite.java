@@ -31,7 +31,10 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ HarvesterConfigurationTest.class })
+@SuiteClasses({
+	HarvesterConfigurationTest.class,
+	HarvesterApplicationTest.class
+})
 public class UnitTestSuite {
 
 }

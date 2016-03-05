@@ -27,7 +27,6 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.branch;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
@@ -76,7 +75,7 @@ public final class BranchHandler extends AbstractEntityResourceHandler<Branch,Br
 				property(BranchVocabulary.NAME).
 					withLiteral(branch.getName()).
 				property(BranchVocabulary.CREATED_ON).
-					withLiteral(new Date(branch.getCreatedAt()));
+					withLiteral(toDate(branch.getCreatedAt(),true,"createdOn",branch).get());
 
 		for (final String commitId:branch.getCommits().getCommitIds()){
 			final Name<CommitKey> commitName = IdentityUtil.commitName(new CommitKey(key.getRepoId(),commitId));

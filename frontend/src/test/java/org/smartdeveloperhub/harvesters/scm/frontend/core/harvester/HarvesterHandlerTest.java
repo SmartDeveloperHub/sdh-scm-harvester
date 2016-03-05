@@ -26,15 +26,31 @@
  */
 package org.smartdeveloperhub.harvesters.scm.frontend.core.harvester;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+import mockit.Expectations;
+import mockit.Mocked;
+import mockit.Tested;
+import mockit.integration.junit4.JMockit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	HarvesterVocabularyTest.class,
-	HarvesterHandlerTest.class
-})
-public class UnitTestSuite {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.ldp4j.application.data.Name;
+import org.ldp4j.application.session.ResourceSnapshot;
+
+@RunWith(JMockit.class)
+public class HarvesterHandlerTest {
+
+	@Mocked private ResourceSnapshot snapshot;
+
+	@Tested private HarvesterHandler sut;
+
+	@Test
+	public void testGet(@Mocked final Name<?> name) throws Exception {
+		new Expectations() {{
+			HarvesterHandlerTest.this.snapshot.name();this.result=name;
+		}};
+		assertThat(this.sut.get(this.snapshot),notNullValue());
+	}
 
 }
