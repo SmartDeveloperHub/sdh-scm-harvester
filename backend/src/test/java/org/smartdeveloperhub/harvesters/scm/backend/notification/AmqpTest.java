@@ -31,10 +31,16 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
 
 import com.google.common.base.Strings;
 
 public class AmqpTest {
+
+	@Test
+	public void testIsUtilityClass() throws Exception {
+		assertThat(Utils.isUtilityClass(Amqp.class),equalTo(true));
+	}
 
 	@Test
 	public void testValidateName$invalid$null() throws Exception {

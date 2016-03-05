@@ -28,7 +28,6 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.user;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
@@ -79,13 +78,13 @@ public final class UserHandler extends AbstractEntityResourceHandler<User,String
 				property(UserVocabulary.NICK).
 					withLiteral(user.getUsername()).
 				property(UserVocabulary.EXTERNAL).
-					withLiteral(new Boolean(user.isExternal())).
+					withLiteral(user.isExternal()).
 				property(UserVocabulary.COMMITTER_ID).
 					withLiteral(user.getId()).
 				property(UserVocabulary.FIRST_COMMIT).
-					withLiteral(new Date(user.getFirstCommitAt())).
+					withLiteral(toDate(user.getFirstCommitAt(),false,"firstCommitAt",user).orNull()).
 				property(UserVocabulary.LAST_COMMIT).
-					withLiteral(new Date(user.getLastCommitAt()));
+					withLiteral(toDate(user.getLastCommitAt(),false,"lastCommitAt",user).orNull());
 
 		for(final String email:user.getEmails()){
 			helper.

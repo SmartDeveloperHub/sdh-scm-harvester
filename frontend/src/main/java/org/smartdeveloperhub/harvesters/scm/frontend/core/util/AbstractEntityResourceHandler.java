@@ -27,19 +27,27 @@
 package org.smartdeveloperhub.harvesters.scm.frontend.core.util;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.ResourceHandler;
 import org.ldp4j.application.session.ResourceSnapshot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.scm.backend.BackendController;
+import org.smartdeveloperhub.harvesters.scm.backend.pojos.Identifiable;
+
+import com.google.common.base.Optional;
 
 public abstract class AbstractEntityResourceHandler<E,K> extends Serviceable implements ResourceHandler {
 
 	private final BackendController backendController;
+	private final Logger logger; // NOSONAR
 
 	public AbstractEntityResourceHandler(final BackendController backendController) {
 		this.backendController = backendController;
+		this.logger=LoggerFactory.getLogger(getClass());
 	}
 
 	@Override
@@ -54,6 +62,19 @@ public abstract class AbstractEntityResourceHandler<E,K> extends Serviceable imp
 			 throw new ApplicationRuntimeException(e);
 		}
 	}
+
+	protected final <T extends Identifiable<?>> Optional<Date> toDate(final Long millis, final boolean mandatory, final String property, final T entity) {
+		if(millis!=null) {
+			return Optional.of(new Date(millis));
+		} else if(!mandatory) {
+			this.logger.debug("Ignored date for missing property {} of {} {} ({})",property,entity.getClass().getSimpleName().toLowerCase(),entity.getId(),entity);
+			return Optional.absent();
+		} else {
+			this.logger.warn("Could not create date for property {} of {} {} ({})",property,entity.getClass().getSimpleName().toLowerCase(),entity.getId(),entity);
+			throw new ApplicationRuntimeException("Could not create date for property "+property+" of "+entity.getClass().getSimpleName().toLowerCase()+" "+entity);
+		}
+	}
+
 
 	protected abstract E getEntity(BackendController controller, final K key) throws IOException;
 

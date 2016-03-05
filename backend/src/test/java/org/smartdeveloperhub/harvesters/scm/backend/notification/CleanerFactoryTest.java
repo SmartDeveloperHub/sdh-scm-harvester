@@ -42,12 +42,12 @@ import com.rabbitmq.client.Channel;
 @RunWith(JMockit.class)
 public class CleanerFactoryTest {
 
+	@Mocked private Channel channel;
+
 	@Test
 	public void testIsUtilityClass() throws Exception {
 		assertThat(Utils.isUtilityClass(CleanerFactory.class),equalTo(true));
 	}
-
-	@Mocked Channel channel;
 
 	@Test
 	public void testQueueCleanerHasCustomizedToString() {

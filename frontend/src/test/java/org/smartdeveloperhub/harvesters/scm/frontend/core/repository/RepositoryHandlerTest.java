@@ -120,7 +120,7 @@ public class RepositoryHandlerTest {
 			this.sut.toDataSet(this.entity, this.key);
 			fail("Should not return a dataset if a mandatory property is not available");
 		} catch (final ApplicationRuntimeException e) {
-			assertThat(e.getMessage(),equalTo("Could not create date for property createdAt of repository "+this.entity));
+			assertThat(e.getMessage(),equalTo("Could not create date for property createdOn of repository "+this.entity));
 		}
 	}
 

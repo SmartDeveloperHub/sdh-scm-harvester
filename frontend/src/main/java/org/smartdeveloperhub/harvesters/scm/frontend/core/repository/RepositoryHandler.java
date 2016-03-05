@@ -28,14 +28,12 @@ package org.smartdeveloperhub.harvesters.scm.frontend.core.repository;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
 
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.DataSets;
 import org.ldp4j.application.data.Name;
-import org.ldp4j.application.ext.ApplicationRuntimeException;
 import org.ldp4j.application.ext.annotations.Attachment;
 import org.ldp4j.application.ext.annotations.Resource;
 import org.ldp4j.application.session.ResourceSnapshot;
@@ -110,7 +108,7 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 				property(RepositoryVocabulary.NAME).
 					withLiteral(repository.getName()).
 				property(RepositoryVocabulary.CREATED_ON).
-					withLiteral(toDate(repository.getCreatedAt(),true,"createdAt",repository).get()).
+					withLiteral(toDate(repository.getCreatedAt(),true,"createdOn",repository).get()).
 				property(RepositoryVocabulary.FIRST_COMMIT).
 					withLiteral(toDate(repository.getFirstCommitAt(),false,"firstCommitAt",repository).orNull()).
 				property(RepositoryVocabulary.LAST_COMMIT).
@@ -170,16 +168,5 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 		}
 	}
 
-	private Optional<Date> toDate(final Long millis, final boolean mandatory, final String property, final Repository repository) {
-		if(millis!=null) {
-			return Optional.of(new Date(millis));
-		} else if(!mandatory) {
-			LOGGER.debug("Ignored date for missing property {} of repository {} ({})",property,repository.getId(),repository.getHttpUrlToRepo());
-			return Optional.absent();
-		} else {
-			LOGGER.warn("Could not create date for property {} of repository {} ({})",property,repository.getId(),repository.getHttpUrlToRepo());
-			throw new ApplicationRuntimeException("Could not create date for property "+property+" of repository "+repository);
-		}
-	}
 
 }
