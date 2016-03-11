@@ -55,7 +55,7 @@ public class ControllersITest {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(ControllersITest.class);
 
-	private static final String GITLAB_ENHANCER = "http://russell.dia.fi.upm.es:5000/api";
+	private static final String GITLAB_ENHANCER = "http://infra3.dia.fi.upm.es:5000/api";
 
 	private ObjectMapper mapper;
 
