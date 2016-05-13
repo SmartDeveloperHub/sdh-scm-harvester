@@ -33,6 +33,11 @@ import org.smartdeveloperhub.harvesters.scm.testing.enhancer.GitLabEnhancer;
 
 public final class MoreHandlers {
 
+	public enum APIVersion {
+		v1,
+		v2,
+	}
+
 	private MoreHandlers() {
 	}
 
@@ -44,8 +49,8 @@ public final class MoreHandlers {
 		return ContentTypeConsumerHandler.create().consumes(contentType).setNext(aHandler);
 	}
 
-	public static <T> HttpHandler provideEntity(final EntityProvider<T> provider) {
-		return GitLabEnhancerHandler.<T>create().entityProvider(provider);
+	public static <T> HttpHandler provideEntity(APIVersion version, final EntityProvider<T> provider) {
+		return GitLabEnhancerHandler.<T>create(version).entityProvider(provider);
 	}
 
 	public static HttpHandler handleEvents(final GitLabEnhancer enhancer) {

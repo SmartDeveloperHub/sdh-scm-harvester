@@ -59,6 +59,7 @@ import org.smartdeveloperhub.harvesters.scm.testing.enhancer.ActivityListener;
 import org.smartdeveloperhub.harvesters.scm.testing.enhancer.GitLabEnhancer;
 import org.smartdeveloperhub.harvesters.scm.testing.enhancer.GitLabEnhancer.UpdateReport;
 import org.smartdeveloperhub.harvesters.scm.testing.handlers.EntityProvider;
+import org.smartdeveloperhub.harvesters.scm.testing.handlers.MoreHandlers.APIVersion;
 import org.smartdeveloperhub.harvesters.scm.testing.handlers.Parameters;
 
 import com.google.common.collect.Maps;
@@ -71,6 +72,7 @@ public final class TestingService {
 		private String exchangeName="git.collector.mock";
 		private ActivityListener listener;
 		private final Map<String,HttpHandler> endpoints;
+		private APIVersion version=APIVersion.v1;
 
 		private Builder() {
 			this.endpoints=Maps.newLinkedHashMap();
@@ -89,6 +91,12 @@ public final class TestingService {
 			return this;
 		}
 
+		public Builder apiVersion(final APIVersion version) {
+			checkNotNull(version, "GitLab Enhancer API versio cannot be null");
+			this.version=version;
+			return this;
+		}
+
 		public Builder listener(final ActivityListener listener) {
 			checkNotNull(listener, "Activity listener cannot be null");
 			this.listener=listener;
@@ -103,7 +111,13 @@ public final class TestingService {
 		}
 
 		public TestingService build() {
-			return new TestingService(this.port, this.exchangeName,this.listener,this.endpoints);
+			return
+				new TestingService(
+					this.port,
+					this.exchangeName,
+					this.version,
+					this.listener,
+					this.endpoints);
 		}
 
 	}
@@ -124,8 +138,11 @@ public final class TestingService {
 
 	private final int port;
 
-	private TestingService(final int port, final String exchangeName, final ActivityListener listener, final Map<String, HttpHandler> endpoints) {
+	private final APIVersion version;
+
+	private TestingService(final int port, final String exchangeName, final APIVersion version, final ActivityListener listener, final Map<String, HttpHandler> endpoints) {
 		this.port = port;
+		this.version = version;
 		this.config=createControllerConfiguration(port, exchangeName);
 		this.collector = GitCollector.newInstance(this.config);
 		this.enhancer = GitLabEnhancer.newInstance(this.collector,URI.create("http://localhost:"+port+"/enhancer/api"));
@@ -141,6 +158,7 @@ public final class TestingService {
 				).
 				add("/enhancer/api",
 					provideEntity(
+						this.version,
 						new EntityProvider<Enhancer>() {
 							@Override
 							public Enhancer getEntity(final Parameters parameters) {
@@ -151,6 +169,7 @@ public final class TestingService {
 				).
 				add("/enhancer/api/users",
 					provideEntity(
+							this.version,
 						new EntityProvider<List<String>>() {
 							@Override
 							public List<String> getEntity(final Parameters parameters) {
@@ -161,6 +180,7 @@ public final class TestingService {
 				).
 				add("/enhancer/api/users/{userId}",
 					provideEntity(
+						this.version,
 						new EntityProvider<User>() {
 							@Override
 							public User getEntity(final Parameters parameters) {
@@ -171,6 +191,7 @@ public final class TestingService {
 				).
 				add("/enhancer/api/projects",
 					provideEntity(
+						this.version,
 						new EntityProvider<List<Integer>>() {
 							@Override
 							public List<Integer> getEntity(final Parameters parameters) {
@@ -181,6 +202,7 @@ public final class TestingService {
 				).
 				add("/enhancer/api/projects/{rid}",
 					provideEntity(
+						this.version,
 						new EntityProvider<Repository>() {
 							@Override
 							public Repository getEntity(final Parameters parameters) {
@@ -191,6 +213,7 @@ public final class TestingService {
 				).
 				add("/enhancer/api/projects/{rid}/commits",
 					provideEntity(
+						this.version,
 						new EntityProvider<List<String>>() {
 							@Override
 							public List<String> getEntity(final Parameters parameters) {
@@ -201,6 +224,7 @@ public final class TestingService {
 				).
 				add("/enhancer/api/projects/{rid}/commits/{cid}",
 					provideEntity(
+						this.version,
 						new EntityProvider<Commit>() {
 							@Override
 							public Commit getEntity(final Parameters parameters) {
@@ -211,6 +235,7 @@ public final class TestingService {
 				).
 				add("/enhancer/api/projects/{rid}/branches",
 					provideEntity(
+						this.version,
 						new EntityProvider<List<String>>() {
 							@Override
 							public List<String> getEntity(final Parameters parameters) {
@@ -221,6 +246,7 @@ public final class TestingService {
 				).
 				add("/enhancer/api/projects/{rid}/branches/{bid}",
 					provideEntity(
+						this.version,
 						new EntityProvider<Branch>() {
 							@Override
 							public Branch getEntity(final Parameters parameters) {
@@ -231,6 +257,7 @@ public final class TestingService {
 				).
 				add("/enhancer/api/projects/{rid}/branches/{bid}/commits",
 					provideEntity(
+						this.version,
 						new EntityProvider<List<String>>() {
 							@Override
 							public List<String> getEntity(final Parameters parameters) {
@@ -255,7 +282,7 @@ public final class TestingService {
 		this.collector.start();
 		LOGGER.info("Git Collector Publisher Service started. Using exchange {}",this.config.getExchangeName());
 		this.collectorStarted=true;
-		LOGGER.info("Starting GitLab Enhancer Service...");
+		LOGGER.info("Starting GitLab Enhancer Service ({}) ...",this.version);
 		this.server.start();
 		LOGGER.info("GitLab Enhancer Service started. Service available locally at port {}",this.port);
 		this.serverStarted=true;

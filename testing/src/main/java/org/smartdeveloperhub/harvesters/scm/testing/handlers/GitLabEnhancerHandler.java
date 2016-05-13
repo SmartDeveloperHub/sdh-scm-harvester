@@ -32,6 +32,8 @@ import io.undertow.util.Headers;
 import io.undertow.util.Methods;
 import io.undertow.util.StatusCodes;
 
+import org.smartdeveloperhub.harvesters.scm.testing.handlers.MoreHandlers.APIVersion;
+
 import com.google.common.base.Throwables;
 
 final class GitLabEnhancerHandler<T> extends HandlerUtil implements HttpHandler {
@@ -40,7 +42,10 @@ final class GitLabEnhancerHandler<T> extends HandlerUtil implements HttpHandler 
 
 	private EntityProvider<T> provider;
 
-	private GitLabEnhancerHandler() {
+	private final APIVersion version;
+
+	private GitLabEnhancerHandler(final APIVersion version) {
+		this.version = version;
 	}
 
 	GitLabEnhancerHandler<T> entityProvider(final EntityProvider<T> provider) {
@@ -58,19 +63,21 @@ final class GitLabEnhancerHandler<T> extends HandlerUtil implements HttpHandler 
 		} else {
 			try {
 				final T entity=this.provider.getEntity(new Parameters(exchange));
-				String body="false";
 				if(entity!=null) {
-					body=JsonUtil.marshall(entity);
+					answer(exchange,StatusCodes.OK,APPLICATION_JSON,JsonUtil.marshall(entity));
+				} else if(APIVersion.v1.equals(this.version)) {
+					answer(exchange,StatusCodes.OK,APPLICATION_JSON,"false");
+				} else { // API Version must be V2
+					fail(exchange,StatusCodes.NOT_FOUND,"Unknown resource '%s'",exchange.getRequestURL());
 				}
-				answer(exchange,StatusCodes.OK,APPLICATION_JSON,body);
 			} catch (final Exception e) {
 				fail(exchange,e,"Upps!!\n%s",Throwables.getStackTraceAsString(e));
 			}
 		}
 	}
 
-	static <T> GitLabEnhancerHandler<T> create() {
-		return new GitLabEnhancerHandler<T>();
+	static <T> GitLabEnhancerHandler<T> create(final APIVersion version) {
+		return new GitLabEnhancerHandler<T>(version);
 	}
 
 }
