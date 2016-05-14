@@ -69,7 +69,7 @@ final class PublisherHelper {
 		}
 	}
 
-	static void publishHarvester(final WriteSession session, final URI target, final List<Integer> repositories) {
+	static void publishHarvester(final WriteSession session, final URI target, final List<String> repositories) {
 		final Name<URI> harvesterName = IdentityUtil.enhancerName(target);
 
 		final ResourceSnapshot harvesterSnapshot=
@@ -130,10 +130,10 @@ final class PublisherHelper {
 		}
 	}
 
-	static void publishRepositories(final WriteSession session, final URI target, final List<Integer> newRepositories) {
+	static void publishRepositories(final WriteSession session, final URI target, final List<String> newRepositories) {
 		final ContainerSnapshot repositoryContainer=findRepositoryContainer(session, target);
-		for(final Integer repositoryId:newRepositories) {
-			final Name<Integer> repositoryName = IdentityUtil.repositoryName(repositoryId);
+		for(final String repositoryId:newRepositories) {
+			final Name<String> repositoryName = IdentityUtil.repositoryName(repositoryId);
 			final ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
 			if(repositorySnapshot==null) {
 				PublisherHelper.
@@ -143,9 +143,9 @@ final class PublisherHelper {
 
 	}
 
-	static void unpublishRepositories(final WriteSession session, final List<Integer> deletedRepositories) {
-		for(final Integer repositoryId:deletedRepositories) {
-			final Name<Integer> repositoryName = IdentityUtil.repositoryName(repositoryId);
+	static void unpublishRepositories(final WriteSession session, final List<String> deletedRepositories) {
+		for(final String repositoryId:deletedRepositories) {
+			final Name<String> repositoryName = IdentityUtil.repositoryName(repositoryId);
 			final ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
 			if(repositorySnapshot!=null) {
 				session.delete(repositorySnapshot);
@@ -155,7 +155,7 @@ final class PublisherHelper {
 	}
 
 	static void updateRepository(final WriteSession session, final RepositoryUpdatedEvent event) throws IOException {
-		final Name<Integer> repositoryName = IdentityUtil.repositoryName(event.getRepository());
+		final Name<String> repositoryName = IdentityUtil.repositoryName(event.getRepository());
 		final ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
 		if(repositorySnapshot==null) {
 			throw new IOException("Repository "+event.getRepository()+" does not exist");
@@ -191,8 +191,8 @@ final class PublisherHelper {
 					RepositoryContainerHandler.class);
 	}
 
-	private static ResourceSnapshot findRepositoryResource(final WriteSession session, final URI target, final Integer repositoryId) {
-		final Name<Integer> repositoryName = IdentityUtil.repositoryName(repositoryId);
+	private static ResourceSnapshot findRepositoryResource(final WriteSession session, final URI target, final String repositoryId) {
+		final Name<String> repositoryName = IdentityUtil.repositoryName(repositoryId);
 		ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,RepositoryHandler.class);
 		if(repositorySnapshot==null) {
 			LOGGER.warn("Could not find resource for repository {}",repositoryId);
@@ -204,8 +204,8 @@ final class PublisherHelper {
 		return repositorySnapshot;
 	}
 
-	private static ResourceSnapshot publishRepository(final ContainerSnapshot repositoryContainer, final Integer repositoryId) {
-		final Name<Integer> repositoryName=
+	private static ResourceSnapshot publishRepository(final ContainerSnapshot repositoryContainer, final String repositoryId) {
+		final Name<String> repositoryName=
 			IdentityUtil.repositoryName(repositoryId);
 
 		final ResourceSnapshot repository =
@@ -229,7 +229,7 @@ final class PublisherHelper {
 		return repository;
 	}
 
-	private static void publishRepositoryBranches(final Integer repositoryId, final List<String> branches, final ResourceSnapshot repositorySnapshot) throws IOException {
+	private static void publishRepositoryBranches(final String repositoryId, final List<String> branches, final ResourceSnapshot repositorySnapshot) throws IOException {
 		if(branches.isEmpty()) {
 			return;
 		}
@@ -250,7 +250,7 @@ final class PublisherHelper {
 		}
 	}
 
-	private static void unpublishRepositoryBranches(final Integer repositoryId, final List<String> branches, final WriteSession session) throws IOException {
+	private static void unpublishRepositoryBranches(final String repositoryId, final List<String> branches, final WriteSession session) throws IOException {
 		if(branches.isEmpty()) {
 			return;
 		}
@@ -272,7 +272,7 @@ final class PublisherHelper {
 		}
 	}
 
-	private static void publishRepositoryCommits(final Integer repositoryId, final List<String> commits, final ResourceSnapshot repositorySnapshot) throws IOException {
+	private static void publishRepositoryCommits(final String repositoryId, final List<String> commits, final ResourceSnapshot repositorySnapshot) throws IOException {
 		if(commits.isEmpty()) {
 			return;
 		}
@@ -293,7 +293,7 @@ final class PublisherHelper {
 		}
 	}
 
-	private static void unpublishRepositoryCommits(final Integer repositoryId, final List<String> commits, final WriteSession session) throws IOException {
+	private static void unpublishRepositoryCommits(final String repositoryId, final List<String> commits, final WriteSession session) throws IOException {
 		if(commits.isEmpty()) {
 			return;
 		}

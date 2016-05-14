@@ -48,7 +48,7 @@ final class ImmutableRepositoryState implements RepositoryState {
 	private final String avatarUrl;
 	private final String name;
 	private final Long createdAt;
-	private final Integer id;
+	private final String id;
 	private final String httpUrlToRepo;
 	private final String owner;
 	private final List<String> tags;
@@ -61,7 +61,7 @@ final class ImmutableRepositoryState implements RepositoryState {
 
 	private final String description;
 
-	ImmutableRepositoryState(final Integer id, final CommitterState owner) {
+	ImmutableRepositoryState(final String id, final CommitterState owner) {
 		this.id=id;
 		this.name=StateUtil.generateRepoName();
 		this.owner=owner.getId();
@@ -79,7 +79,7 @@ final class ImmutableRepositoryState implements RepositoryState {
 	}
 
 	@Override
-	public Integer getId() {
+	public String getId() {
 		return this.id;
 	}
 
@@ -201,7 +201,7 @@ final class ImmutableRepositoryState implements RepositoryState {
 		owner.setId(this.owner);
 		repository.setOwner(owner);
 		repository.setDefaultBranch(defaultBranch());
-		repository.setPublic(Boolean.toString(this.id%2==0));
+		repository.setPublic(Boolean.toString(this.id.hashCode()%2==0));
 		repository.setContributors(Lists.newArrayList(this.contributors));
 		repository.setFirstCommitAt(firstCommitAt());
 		repository.setLastActivityAt(lastActivityAt());

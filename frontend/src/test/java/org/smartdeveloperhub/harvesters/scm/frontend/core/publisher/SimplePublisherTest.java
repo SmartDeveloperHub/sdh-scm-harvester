@@ -72,7 +72,7 @@ public class SimplePublisherTest {
 			}
 		};
 		this.sut=new SimplePublisher(this.controller);
-		final List<Integer> repositories=Arrays.asList(1,2);
+		final List<String> repositories=Arrays.asList("1","2");
 		new Expectations() {{
 			SimplePublisherTest.this.controller.getTarget();this.result=GITLAB_ENHANCER;
 			SimplePublisherTest.this.controller.getRepositories();this.result=repositories;

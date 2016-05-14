@@ -34,12 +34,12 @@ public class BranchClient extends AbstractClient{
 		super(scmRestService);
 	}
 
-	public String getBranches(final Integer repoId) throws IOException {
-		return getResource("/projects/%d/branches",repoId);
+	public String getBranches(final String repoId) throws IOException {
+		return getResource("/projects/%s/branches",repoId);
 	}
 
-	public String getBranch(final Integer repoId, final String branchId) throws IOException {
-		return getResource("/projects/%d/branches/%s",repoId,branchId);
+	public String getBranch(final String repoId, final String branchId) throws IOException {
+		return getResource("/projects/%s/branches/%s",repoId,branchId);
 	}
 
 }

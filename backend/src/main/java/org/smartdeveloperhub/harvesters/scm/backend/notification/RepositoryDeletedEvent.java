@@ -44,7 +44,7 @@ public class RepositoryDeletedEvent extends Event {
 	static final String DELETED_REPOSITORIES = "deletedRepositories";
 
 	@JsonProperty(DELETED_REPOSITORIES)
-	private List<Integer> deletedRepositories = new ArrayList<>();
+	private List<String> deletedRepositories = new ArrayList<>();
 
 	/**
 	 * Get the identifiers of the repositories deleted from the instance
@@ -52,7 +52,7 @@ public class RepositoryDeletedEvent extends Event {
 	 * @return The identifiers of the deleted repositories
 	 */
 	@JsonProperty(DELETED_REPOSITORIES)
-	public List<Integer> getDeletedRepositories() {
+	public List<String> getDeletedRepositories() {
 		return this.deletedRepositories;
 	}
 
@@ -63,7 +63,7 @@ public class RepositoryDeletedEvent extends Event {
 	 *            The identifiers of the repositories
 	 */
 	@JsonProperty(DELETED_REPOSITORIES)
-	public void setDeletedRepositories(final List<Integer> repositoryIds) {
+	public void setDeletedRepositories(final List<String> repositoryIds) {
 		this.deletedRepositories = repositoryIds;
 	}
 

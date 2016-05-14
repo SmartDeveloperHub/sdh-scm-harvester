@@ -100,7 +100,7 @@ public class EnhancerReaderTest extends ReaderTestHelper {
 		defaultEnhancer.setName("Gitlab Enhancer");
 		defaultEnhancer.setVersion("1.0.3");
 		defaultEnhancer.setStatus("OK");
-		defaultEnhancer.setRepositories(Arrays.asList(1,2));
+		defaultEnhancer.setRepositories(Arrays.asList("1","2"));
 		defaultEnhancer.setUsers(Arrays.asList("u1","u2"));
 		defaultEnhancer.setAdditionalProperty("notifications", "not-supported");
 		return defaultEnhancer;

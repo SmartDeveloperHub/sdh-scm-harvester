@@ -124,12 +124,12 @@ public class NotificationManagerITest {
 				for(final Collector collector:collectors) {
 					publishEvent(aggregator, createCommitters(collector, "cc1"+i,"cc2"+i));
 					publishEvent(aggregator, deleteCommitters(collector, "dc1"+i,"dc2"+i));
-					publishEvent(aggregator, createRepositories(collector, i+1,i+2));
-					publishEvent(aggregator, deleteRepositories(collector, i*rounds+1,i*rounds+2));
-					publishEvent(aggregator, createRepositoryBranches(collector, i*rounds+1,"cbr1"+i,"cbr2"+i));
-					publishEvent(aggregator, deleteRepositoryBranches(collector, i*rounds+2,"dbr1"+i,"dbr2"+i));
-					publishEvent(aggregator, createRepositoryCommits(collector, i*rounds+3,"ccommit1"+i,"ccommit2"+i));
-					publishEvent(aggregator, deleteRepositoryCommits(collector, i*rounds+4,"dcommit"+i,"dcommit2"+i));
+					publishEvent(aggregator, createRepositories(collector, "r"+i+1,"r"+i+2));
+					publishEvent(aggregator, deleteRepositories(collector, "r"+i*rounds+1,"r"+i*rounds+2));
+					publishEvent(aggregator, createRepositoryBranches(collector, "r"+i*rounds+1,"cbr1"+i,"cbr2"+i));
+					publishEvent(aggregator, deleteRepositoryBranches(collector, "r"+i*rounds+2,"dbr1"+i,"dbr2"+i));
+					publishEvent(aggregator, createRepositoryCommits(collector, "r"+i*rounds+3,"ccommit1"+i,"ccommit2"+i));
+					publishEvent(aggregator, deleteRepositoryCommits(collector, "r"+i*rounds+4,"dcommit"+i,"dcommit2"+i));
 				}
 			}
 			shutdownPool();
@@ -181,7 +181,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private RepositoryCreatedEvent createRepositories(final Collector collector, final Integer... values) {
+	private RepositoryCreatedEvent createRepositories(final Collector collector, final String... values) {
 		final RepositoryCreatedEvent event = new RepositoryCreatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -189,7 +189,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private RepositoryDeletedEvent deleteRepositories(final Collector collector, final Integer... values) {
+	private RepositoryDeletedEvent deleteRepositories(final Collector collector, final String... values) {
 		final RepositoryDeletedEvent event = new RepositoryDeletedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -197,7 +197,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private RepositoryUpdatedEvent createRepositoryBranches(final Collector collector, final int id, final String... values) {
+	private RepositoryUpdatedEvent createRepositoryBranches(final Collector collector, final String id, final String... values) {
 		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -206,7 +206,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private RepositoryUpdatedEvent deleteRepositoryBranches(final Collector collector, final int id, final String... values) {
+	private RepositoryUpdatedEvent deleteRepositoryBranches(final Collector collector, final String id, final String... values) {
 		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -215,7 +215,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private RepositoryUpdatedEvent createRepositoryCommits(final Collector collector, final int id, final String... values) {
+	private RepositoryUpdatedEvent createRepositoryCommits(final Collector collector, final String id, final String... values) {
 		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -224,7 +224,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private RepositoryUpdatedEvent deleteRepositoryCommits(final Collector collector, final int id, final String... values) {
+	private RepositoryUpdatedEvent deleteRepositoryCommits(final Collector collector, final String id, final String... values) {
 		final RepositoryUpdatedEvent event = new RepositoryUpdatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());

@@ -71,12 +71,12 @@ public class IdentityUtilTest {
 
 	@Test
 	public void testRepositoryName() throws Exception {
-		assertThat(IdentityUtil.repositoryName(1).id(),equalTo(1));
+		assertThat(IdentityUtil.repositoryName("1").id(),equalTo("1"));
 	}
 
 	@Test
 	public void testRepositoryId() throws Exception {
-		final Integer id = 1;
+		final String id = "1";
 		setUpMock(id);
 		assertThat(IdentityUtil.repositoryId(this.resource),equalTo(id));
 	}
@@ -95,26 +95,26 @@ public class IdentityUtilTest {
 
 	@Test
 	public void testBranchName() throws Exception {
-		final BranchKey key = new BranchKey(1, "branchId");
+		final BranchKey key = new BranchKey("1", "branchId");
 		assertThat(IdentityUtil.branchName(key).id(),equalTo(key));
 	}
 
 	@Test
 	public void testBranchId() throws Exception {
-		final BranchKey key = new BranchKey(1, "branchId");
+		final BranchKey key = new BranchKey("1", "branchId");
 		setUpMock(key);
 		assertThat(IdentityUtil.branchId(this.resource),equalTo(key));
 	}
 
 	@Test
 	public void testCommitName() throws Exception {
-		final CommitKey key = new CommitKey(1, "commitId");
+		final CommitKey key = new CommitKey("1", "commitId");
 		assertThat(IdentityUtil.commitName(key).id(),equalTo(key));
 	}
 
 	@Test
 	public void testCommitId() throws Exception {
-		final CommitKey key = new CommitKey(1, "commitId");
+		final CommitKey key = new CommitKey("1", "commitId");
 		setUpMock(key);
 		assertThat(IdentityUtil.commitId(this.resource),equalTo(key));
 	}

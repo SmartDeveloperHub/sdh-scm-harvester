@@ -64,7 +64,7 @@ public class Enhancer extends Extensible {
 	private List<Collector> collectors = new ArrayList<>();
 
 	@JsonIgnore
-	private List<Integer> repositories = new ArrayList<>();
+	private List<String> repositories = new ArrayList<>();
 
 	@JsonIgnore
 	private List<String> users = new ArrayList<>();
@@ -179,7 +179,7 @@ public class Enhancer extends Extensible {
 	 *
 	 * @return The identifiers of the available repositories
 	 */
-	public List<Integer> getRepositories() {
+	public List<String> getRepositories() {
 		return this.repositories;
 	}
 
@@ -189,7 +189,7 @@ public class Enhancer extends Extensible {
 	 * @param repositories
 	 *            The identifiers of the available repositories
 	 */
-	public void setRepositories(final List<Integer> repositories) {
+	public void setRepositories(final List<String> repositories) {
 		this.repositories = repositories;
 	}
 

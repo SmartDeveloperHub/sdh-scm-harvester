@@ -192,9 +192,9 @@ public final class TestingService {
 				add("/enhancer/api/projects",
 					provideEntity(
 						this.version,
-						new EntityProvider<List<Integer>>() {
+						new EntityProvider<List<String>>() {
 							@Override
-							public List<Integer> getEntity(final Parameters parameters) {
+							public List<String> getEntity(final Parameters parameters) {
 								return TestingService.this.enhancer.getRepositories();
 							}
 						}
@@ -206,7 +206,7 @@ public final class TestingService {
 						new EntityProvider<Repository>() {
 							@Override
 							public Repository getEntity(final Parameters parameters) {
-								return TestingService.this.enhancer.getRepository(parameters.getInteger("rid"));
+								return TestingService.this.enhancer.getRepository(parameters.get("rid"));
 							}
 						}
 					)
@@ -217,7 +217,7 @@ public final class TestingService {
 						new EntityProvider<List<String>>() {
 							@Override
 							public List<String> getEntity(final Parameters parameters) {
-								return TestingService.this.enhancer.getRepositoryCommits(parameters.getInteger("rid"));
+								return TestingService.this.enhancer.getRepositoryCommits(parameters.get("rid"));
 							}
 						}
 					)
@@ -228,7 +228,7 @@ public final class TestingService {
 						new EntityProvider<Commit>() {
 							@Override
 							public Commit getEntity(final Parameters parameters) {
-								return TestingService.this.enhancer.getRepositoryCommit(parameters.getInteger("rid"),parameters.get("cid"));
+								return TestingService.this.enhancer.getRepositoryCommit(parameters.get("rid"),parameters.get("cid"));
 							}
 						}
 					)
@@ -239,7 +239,7 @@ public final class TestingService {
 						new EntityProvider<List<String>>() {
 							@Override
 							public List<String> getEntity(final Parameters parameters) {
-								return TestingService.this.enhancer.getRepositoryBranches(parameters.getInteger("rid"));
+								return TestingService.this.enhancer.getRepositoryBranches(parameters.get("rid"));
 							}
 						}
 					)
@@ -250,7 +250,7 @@ public final class TestingService {
 						new EntityProvider<Branch>() {
 							@Override
 							public Branch getEntity(final Parameters parameters) {
-								return TestingService.this.enhancer.getRepositoryBranch(parameters.getInteger("rid"),parameters.get("bid"));
+								return TestingService.this.enhancer.getRepositoryBranch(parameters.get("rid"),parameters.get("bid"));
 							}
 						}
 					)
@@ -261,7 +261,7 @@ public final class TestingService {
 						new EntityProvider<List<String>>() {
 							@Override
 							public List<String> getEntity(final Parameters parameters) {
-								return TestingService.this.enhancer.getRepositoryBranchCommits(parameters.getInteger("rid"),parameters.get("bid"));
+								return TestingService.this.enhancer.getRepositoryBranchCommits(parameters.get("rid"),parameters.get("bid"));
 							}
 						}
 					)
@@ -322,7 +322,7 @@ public final class TestingService {
 		return config;
 	}
 
-	public Branch getBranch(final int repositoryId, final String branchId) {
+	public Branch getBranch(final String repositoryId, final String branchId) {
 		return this.enhancer.getRepositoryBranch(repositoryId, branchId);
 	}
 

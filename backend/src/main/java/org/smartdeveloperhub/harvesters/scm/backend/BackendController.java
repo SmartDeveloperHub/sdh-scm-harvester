@@ -59,7 +59,7 @@ public class BackendController {
 		return this.target;
 	}
 
-	public List<Integer> getRepositories() throws IOException {
+	public List<String> getRepositories() throws IOException {
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
 		return repoCtl.getRepositories().getRepositoryIds();
 	}
@@ -70,7 +70,7 @@ public class BackendController {
 		final Enhancer enhancer = enhancerCtl.getEnhancer();
 		uniqueUsers.addAll(enhancer.getUsers());
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
-		for(final Integer repoId : enhancer.getRepositories()) {
+		for(final String repoId : enhancer.getRepositories()) {
 			final List<String> contributors = repoCtl.getRepositoryContributors(repoId);
 			for(final String contributorId : contributors) {
 				uniqueUsers.add(contributorId);
@@ -79,7 +79,7 @@ public class BackendController {
 		return ImmutableList.copyOf(uniqueUsers);
 	}
 
-	public Repository getRepository(final Integer id) throws IOException {
+	public Repository getRepository(final String id) throws IOException {
 		final RepositoryController repoCtl = new RepositoryController(this.scmRestService);
 		return repoCtl.getRepository(id);
 	}
@@ -89,12 +89,12 @@ public class BackendController {
 		return userCtl.getUser(id);
 	}
 
-	public Branch getBranch(final Integer repoId, final String branchId) throws IOException {
+	public Branch getBranch(final String repoId, final String branchId) throws IOException {
 		final BranchController branchCtl = new BranchController(this.scmRestService);
 		return branchCtl.getBranch(repoId, branchId);
 	}
 
-	public Commit getCommit(final Integer repoId, final String commitId) throws IOException {
+	public Commit getCommit(final String repoId, final String commitId) throws IOException {
 		final CommitController commitCtl = new CommitController(this.scmRestService);
 		return commitCtl.getCommit(repoId, commitId);
 	}

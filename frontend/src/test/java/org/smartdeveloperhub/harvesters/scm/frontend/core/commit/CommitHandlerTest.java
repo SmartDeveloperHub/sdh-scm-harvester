@@ -74,8 +74,8 @@ public class CommitHandlerTest {
 	public void testGetEntity() throws Exception {
 		new Expectations() {{
 			CommitHandlerTest.this.key.getCommitId();this.result="commitId";
-			CommitHandlerTest.this.key.getRepoId();this.result=1;
-			CommitHandlerTest.this.controller.getCommit(1, "commitId");this.result=CommitHandlerTest.this.entity;
+			CommitHandlerTest.this.key.getRepoId();this.result="1";
+			CommitHandlerTest.this.controller.getCommit("1", "commitId");this.result=CommitHandlerTest.this.entity;
 		}};
 		assertThat(this.sut.getEntity(this.controller, this.key),sameInstance(this.entity));
 	}

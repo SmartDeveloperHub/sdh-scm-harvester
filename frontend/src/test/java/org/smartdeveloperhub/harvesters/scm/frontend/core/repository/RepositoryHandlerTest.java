@@ -77,12 +77,12 @@ public class RepositoryHandlerTest {
 	@Mocked private IdentityUtil util;
 	@Mocked private Repository entity;
 
-	private final Integer key=1;
+	private final String key="1";
 
 	@Tested
 	private RepositoryHandler sut;
 
-	private Name<Integer> repositoryName() {
+	private Name<String> repositoryName() {
 		return NamingScheme.getDefault().name(RepositoryHandlerTest.this.key);
 	}
 

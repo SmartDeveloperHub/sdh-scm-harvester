@@ -65,13 +65,13 @@ public class RepositoryContentPublisherTaskTest {
 	@Test
 	public void testProcessFailure() throws Exception {
 		final URI target=URI.create("target");
-		final List<Integer> repositories = Arrays.asList(1,2);
+		final List<String> repositories = Arrays.asList("1","2");
 		new Expectations() {{
 			RepositoryContentPublisherTaskTest.this.controller.getTarget();this.result=target;
 			RepositoryContentPublisherTaskTest.this.controller.getRepositories();this.result=repositories;
 			ApplicationContext.getInstance();this.result=RepositoryContentPublisherTaskTest.this.context;
 			RepositoryContentPublisherTaskTest.this.context.createSession();this.result=RepositoryContentPublisherTaskTest.this.session;
-			RepositoryContentPublisherTaskTest.this.controller.getRepository(1);this.result=new IOException("Failure");
+			RepositoryContentPublisherTaskTest.this.controller.getRepository("1");this.result=new IOException("Failure");
 			PublisherHelper.closeGracefully(RepositoryContentPublisherTaskTest.this.session);
 		}};
 		this.sut.call();
@@ -80,13 +80,13 @@ public class RepositoryContentPublisherTaskTest {
 	@Test
 	public void testProcessError() throws Exception {
 		final URI target=URI.create("target");
-		final List<Integer> repositories = Arrays.asList(1,2);
+		final List<String> repositories = Arrays.asList("1","2");
 		new Expectations() {{
 			RepositoryContentPublisherTaskTest.this.controller.getTarget();this.result=target;
 			RepositoryContentPublisherTaskTest.this.controller.getRepositories();this.result=repositories;
 			ApplicationContext.getInstance();this.result=RepositoryContentPublisherTaskTest.this.context;
 			RepositoryContentPublisherTaskTest.this.context.createSession();this.result=RepositoryContentPublisherTaskTest.this.session;
-			RepositoryContentPublisherTaskTest.this.controller.getRepository(1);this.result=new Error("Failure");
+			RepositoryContentPublisherTaskTest.this.controller.getRepository("1");this.result=new Error("Failure");
 			PublisherHelper.closeGracefully(RepositoryContentPublisherTaskTest.this.session);
 		}};
 		try {
@@ -100,14 +100,14 @@ public class RepositoryContentPublisherTaskTest {
 	@Test
 	public void testProcessOk(@Mocked final Repository repository) throws Exception {
 		final URI target=URI.create("target");
-		final List<Integer> repositories = Arrays.asList(1,2);
+		final List<String> repositories = Arrays.asList("1","2");
 		new Expectations() {{
 			RepositoryContentPublisherTaskTest.this.controller.getTarget();this.result=target;
 			RepositoryContentPublisherTaskTest.this.controller.getRepositories();this.result=repositories;
 			ApplicationContext.getInstance();this.result=RepositoryContentPublisherTaskTest.this.context;this.times=2;
 			RepositoryContentPublisherTaskTest.this.context.createSession();this.result=RepositoryContentPublisherTaskTest.this.session;this.times=2;
-			RepositoryContentPublisherTaskTest.this.controller.getRepository(1);this.result=repository;this.times=1;
-			RepositoryContentPublisherTaskTest.this.controller.getRepository(2);this.result=repository;this.times=1;
+			RepositoryContentPublisherTaskTest.this.controller.getRepository("1");this.result=repository;this.times=1;
+			RepositoryContentPublisherTaskTest.this.controller.getRepository("2");this.result=repository;this.times=1;
 			PublisherHelper.publishRepository(RepositoryContentPublisherTaskTest.this.session, target, repository);this.times=2;
 			RepositoryContentPublisherTaskTest.this.session.saveChanges();this.times=2;
 			PublisherHelper.closeGracefully(RepositoryContentPublisherTaskTest.this.session);this.times=2;

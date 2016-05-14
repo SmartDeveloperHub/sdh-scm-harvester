@@ -40,8 +40,8 @@ public class CommitKeyTest {
 	private static final String COMMIT_ID = "commitId1";
 	private static final String ALTERNATIVE_COMMIT_ID = "commitId2";
 
-	private static final int REPO_ID = 1;
-	private static final int ALTERNATIVE_REPO_ID = 2;
+	private static final String REPO_ID = "1";
+	private static final String ALTERNATIVE_REPO_ID = "2";
 
 	@Test
 	public void testKeepsRepositoryId() throws Exception {

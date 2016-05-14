@@ -30,7 +30,7 @@ import java.util.List;
 
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 
-interface RepositoryState extends State<Integer,Repository> {
+interface RepositoryState extends State<String,Repository> {
 
 	String getName();
 

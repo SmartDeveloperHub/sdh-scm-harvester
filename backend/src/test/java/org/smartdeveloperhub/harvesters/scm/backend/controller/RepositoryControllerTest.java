@@ -81,24 +81,24 @@ public class RepositoryControllerTest extends ControllerTestHelper {
 
 	@Test
 	public void testGetRepository$happyPath() throws IOException {
-		final Integer source=1;
+		final String source="1";
 		new MockUp<RepositoryClient>() {
 			@Mock
-			public String getRepository(final Integer repoId) throws IOException {
+			public String getRepository(final String repoId) throws IOException {
 				assertThat(repoId,equalTo(source));
 				return loadResponse("repository.json");
 			}
 		};
 		new MockUp<BranchClient>() {
 			@Mock
-			public String getBranches(final Integer repoId) throws IOException {
+			public String getBranches(final String repoId) throws IOException {
 				assertThat(repoId,equalTo(source));
 				return loadResponse("repository-branches.json");
 			}
 		};
 		new MockUp<CommitClient>() {
 			@Mock
-			public String getCommits(final Integer repoId) throws IOException {
+			public String getCommits(final String repoId) throws IOException {
 				assertThat(repoId,equalTo(source));
 				return loadResponse("repository-commits.json");
 			}
@@ -111,10 +111,10 @@ public class RepositoryControllerTest extends ControllerTestHelper {
 
 	@Test
 	public void testGetRepositoryContributors$happyPath() throws IOException {
-		final Integer source=2;
+		final String source="2";
 		new MockUp<RepositoryClient>() {
 			@Mock
-			public String getRepository(final Integer repoId) throws IOException {
+			public String getRepository(final String repoId) throws IOException {
 				assertThat(repoId,equalTo(source));
 				return loadResponse("repository.json");
 			}

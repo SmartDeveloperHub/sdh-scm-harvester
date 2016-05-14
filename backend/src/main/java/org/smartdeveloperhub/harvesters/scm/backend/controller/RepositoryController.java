@@ -56,14 +56,14 @@ public class RepositoryController {
 		return this.repositoryReader.readReposistories(repositoriesIS);
 	}
 
-	public Repository getRepository(final Integer repoId) throws IOException {
+	public Repository getRepository(final String repoId) throws IOException {
 		final String repositoryIS = this.repositoryClient.getRepository(repoId);
 		final String branchesIS = this.branchClient.getBranches(repoId);
 		final String commitsIS = this.commitClient.getCommits(repoId);
 		return this.repositoryReader.readRepository(repositoryIS, branchesIS, commitsIS);
 	}
 
-	public List<String> getRepositoryContributors(final Integer repoId) throws IOException {
+	public List<String> getRepositoryContributors(final String repoId) throws IOException {
 		final String repositoryIS = this.repositoryClient.getRepository(repoId);
 		final Repository repository=this.repositoryReader.readRepository(repositoryIS,null,null);
 		return repository.getContributors();

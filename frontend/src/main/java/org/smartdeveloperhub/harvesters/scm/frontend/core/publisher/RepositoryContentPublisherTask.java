@@ -44,12 +44,12 @@ final class RepositoryContentPublisherTask extends PublisherTask {
 
 	@Override
 	protected final void doPublish() throws IOException {
-		for(final Integer repositoryId:getController().getRepositories()){
+		for(final String repositoryId:getController().getRepositories()){
 			populateRepository(repositoryId);
 		}
 	}
 
-	private void populateRepository(final Integer repositoryId) throws IOException {
+	private void populateRepository(final String repositoryId) throws IOException {
 		LOGGER.info("Populating repository {}...",repositoryId);
 		final ApplicationContext ctx = ApplicationContext.getInstance();
 		WriteSession session=null;

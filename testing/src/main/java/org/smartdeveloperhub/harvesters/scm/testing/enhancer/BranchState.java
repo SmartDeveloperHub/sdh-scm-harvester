@@ -32,7 +32,7 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Branch;
 
 interface BranchState extends State<String,Branch> {
 
-	Integer getRepositoryId();
+	String getRepositoryId();
 
 	String getName();
 

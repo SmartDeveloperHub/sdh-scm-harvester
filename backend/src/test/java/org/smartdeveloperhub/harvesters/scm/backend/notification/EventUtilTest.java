@@ -78,7 +78,7 @@ public class EventUtilTest {
 	@Test
 	public void testReadRepositoryCreatedEvent() throws IOException {
 		final RepositoryCreatedEvent originalEvent = new RepositoryCreatedEvent();
-		originalEvent.setNewRepositories(Arrays.asList(1,2,3));
+		originalEvent.setNewRepositories(Arrays.asList("1","2","3"));
 		fillInBasicEvent(originalEvent);
 
 		final RepositoryCreatedEvent readEvent=
@@ -94,7 +94,7 @@ public class EventUtilTest {
 	@Test
 	public void testReadUpdatedCreatedEvent() throws IOException {
 		final RepositoryUpdatedEvent originalEvent = new RepositoryUpdatedEvent();
-		originalEvent.setRepository(19);
+		originalEvent.setRepository("19");
 		originalEvent.setNewBranches(Arrays.asList("release/0.1.0"));
 		originalEvent.setDeletedBranches(Arrays.asList("feature/new-issue","feature/enhancement"));
 		originalEvent.setNewCommits(Arrays.asList("2ae1d88a46004f5c3c6aa3ddba2cf719452ea005", "afcea4f8ba9cddba9d7a1370d63f0a78601f3973"));
@@ -120,7 +120,7 @@ public class EventUtilTest {
 	@Test
 	public void testReadRepositoryDeletedEvent() throws IOException {
 		final RepositoryDeletedEvent originalEvent = new RepositoryDeletedEvent();
-		originalEvent.setDeletedRepositories(Arrays.asList(1,2,3));
+		originalEvent.setDeletedRepositories(Arrays.asList("1","2","3"));
 		fillInBasicEvent(originalEvent);
 
 		final RepositoryDeletedEvent readEvent=

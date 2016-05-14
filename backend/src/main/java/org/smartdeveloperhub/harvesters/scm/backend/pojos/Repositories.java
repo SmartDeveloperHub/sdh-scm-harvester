@@ -31,13 +31,13 @@ import java.util.List;
 
 public class Repositories extends Pojo {
 
-	private List<Integer> repositoryIds = new ArrayList<Integer>();
+	private List<String> repositoryIds = new ArrayList<>();
 
-	public List<Integer> getRepositoryIds() {
+	public List<String> getRepositoryIds() {
 		return this.repositoryIds;
 	}
 
-	public void setRepositoryIds(final List<Integer> repositoryIds) {
+	public void setRepositoryIds(final List<String> repositoryIds) {
 		this.repositoryIds = repositoryIds;
 	}
 

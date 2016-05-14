@@ -35,10 +35,10 @@ public final class BranchKey implements Comparable<BranchKey>, Serializable {
 
 	private static final long serialVersionUID = 786423257542885122L;
 
-	private final Integer repoId;
+	private final String repoId;
 	private final String branchId;
 
-	public BranchKey(final Integer repoId, final String branchId) {
+	public BranchKey(final String repoId, final String branchId) {
 		this.repoId = repoId;
 		this.branchId = branchId;
 	}
@@ -47,7 +47,7 @@ public final class BranchKey implements Comparable<BranchKey>, Serializable {
 		return this.branchId;
 	}
 
-	public Integer getRepoId() {
+	public String getRepoId() {
 		return this.repoId;
 	}
 

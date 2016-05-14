@@ -88,7 +88,7 @@ public class Fixture {
 		repository.setDescription("description");
 		repository.setFirstCommitAt(System.nanoTime());
 		repository.setHttpUrlToRepo("httpUrlTpRepo");
-		repository.setId(1);
+		repository.setId(Integer.toString(1));
 		repository.setLastActivityAt(System.nanoTime());
 		repository.setLastCommitAt(System.nanoTime());
 		repository.setName("name");
@@ -118,7 +118,7 @@ public class Fixture {
 
 	public static Repositories defaultRepositories() {
 		final Repositories defaultRepos=new Repositories();
-		defaultRepos.setRepositoryIds(Arrays.asList(1,2,3));
+		defaultRepos.setRepositoryIds(Arrays.asList("1","2","3"));
 		return defaultRepos;
 	}
 

@@ -145,7 +145,7 @@ public final class GitLabEnhancer {
 	}
 
 	private final Map<String,CommitterState> committers;
-	private final Map<Integer,RepositoryState> repositories;
+	private final Map<String,RepositoryState> repositories;
 	private final GitCollector collector;
 	private final URI base;
 
@@ -181,31 +181,31 @@ public final class GitLabEnhancer {
 		return findCommitter(committerId).getRepresentation();
 	}
 
-	public List<Integer> getRepositories() {
+	public List<String> getRepositories() {
 		return ImmutableList.copyOf(this.repositories.keySet());
 	}
 
-	public Repository getRepository(final Integer repositoryId) {
+	public Repository getRepository(final String repositoryId) {
 		return findRepository(repositoryId).getRepresentation();
 	}
 
-	public List<String> getRepositoryBranches(final Integer repositoryId) {
+	public List<String> getRepositoryBranches(final String repositoryId) {
 		return findRepository(repositoryId).branches();
 	}
 
-	public List<String> getRepositoryCommits(final Integer repositoryId) {
+	public List<String> getRepositoryCommits(final String repositoryId) {
 		return findRepository(repositoryId).commits();
 	}
 
-	public Commit getRepositoryCommit(final Integer repositoryId, final String commitId) {
+	public Commit getRepositoryCommit(final String repositoryId, final String commitId) {
 		return findRepository(repositoryId).commit(commitId).getRepresentation();
 	}
 
-	public Branch getRepositoryBranch(final Integer repositoryId, final String name) {
+	public Branch getRepositoryBranch(final String repositoryId, final String name) {
 		return findRepository(repositoryId).branch(name).getRepresentation();
 	}
 
-	public List<String> getRepositoryBranchCommits(final Integer repositoryId, final String name) {
+	public List<String> getRepositoryBranchCommits(final String repositoryId, final String name) {
 		return findRepository(repositoryId).branch(name).commits();
 	}
 
@@ -264,7 +264,7 @@ public final class GitLabEnhancer {
 		return state;
 	}
 
-	private RepositoryState findRepository(final Integer repositoryId) {
+	private RepositoryState findRepository(final String repositoryId) {
 		RepositoryState state = this.repositories.get(repositoryId);
 		if(state==null) {
 			Reports.currentReport().warn("Repository %s does not exist",repositoryId);
@@ -351,7 +351,7 @@ public final class GitLabEnhancer {
 	private void deleteRepositories(final RepositoryDeletedEvent event) {
 		final UpdateReport report = Reports.currentReport();
 		final RepositoryDeletedEvent curated=new RepositoryDeletedEvent();
-		for(final Integer repositoryId:event.getDeletedRepositories()) {
+		for(final String repositoryId:event.getDeletedRepositories()) {
 			final RepositoryState repository = this.repositories.remove(repositoryId);
 			if(repository!=null) {
 				curated.getDeletedRepositories().add(repositoryId);
@@ -371,7 +371,7 @@ public final class GitLabEnhancer {
 		if(!this.committers.isEmpty()) {
 			final RepositoryCreatedEvent curated=new RepositoryCreatedEvent();
 			final Iterator<String> committerIds = Iterators.cycle(this.committers.keySet());
-			for(final Integer repositoryId:event.getNewRepositories()) {
+			for(final String repositoryId:event.getNewRepositories()) {
 				if(!this.repositories.containsKey(repositoryId)) {
 					final CommitterState owner = this.committers.get(committerIds.next());
 					final RepositoryState repository =

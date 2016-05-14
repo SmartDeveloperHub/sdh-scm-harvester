@@ -53,7 +53,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 	"last_commit_at",
 	"public",
 })
-public class Repository extends Contributable<Integer> {
+public class Repository extends Contributable<String> {
 
 	@JsonProperty("first_commit_at")
 	private Long firstCommitAt;

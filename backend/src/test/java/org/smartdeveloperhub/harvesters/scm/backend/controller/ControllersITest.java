@@ -95,7 +95,7 @@ public class ControllersITest {
 	private void exploreRepositories(final Enhancer enhancer) throws IOException {
 		System.out.printf("Exploring repositories...%n");
 		final RepositoryController rController=new RepositoryController(GITLAB_ENHANCER);
-		for(final Integer repositoryId:enhancer.getRepositories()) {
+		for(final String repositoryId:enhancer.getRepositories()) {
 			final Repository repository = rController.getRepository(repositoryId);
 			traverseRepository(repository);
 		}

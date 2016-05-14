@@ -82,13 +82,13 @@ public class BackendControllerTest {
 			@Mock
 			Repositories getRepositories() {
 				final Repositories result=new Repositories();
-				result.setRepositoryIds(Lists.newArrayList(1,2,3));
+				result.setRepositoryIds(Lists.newArrayList("1","2","3"));
 				return result;
 			}
 		};
-		final List<Integer> repositories = this.sut.getRepositories();
+		final List<String> repositories = this.sut.getRepositories();
 		assertThat(repositories,hasSize(3));
-		assertThat(repositories,hasItems(1,2,3));
+		assertThat(repositories,hasItems("1","2","3"));
 	}
 
 	@Test
@@ -101,7 +101,7 @@ public class BackendControllerTest {
 			@Mock
 			Enhancer getEnhancer() {
 				final Enhancer result = new Enhancer();
-				result.getRepositories().add(1);
+				result.getRepositories().add("1");
 				result.getUsers().add("user1");
 				return result;
 			}
@@ -112,7 +112,7 @@ public class BackendControllerTest {
 				assertThat(location,equalTo(strURI));
 			}
 			@Mock
-			List<String> getRepositoryContributors(final Integer id) {
+			List<String> getRepositoryContributors(final String id) {
 				return
 					Lists.
 						newArrayList("user1","contributor1","contributor2");
@@ -131,17 +131,17 @@ public class BackendControllerTest {
 				assertThat(location,equalTo(strURI));
 			}
 			@Mock
-			Repository getRepository(final Integer id) {
-				assertThat(id,equalTo(1));
+			Repository getRepository(final String id) {
+				assertThat(id,equalTo("1"));
 				return repository;
 			}
 		};
-		assertThat(this.sut.getRepository(1),sameInstance(repository));
+		assertThat(this.sut.getRepository("1"),sameInstance(repository));
 	}
 
 	@Test
 	public void testGetBranch(@Mocked final Branch expectation) throws Exception {
-		final int expectedRepoId = 1;
+		final String expectedRepoId = "1";
 		final String expectedBranchId = "id";
 		new MockUp<BranchController>() {
 			@Mock
@@ -149,7 +149,7 @@ public class BackendControllerTest {
 				assertThat(location,equalTo(strURI));
 			}
 			@Mock
-			Branch getBranch(final Integer repoId,final String branchId) {
+			Branch getBranch(final String repoId,final String branchId) {
 				assertThat(repoId,equalTo(expectedRepoId));
 				assertThat(branchId,equalTo(expectedBranchId));
 				return expectation;
@@ -160,7 +160,7 @@ public class BackendControllerTest {
 
 	@Test
 	public void testGetCommit(@Mocked final Commit expectation) throws Exception {
-		final int expectedRepoId = 1;
+		final String expectedRepoId = "1";
 		final String expectedCommitId = "id";
 		new MockUp<CommitController>() {
 			@Mock
@@ -168,7 +168,7 @@ public class BackendControllerTest {
 				assertThat(location,equalTo(strURI));
 			}
 			@Mock
-			Commit getCommit(final Integer repoId,final String branchId) {
+			Commit getCommit(final String repoId,final String branchId) {
 				assertThat(repoId,equalTo(expectedRepoId));
 				assertThat(branchId,equalTo(expectedCommitId));
 				return expectation;

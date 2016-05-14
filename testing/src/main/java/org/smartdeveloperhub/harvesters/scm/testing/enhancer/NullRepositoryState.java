@@ -36,14 +36,14 @@ final class NullRepositoryState implements RepositoryState {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(State.class);
 
-	private final Integer id;
+	private final String id;
 
-	NullRepositoryState(final Integer repositoryId) {
+	NullRepositoryState(final String repositoryId) {
 		this.id = repositoryId;
 	}
 
 	@Override
-	public Integer getId() {
+	public String getId() {
 		return this.id;
 	}
 
