@@ -52,12 +52,12 @@ public final class IdentityUtil {
 		return NamingScheme.getDefault().name(target);
 	}
 
-	public static Name<Integer> repositoryName(final Integer repositoryId) {
+	public static Name<String> repositoryName(final String repositoryId) {
 		return NamingScheme.getDefault().name(repositoryId);
 	}
 
-	public static Integer repositoryId(final ResourceSnapshot resource) {
-		return extractNameId(resource.name(),"Repository", Integer.class);
+	public static String repositoryId(final ResourceSnapshot resource) {
+		return extractNameId(resource.name(),"Repository",String.class);
 	}
 
 	public static Name<String> userName(final String userId) {

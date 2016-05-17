@@ -35,30 +35,29 @@ import io.undertow.server.handlers.sse.ServerSentEventHandler;
 import java.io.IOException;
 import java.util.Scanner;
 
+import org.smartdeveloperhub.harvesters.scm.testing.handlers.MoreHandlers.APIVersion;
+
 public class StandaloneTestingService {
 
+	private static final int        DEFAULT_PORT                        = 8080;
+	private static final APIVersion DEFAULT_GITLAB_ENHANCER_API_VERSION = APIVersion.v1;
+
 	public static void main(final String... args) {
+		System.out.printf("Testing GitLab Enhancer Service%s%n",serviceVersion());
+
 		final ServerSentEventHandler consoleHandler = serverSentEvents();
 		final TestingService service =
 			TestingService.
 				builder().
-					port(8080).
+					port(port()).
+					apiVersion(apiVersion()).
 					exchangeName("git.collector.mock").
 					listener(new ServerSentEventConsumer(consoleHandler)).
 					addEndpoint("/frontend/",resourceHandler().addWelcomeFiles("index.html")).
 					addEndpoint("/frontend/assets/{asset}",resourceHandler()).
 					addEndpoint("/frontend/console",consoleHandler).
 					build();
-
 		try {
-			String build = System.getProperty("service.build","");
-			if(!build.isEmpty()) {
-				build="-b"+build;
-			}
-			System.out.printf(
-				"Testing GitLab Enhancer Service v%s%s%n",
-				System.getProperty("service.version"),
-				build);
 			service.start();
 			awaitTerminationRequest();
 			service.shutdown();
@@ -66,6 +65,55 @@ public class StandaloneTestingService {
 			System.err.println("Could not start service. Full stacktrace follows:");
 			e.printStackTrace(System.err);
 		}
+	}
+
+	private static String serviceVersion() {
+		final String build=serviceBuild();
+		final String version=System.getProperty("service.version","");
+		if(version.isEmpty()) {
+			return version;
+		}
+		return " v"+version+build;
+	}
+
+	private static String serviceBuild() {
+		String build = System.getProperty("service.build","");
+		if(!build.isEmpty()) {
+			build="-b"+build;
+		}
+		return build;
+	}
+
+	private static int port() {
+		final String preference=
+			System.
+				getProperty(
+					"service.port",
+					Integer.toString(DEFAULT_PORT));
+		int port;
+		try {
+			port=Integer.parseInt(preference);
+		} catch (final Exception e) {
+			System.err.printf("Ignored invalid port '%s'%n",preference);
+			port=DEFAULT_PORT;
+		}
+		return port;
+	}
+
+	private static APIVersion apiVersion() {
+		final String preference=
+			System.
+				getProperty(
+					"service.gitlab.api",
+					DEFAULT_GITLAB_ENHANCER_API_VERSION.name());
+		APIVersion version;
+		try {
+			version = APIVersion.valueOf(preference);
+		} catch (final Exception e) {
+			System.err.printf("Ignored invalid GitLab Enhancer API version '%s'%n",preference);
+			version=DEFAULT_GITLAB_ENHANCER_API_VERSION;
+		}
+		return version;
 	}
 
 	private static ResourceHandler resourceHandler() {

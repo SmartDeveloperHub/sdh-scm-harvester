@@ -104,7 +104,7 @@ public class PublishingNotificationListenerTest {
 		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
 		final RepositoryCreatedEvent event = new RepositoryCreatedEvent();
 		event.setInstance(TARGET.toString());
-		final List<Integer> repositories = Arrays.asList(1,2);
+		final List<String> repositories = Arrays.asList("1","2");
 		event.setNewRepositories(repositories);
 		new Expectations() {{
 			publishingCompleted.await();
@@ -122,7 +122,7 @@ public class PublishingNotificationListenerTest {
 		this.sut=new PublishingNotificationListener(publishingCompleted, TARGET);
 		final RepositoryDeletedEvent event = new RepositoryDeletedEvent();
 		event.setInstance(TARGET.toString());
-		final List<Integer> repositories = Arrays.asList(1,2);
+		final List<String> repositories = Arrays.asList("1","2");
 		event.setDeletedRepositories(repositories);
 		new Expectations() {{
 			publishingCompleted.await();

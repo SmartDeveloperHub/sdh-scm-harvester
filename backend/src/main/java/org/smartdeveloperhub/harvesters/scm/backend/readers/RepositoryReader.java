@@ -42,12 +42,12 @@ public final class RepositoryReader {
 	private final ObjectMapper mapper = new ObjectMapper();
 
 	public Repositories readReposistories(final String repositoriesIS) throws IOException {
-		final List<Integer> list =
+		final List<String> list =
 			this.mapper.readValue(
 				repositoriesIS,
 				TypeFactory.
 					defaultInstance().
-						constructCollectionType(List.class, Integer.class));
+						constructCollectionType(List.class,String.class));
 		final Repositories repositories = new Repositories();
 		repositories.setRepositoryIds(list);
 		return repositories;

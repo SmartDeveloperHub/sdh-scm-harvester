@@ -93,28 +93,28 @@ public class PublisherHelperTest {
 			resource.createAttachedResource(ContainerSnapshot.class, HarvesterHandler.HARVESTER_COMMITTERS, IdentityUtil.enhancerName(target), UserContainerHandler.class);this.result=container;
 			resource.createAttachedResource(ContainerSnapshot.class, HarvesterHandler.HARVESTER_REPOSITORIES, IdentityUtil.enhancerName(target), RepositoryContainerHandler.class);this.result=container;
 			session.find(ContainerSnapshot.class,IdentityUtil.enhancerName(target),RepositoryContainerHandler.class);this.result=container;
-			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName(1),RepositoryHandler.class);this.result=null;
-			container.addMember(IdentityUtil.repositoryName(1));
-			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName(2),RepositoryHandler.class);this.result=null;
-			container.addMember(IdentityUtil.repositoryName(2));
+			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName("1"),RepositoryHandler.class);this.result=null;
+			container.addMember(IdentityUtil.repositoryName("1"));
+			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName("2"),RepositoryHandler.class);this.result=null;
+			container.addMember(IdentityUtil.repositoryName("2"));
 		}};
 		PublisherHelper.
-			publishHarvester(session,target,Arrays.asList(1,2));
+			publishHarvester(session,target,Arrays.asList("1","2"));
 	}
 
 	@Test
 	public void testPublishRepository$notExists(@Mocked final WriteSession session, @Mocked final ResourceSnapshot resource, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
 		final Repository repository=new Repository();
-		repository.setId(1);
+		repository.setId("1");
 		repository.setBranches(new Branches());
 		repository.setCommits(new Commits());
 		new Expectations() {{
-			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName(1),RepositoryHandler.class);this.result=null;
+			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName("1"),RepositoryHandler.class);this.result=null;
 			session.find(ContainerSnapshot.class,IdentityUtil.enhancerName(target),RepositoryContainerHandler.class);this.result=container;
-			container.addMember(IdentityUtil.repositoryName(1));this.result=resource;
-			resource.createAttachedResource(ContainerSnapshot.class, RepositoryHandler.REPOSITORY_BRANCHES, IdentityUtil.repositoryName(1), BranchContainerHandler.class);
-			resource.createAttachedResource(ContainerSnapshot.class, RepositoryHandler.REPOSITORY_COMMITS, IdentityUtil.repositoryName(1), CommitContainerHandler.class);
+			container.addMember(IdentityUtil.repositoryName("1"));this.result=resource;
+			resource.createAttachedResource(ContainerSnapshot.class, RepositoryHandler.REPOSITORY_BRANCHES, IdentityUtil.repositoryName("1"), BranchContainerHandler.class);
+			resource.createAttachedResource(ContainerSnapshot.class, RepositoryHandler.REPOSITORY_COMMITS, IdentityUtil.repositoryName("1"), CommitContainerHandler.class);
 		}};
 		PublisherHelper.
 			publishRepository(session, target, repository);
@@ -124,11 +124,11 @@ public class PublisherHelperTest {
 	public void testPublishRepository$exists(@Mocked final WriteSession session, @Mocked final ResourceSnapshot resource, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
 		final Repository repository=new Repository();
-		repository.setId(1);
+		repository.setId("1");
 		repository.setBranches(new Branches());
 		repository.setCommits(new Commits());
 		new Expectations() {{
-			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName(1),RepositoryHandler.class);this.result=resource;
+			session.find(ResourceSnapshot.class,IdentityUtil.repositoryName("1"),RepositoryHandler.class);this.result=resource;
 		}};
 		PublisherHelper.
 			publishRepository(session, target, repository);
@@ -162,25 +162,25 @@ public class PublisherHelperTest {
 		final URI target = URI.create("target");
 		new Expectations() {{
 			session.find(ContainerSnapshot.class, IdentityUtil.enhancerName(target), RepositoryContainerHandler.class);this.result=container;
-			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName(1), RepositoryHandler.class);this.result=resource;
-			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName(2), RepositoryHandler.class);this.result=null;
-			container.addMember(IdentityUtil.repositoryName(2));this.result=resource;
-			resource.createAttachedResource(ContainerSnapshot.class, RepositoryHandler.REPOSITORY_BRANCHES, IdentityUtil.repositoryName(2), BranchContainerHandler.class);
-			resource.createAttachedResource(ContainerSnapshot.class, RepositoryHandler.REPOSITORY_COMMITS, IdentityUtil.repositoryName(2), CommitContainerHandler.class);
+			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName("1"), RepositoryHandler.class);this.result=resource;
+			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName("2"), RepositoryHandler.class);this.result=null;
+			container.addMember(IdentityUtil.repositoryName("2"));this.result=resource;
+			resource.createAttachedResource(ContainerSnapshot.class, RepositoryHandler.REPOSITORY_BRANCHES, IdentityUtil.repositoryName("2"), BranchContainerHandler.class);
+			resource.createAttachedResource(ContainerSnapshot.class, RepositoryHandler.REPOSITORY_COMMITS, IdentityUtil.repositoryName("2"), CommitContainerHandler.class);
 		}};
 		PublisherHelper.
-			publishRepositories(session, target, Arrays.asList(1,2));
+			publishRepositories(session, target, Arrays.asList("1","2"));
 	}
 
 	@Test
 	public void testUnpublishRepositories(@Mocked final WriteSession session, @Mocked final ResourceSnapshot resource) {
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName(1), RepositoryHandler.class);this.result=resource;
-			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName(2), RepositoryHandler.class);this.result=null;
+			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName("1"), RepositoryHandler.class);this.result=resource;
+			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName("2"), RepositoryHandler.class);this.result=null;
 			session.delete(resource);this.times=1;
 		}};
 		PublisherHelper.
-			unpublishRepositories(session, Arrays.asList(1,2));
+			unpublishRepositories(session, Arrays.asList("1","2"));
 	}
 
 	@Test
@@ -188,10 +188,10 @@ public class PublisherHelperTest {
 		final URI target = URI.create("target");
 		final RepositoryUpdatedEvent event=new RepositoryUpdatedEvent();
 		event.setInstance(target.toString());
-		event.setRepository(1);
+		event.setRepository("1");
 		event.setNewCommits(Arrays.asList("commit1","commit2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName(1), RepositoryHandler.class);this.result=null;
+			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName("1"), RepositoryHandler.class);this.result=null;
 		}};
 		try {
 			PublisherHelper.
@@ -207,14 +207,14 @@ public class PublisherHelperTest {
 		final URI target = URI.create("target");
 		final RepositoryUpdatedEvent event=new RepositoryUpdatedEvent();
 		event.setInstance(target.toString());
-		event.setRepository(1);
+		event.setRepository("1");
 		event.setNewCommits(Arrays.asList("commit1","commit2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName(1), RepositoryHandler.class);this.result=repository;
+			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName("1"), RepositoryHandler.class);this.result=repository;
 			repository.attachmentById(RepositoryHandler.REPOSITORY_COMMITS);this.result=attachment;
 			attachment.resource();this.result=container;
-			container.addMember(IdentityUtil.commitName(new CommitKey(1,"commit1")));
-			container.addMember(IdentityUtil.commitName(new CommitKey(1,"commit2")));
+			container.addMember(IdentityUtil.commitName(new CommitKey("1","commit1")));
+			container.addMember(IdentityUtil.commitName(new CommitKey("1","commit2")));
 		}};
 		PublisherHelper.
 			updateRepository(session, event);
@@ -225,13 +225,13 @@ public class PublisherHelperTest {
 		final URI target = URI.create("target");
 		final RepositoryUpdatedEvent event=new RepositoryUpdatedEvent();
 		event.setInstance(target.toString());
-		event.setRepository(1);
+		event.setRepository("1");
 		event.setNewCommits(Arrays.asList("commit1","commit2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName(1), RepositoryHandler.class);this.result=repository;
+			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName("1"), RepositoryHandler.class);this.result=repository;
 			repository.attachmentById(RepositoryHandler.REPOSITORY_COMMITS);this.result=attachment;
 			attachment.resource();this.result=container;
-			container.addMember(IdentityUtil.commitName(new CommitKey(1,"commit1")));this.result=new IOException("Failure");
+			container.addMember(IdentityUtil.commitName(new CommitKey("1","commit1")));this.result=new IOException("Failure");
 		}};
 		try {
 			PublisherHelper.
@@ -249,14 +249,14 @@ public class PublisherHelperTest {
 		final URI target = URI.create("target");
 		final RepositoryUpdatedEvent event=new RepositoryUpdatedEvent();
 		event.setInstance(target.toString());
-		event.setRepository(1);
+		event.setRepository("1");
 		event.setNewBranches(Arrays.asList("branch1","branch2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName(1), RepositoryHandler.class);this.result=repository;
+			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName("1"), RepositoryHandler.class);this.result=repository;
 			repository.attachmentById(RepositoryHandler.REPOSITORY_BRANCHES);this.result=attachment;
 			attachment.resource();this.result=container;
-			container.addMember(IdentityUtil.branchName(new BranchKey(1,"branch1")));
-			container.addMember(IdentityUtil.branchName(new BranchKey(1,"branch2")));
+			container.addMember(IdentityUtil.branchName(new BranchKey("1","branch1")));
+			container.addMember(IdentityUtil.branchName(new BranchKey("1","branch2")));
 		}};
 		PublisherHelper.
 			updateRepository(session, event);
@@ -267,13 +267,13 @@ public class PublisherHelperTest {
 		final URI target = URI.create("target");
 		final RepositoryUpdatedEvent event=new RepositoryUpdatedEvent();
 		event.setInstance(target.toString());
-		event.setRepository(1);
+		event.setRepository("1");
 		event.setNewBranches(Arrays.asList("branch1","branch2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName(1), RepositoryHandler.class);this.result=repository;
+			session.find(ResourceSnapshot.class, IdentityUtil.repositoryName("1"), RepositoryHandler.class);this.result=repository;
 			repository.attachmentById(RepositoryHandler.REPOSITORY_BRANCHES);this.result=attachment;
 			attachment.resource();this.result=container;
-			container.addMember(IdentityUtil.branchName(new BranchKey(1,"branch1")));this.result=new IOException("Failure");
+			container.addMember(IdentityUtil.branchName(new BranchKey("1","branch1")));this.result=new IOException("Failure");
 		}};
 		try {
 			PublisherHelper.
@@ -291,11 +291,11 @@ public class PublisherHelperTest {
 		final URI target = URI.create("target");
 		final RepositoryUpdatedEvent event=new RepositoryUpdatedEvent();
 		event.setInstance(target.toString());
-		event.setRepository(1);
+		event.setRepository("1");
 		event.setDeletedCommits(Arrays.asList("commit1","commit2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.commitName(new CommitKey(1,"commit1")), CommitHandler.class);this.result=resource;
-			session.find(ResourceSnapshot.class, IdentityUtil.commitName(new CommitKey(1,"commit2")), CommitHandler.class);this.result=null;
+			session.find(ResourceSnapshot.class, IdentityUtil.commitName(new CommitKey("1","commit1")), CommitHandler.class);this.result=resource;
+			session.find(ResourceSnapshot.class, IdentityUtil.commitName(new CommitKey("1","commit2")), CommitHandler.class);this.result=null;
 			session.delete(resource);this.times=1;
 		}};
 		PublisherHelper.
@@ -307,10 +307,10 @@ public class PublisherHelperTest {
 		final URI target = URI.create("target");
 		final RepositoryUpdatedEvent event=new RepositoryUpdatedEvent();
 		event.setInstance(target.toString());
-		event.setRepository(1);
+		event.setRepository("1");
 		event.setDeletedCommits(Arrays.asList("commit1","commit2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.commitName(new CommitKey(1,"commit1")), CommitHandler.class);this.result=resource;
+			session.find(ResourceSnapshot.class, IdentityUtil.commitName(new CommitKey("1","commit1")), CommitHandler.class);this.result=resource;
 			session.delete(resource);this.result=new IOException("Failure");
 		}};
 		try {
@@ -329,11 +329,11 @@ public class PublisherHelperTest {
 		final URI target = URI.create("target");
 		final RepositoryUpdatedEvent event=new RepositoryUpdatedEvent();
 		event.setInstance(target.toString());
-		event.setRepository(1);
+		event.setRepository("1");
 		event.setDeletedBranches(Arrays.asList("branch1","branch2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.branchName(new BranchKey(1,"branch1")), BranchHandler.class);this.result=resource;
-			session.find(ResourceSnapshot.class, IdentityUtil.branchName(new BranchKey(1,"branch2")), BranchHandler.class);this.result=null;
+			session.find(ResourceSnapshot.class, IdentityUtil.branchName(new BranchKey("1","branch1")), BranchHandler.class);this.result=resource;
+			session.find(ResourceSnapshot.class, IdentityUtil.branchName(new BranchKey("1","branch2")), BranchHandler.class);this.result=null;
 			session.delete(resource);this.times=1;
 		}};
 		PublisherHelper.
@@ -345,10 +345,10 @@ public class PublisherHelperTest {
 		final URI target = URI.create("target");
 		final RepositoryUpdatedEvent event=new RepositoryUpdatedEvent();
 		event.setInstance(target.toString());
-		event.setRepository(1);
+		event.setRepository("1");
 		event.setDeletedBranches(Arrays.asList("branch1","branch2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.branchName(new BranchKey(1,"branch1")), BranchHandler.class);this.result=resource;
+			session.find(ResourceSnapshot.class, IdentityUtil.branchName(new BranchKey("1","branch1")), BranchHandler.class);this.result=resource;
 			session.delete(resource);this.result=new IOException("Failure");
 		}};
 		try {

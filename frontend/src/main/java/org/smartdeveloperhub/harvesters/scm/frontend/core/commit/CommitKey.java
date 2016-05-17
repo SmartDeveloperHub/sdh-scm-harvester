@@ -35,15 +35,15 @@ public final class CommitKey implements Comparable<CommitKey>, Serializable {
 
 	private static final long serialVersionUID = 2202896370472505527L;
 
-	private final Integer repoId;
+	private final String repoId;
 	private final String commitId;
 
-	public CommitKey(final Integer repoId, final String commitId) {
+	public CommitKey(final String repoId, final String commitId) {
 		this.repoId=repoId;
 		this.commitId=commitId;
 	}
 
-	public Integer getRepoId() {
+	public String getRepoId() {
 		return this.repoId;
 	}
 

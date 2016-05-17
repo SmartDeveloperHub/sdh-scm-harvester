@@ -254,8 +254,8 @@ public class HarvesterApplicationITest {
 		return this.test.getMethodName();
 	}
 
-	private int repositoryId() {
-		return this.test.getMethodName().hashCode();
+	private String repositoryId() {
+		return this.test.getMethodName();
 	}
 
 	private String branchId() {
@@ -377,7 +377,7 @@ public class HarvesterApplicationITest {
 				typedLiteral(id,"http://www.w3.org/2001/XMLSchema#string")));
 	}
 
-	private void repositoryHasIdentifier(final String resource, final Integer id) {
+	private void repositoryHasIdentifier(final String resource, final String id) {
 		final Response response = LDPUtil.assertIsAccessible(resource);
 		final Model model = TestingUtil.asModel(response,resource);
 		assertThat(
@@ -385,7 +385,7 @@ public class HarvesterApplicationITest {
 			hasTriple(
 				uriRef(resource),
 				property("http://www.smartdeveloperhub.org/vocabulary/scm#repositoryId"),
-				typedLiteral(id.toString(),"http://www.w3.org/2001/XMLSchema#string")));
+				typedLiteral(id,"http://www.w3.org/2001/XMLSchema#string")));
 	}
 
 	private void branchHasName(final String resource, final String name) {

@@ -44,7 +44,7 @@ public class RepositoryCreatedEvent extends Event {
 	static final String NEW_REPOSITORIES = "newRepositories";
 
 	@JsonProperty(NEW_REPOSITORIES)
-	private List<Integer> newRepositories = new ArrayList<>();
+	private List<String> newRepositories = new ArrayList<>();
 
 	/**
 	 * Get the identifiers of the created repositories
@@ -52,7 +52,7 @@ public class RepositoryCreatedEvent extends Event {
 	 * @return The identifiers of the created repositories
 	 */
 	@JsonProperty(NEW_REPOSITORIES)
-	public List<Integer> getNewRepositories() {
+	public List<String> getNewRepositories() {
 		return this.newRepositories;
 	}
 
@@ -63,7 +63,7 @@ public class RepositoryCreatedEvent extends Event {
 	 *            The identifiers of the created repositories
 	 */
 	@JsonProperty(NEW_REPOSITORIES)
-	public void setNewRepositories(final List<Integer> newRepositories) {
+	public void setNewRepositories(final List<String> newRepositories) {
 		this.newRepositories = newRepositories;
 	}
 

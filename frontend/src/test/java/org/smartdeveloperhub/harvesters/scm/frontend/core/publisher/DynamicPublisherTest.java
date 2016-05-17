@@ -78,7 +78,7 @@ public class DynamicPublisherTest {
 	@Test
 	public void testInitialize(@Mocked final PublisherHelper helper, @Mocked final WriteSession session, @Mocked final BackendController controller) throws Exception {
 		final DynamicPublisher sut = new DynamicPublisher(controller);
-		final List<Integer> repositories=Arrays.asList(1,2);
+		final List<String> repositories=Arrays.asList("1","2");
 		new Expectations() {{
 			controller.getTarget();this.result=GITLAB_ENHANCER;
 			controller.getRepositories();this.result=repositories;
@@ -123,7 +123,7 @@ public class DynamicPublisherTest {
 					return Lists.newArrayList("user1","user2");
 				}
 				@Mock
-				Repository getRepository(final Integer repoId) {
+				Repository getRepository(final String repoId) {
 					final Repository repo = createRepository(repoId,1+this.random.nextInt(7), 5+this.random.nextInt(50));
 					try {
 						TimeUnit.MILLISECONDS.sleep(100+this.random.nextInt(500));
@@ -132,10 +132,10 @@ public class DynamicPublisherTest {
 					return repo;
 				}
 				@Mock
-				List<Integer> getRepositories() {
-					return Lists.newArrayList(1,2,3,4,5,6,7,8,9,10);
+				List<String> getRepositories() {
+					return Lists.newArrayList("1","2","3","4","5","6","7","8","9","10");
 				}
-				private Repository createRepository(final int repoId, final int branchCount, final int commitCount) {
+				private Repository createRepository(final String repoId, final int branchCount, final int commitCount) {
 					final Repository repository = new Repository();
 					repository.setId(repoId);
 					final Branches branches = new Branches();
@@ -146,7 +146,7 @@ public class DynamicPublisherTest {
 					repository.setCommits(commits);
 					return repository;
 				}
-				private List<String> createValues(final int repoId, final String tag, final int count) {
+				private List<String> createValues(final String repoId, final String tag, final int count) {
 					final List<String> values=new ArrayList<>();
 					for(int j=0;j<count;j++) {
 						values.add("r_"+repoId+"_"+tag+"_"+j);
@@ -210,7 +210,7 @@ public class DynamicPublisherTest {
 					return Lists.newArrayList("user1","user2");
 				}
 				@Mock
-				Repository getRepository(final Integer repoId) {
+				Repository getRepository(final String repoId) {
 					final Repository repo = createRepository(repoId,1+this.random.nextInt(7), 5+this.random.nextInt(50));
 					try {
 						TimeUnit.MILLISECONDS.sleep(100+this.random.nextInt(500));
@@ -219,10 +219,10 @@ public class DynamicPublisherTest {
 					return repo;
 				}
 				@Mock
-				List<Integer> getRepositories() {
-					return Lists.newArrayList(1,2,3,4,5,6,7,8,9,10);
+				List<String> getRepositories() {
+					return Lists.newArrayList("1","2","3","4","5","6","7","8","9","10");
 				}
-				private Repository createRepository(final int repoId, final int branchCount, final int commitCount) {
+				private Repository createRepository(final String repoId, final int branchCount, final int commitCount) {
 					final Repository repository = new Repository();
 					repository.setId(repoId);
 					final Branches branches = new Branches();
@@ -233,7 +233,7 @@ public class DynamicPublisherTest {
 					repository.setCommits(commits);
 					return repository;
 				}
-				private List<String> createValues(final int repoId, final String tag, final int count) {
+				private List<String> createValues(final String repoId, final String tag, final int count) {
 					final List<String> values=new ArrayList<>();
 					for(int j=0;j<count;j++) {
 						values.add("r_"+repoId+"_"+tag+"_"+j);
@@ -299,7 +299,7 @@ public class DynamicPublisherTest {
 					throw new IOException("Failure");
 				}
 				@Mock
-				Repository getRepository(final Integer repoId) {
+				Repository getRepository(final String repoId) {
 					final Repository repo = createRepository(repoId,1+this.random.nextInt(7), 5+this.random.nextInt(50));
 					try {
 						TimeUnit.MILLISECONDS.sleep(100+this.random.nextInt(500));
@@ -308,10 +308,10 @@ public class DynamicPublisherTest {
 					return repo;
 				}
 				@Mock
-				List<Integer> getRepositories() {
-					return Lists.newArrayList(1,2,3,4,5,6,7,8,9,10);
+				List<String> getRepositories() {
+					return Lists.newArrayList("1","2","3","4","5","6","7","8","9","10");
 				}
-				private Repository createRepository(final int repoId, final int branchCount, final int commitCount) {
+				private Repository createRepository(final String repoId, final int branchCount, final int commitCount) {
 					final Repository repository = new Repository();
 					repository.setId(repoId);
 					final Branches branches = new Branches();
@@ -322,7 +322,7 @@ public class DynamicPublisherTest {
 					repository.setCommits(commits);
 					return repository;
 				}
-				private List<String> createValues(final int repoId, final String tag, final int count) {
+				private List<String> createValues(final String repoId, final String tag, final int count) {
 					final List<String> values=new ArrayList<>();
 					for(int j=0;j<count;j++) {
 						values.add("r_"+repoId+"_"+tag+"_"+j);
@@ -384,7 +384,7 @@ public class DynamicPublisherTest {
 					throw new Error("Failure");
 				}
 				@Mock
-				Repository getRepository(final Integer repoId) {
+				Repository getRepository(final String repoId) {
 					final Repository repo = createRepository(repoId,1+this.random.nextInt(7), 5+this.random.nextInt(50));
 					try {
 						TimeUnit.MILLISECONDS.sleep(100+this.random.nextInt(500));
@@ -393,10 +393,10 @@ public class DynamicPublisherTest {
 					return repo;
 				}
 				@Mock
-				List<Integer> getRepositories() {
-					return Lists.newArrayList(1,2,3,4,5,6,7,8,9,10);
+				List<String> getRepositories() {
+					return Lists.newArrayList("1","2","3","4","5","6","7","8","9","10");
 				}
-				private Repository createRepository(final int repoId, final int branchCount, final int commitCount) {
+				private Repository createRepository(final String repoId, final int branchCount, final int commitCount) {
 					final Repository repository = new Repository();
 					repository.setId(repoId);
 					final Branches branches = new Branches();
@@ -407,7 +407,7 @@ public class DynamicPublisherTest {
 					repository.setCommits(commits);
 					return repository;
 				}
-				private List<String> createValues(final int repoId, final String tag, final int count) {
+				private List<String> createValues(final String repoId, final String tag, final int count) {
 					final List<String> values=new ArrayList<>();
 					for(int j=0;j<count;j++) {
 						values.add("r_"+repoId+"_"+tag+"_"+j);

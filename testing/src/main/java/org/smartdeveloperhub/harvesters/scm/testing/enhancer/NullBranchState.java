@@ -36,10 +36,10 @@ final class NullBranchState implements BranchState {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(State.class);
 
-	private final Integer repositoryId;
+	private final String repositoryId;
 	private final String id;
 
-	NullBranchState(final Integer repositoryId,final String id) {
+	NullBranchState(final String repositoryId,final String id) {
 		this.repositoryId = repositoryId;
 		this.id = id;
 	}
@@ -50,7 +50,7 @@ final class NullBranchState implements BranchState {
 	}
 
 	@Override
-	public Integer getRepositoryId() {
+	public String getRepositoryId() {
 		return this.repositoryId;
 	}
 

@@ -34,10 +34,10 @@ final class NullCommitState implements CommitState {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(State.class);
 
-	private final Integer repositoryId;
+	private final String repositoryId;
 	private final String id;
 
-	NullCommitState(final Integer repositoryId,final String commitId) {
+	NullCommitState(final String repositoryId,final String commitId) {
 		this.repositoryId = repositoryId;
 		this.id = commitId;
 
@@ -53,7 +53,7 @@ final class NullCommitState implements CommitState {
 	}
 
 	@Override
-	public Integer getRepositoryId() {
+	public String getRepositoryId() {
 		return this.repositoryId;
 	}
 

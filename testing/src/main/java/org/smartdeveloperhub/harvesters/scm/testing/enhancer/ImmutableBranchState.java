@@ -66,7 +66,7 @@ final class ImmutableBranchState implements BranchState {
 	}
 
 	@Override
-	public Integer getRepositoryId() {
+	public String getRepositoryId() {
 		return this.repository.getId();
 	}
 

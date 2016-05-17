@@ -47,6 +47,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 
 
@@ -65,7 +66,7 @@ import com.google.common.base.Optional;
 		)
 	}
 )
-public final class RepositoryHandler extends AbstractEntityResourceHandler<Repository,Integer> {
+public final class RepositoryHandler extends AbstractEntityResourceHandler<Repository,String> {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(RepositoryHandler.class);
 
@@ -80,18 +81,18 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 	}
 
 	@Override
-	protected Integer getId(final ResourceSnapshot resource) {
+	protected String getId(final ResourceSnapshot resource) {
 		return IdentityUtil.repositoryId(resource);
 	}
 
 	@Override
-	protected Repository getEntity(final BackendController controller, final Integer key) throws IOException {
+	protected Repository getEntity(final BackendController controller, final String key) throws IOException {
 		return controller.getRepository(key);
 	}
 
 	@Override
-	protected DataSet toDataSet(final Repository repository, final Integer repositoryId) {
-		final Name<Integer> repoName=IdentityUtil.repositoryName(repositoryId);
+	protected DataSet toDataSet(final Repository repository, final String repositoryId) {
+		final Name<String> repoName=IdentityUtil.repositoryName(repositoryId);
 		final Name<String> ownerName=IdentityUtil.userName(repository.getOwner().getId());
 
 		final DataSet dataSet=DataSets.createDataSet(repoName);
@@ -122,7 +123,7 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 				property(RepositoryVocabulary.REPOSITORY_ID).
 					withLiteral(repositoryId.toString()).
 				property(RepositoryVocabulary.TAGS).
-					withLiteral(repository.getTags());
+					withLiteral(Joiner.on(", ").join(repository.getTags()));
 
 		for(final String userId:repository.getContributors()) {
 			final Name<String> userName = IdentityUtil.userName(userId);

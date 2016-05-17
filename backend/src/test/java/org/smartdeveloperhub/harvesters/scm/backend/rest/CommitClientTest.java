@@ -47,21 +47,21 @@ public class CommitClientTest extends ClientTestHelper {
 	@Test
 	public void testGetCommit$happyPath() throws Exception {
 		setUpHappyPath("result");
-		final String result  = this.sut.getCommit(1,"commitId");
+		final String result  = this.sut.getCommit("1","commitId");
 		verifyHappyPath(result,BASE+"/projects/1/commits/commitId");
 	}
 
 	@Test
 	public void testGetRepositoryCommits$happyPath() throws Exception {
 		setUpHappyPath("result");
-		final String result  = this.sut.getCommits(2);
+		final String result  = this.sut.getCommits("2");
 		verifyHappyPath(result,BASE+"/projects/2/commits");
 	}
 
 	@Test
 	public void testGetBranchCommits$happyPath() throws Exception {
 		setUpHappyPath("result");
-		final String result  = this.sut.getCommits(3,"branchId");
+		final String result  = this.sut.getCommits("3","branchId");
 		verifyHappyPath(result,BASE+"/projects/3/branches/branchId/commits");
 	}
 

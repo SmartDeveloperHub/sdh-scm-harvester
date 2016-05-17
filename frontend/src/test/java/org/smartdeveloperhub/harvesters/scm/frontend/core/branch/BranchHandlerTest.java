@@ -108,8 +108,8 @@ public class BranchHandlerTest {
 	public void testGetEntity() throws Exception {
 		new Expectations() {{
 			BranchHandlerTest.this.key.getBranchId();this.result="branchId";
-			BranchHandlerTest.this.key.getRepoId();this.result=1;
-			BranchHandlerTest.this.controller.getBranch(1, "branchId");this.result=BranchHandlerTest.this.entity;
+			BranchHandlerTest.this.key.getRepoId();this.result="1";
+			BranchHandlerTest.this.controller.getBranch("1", "branchId");this.result=BranchHandlerTest.this.entity;
 		}};
 		assertThat(this.sut.getEntity(this.controller, this.key),sameInstance(this.entity));
 	}

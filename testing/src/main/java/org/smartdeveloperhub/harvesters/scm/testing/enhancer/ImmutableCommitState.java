@@ -67,7 +67,7 @@ final class ImmutableCommitState implements CommitState  {
 	}
 
 	@Override
-	public Integer getRepositoryId() {
+	public String getRepositoryId() {
 		return this.repository.getId();
 	}
 

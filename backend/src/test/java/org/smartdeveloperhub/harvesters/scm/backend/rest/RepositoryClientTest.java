@@ -47,7 +47,7 @@ public class RepositoryClientTest extends ClientTestHelper {
 	@Test
 	public void testGetRepository$happyPath() throws Exception {
 		setUpHappyPath("result");
-		final String result  = this.sut.getRepository(1);
+		final String result  = this.sut.getRepository("1");
 		verifyHappyPath(result,BASE+"/projects/1");
 	}
 

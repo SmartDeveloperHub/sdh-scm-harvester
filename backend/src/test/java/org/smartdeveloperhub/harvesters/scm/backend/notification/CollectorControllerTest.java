@@ -512,7 +512,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 		final CollectorController sut = CollectorController.createPublisher(defaultCollector);
 		final RepositoryCreatedEvent event = new RepositoryCreatedEvent();
 		event.setInstance(defaultCollector.getInstance());
-		event.setNewRepositories(Arrays.asList(1,2));
+		event.setNewRepositories(Arrays.asList("1","2"));
 		sut.connect();
 		try {
 			sut.publishEvent(event);
@@ -575,7 +575,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 		final CollectorController sut = CollectorController.createPublisher(defaultCollector);
 		final RepositoryCreatedEvent event = new RepositoryCreatedEvent();
 		event.setInstance(defaultCollector.getInstance());
-		event.setNewRepositories(Arrays.asList(1,2));
+		event.setNewRepositories(Arrays.asList("1","2"));
 		sut.connect();
 		try {
 			sut.publishEvent(event);
@@ -634,7 +634,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 		final CollectorController sut = CollectorController.createPublisher(defaultCollector);
 		final RepositoryCreatedEvent event = new RepositoryCreatedEvent();
 		event.setInstance(defaultCollector.getInstance());
-		event.setNewRepositories(Arrays.asList(1,2));
+		event.setNewRepositories(Arrays.asList("1","2"));
 		sut.connect();
 		try {
 			sut.publishEvent(event);

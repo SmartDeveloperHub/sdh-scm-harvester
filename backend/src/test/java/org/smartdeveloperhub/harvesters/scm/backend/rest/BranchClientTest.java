@@ -38,7 +38,7 @@ public class BranchClientTest extends ClientTestHelper {
 	public void testGetBranch$happyPath() throws Exception {
 		setUpHappyPath("result");
 		final BranchClient sut = new BranchClient("http://www.example.org/api");
-		final String result  = sut.getBranch(1, "branchId");
+		final String result  = sut.getBranch("1", "branchId");
 		verifyHappyPath(result,"http://www.example.org/api/projects/1/branches/branchId");
 	}
 
@@ -46,7 +46,7 @@ public class BranchClientTest extends ClientTestHelper {
 	public void testGetBranches$happyPath() throws Exception {
 		setUpHappyPath("result");
 		final BranchClient sut = new BranchClient("http://www.example.org/api");
-		final String result  = sut.getBranches(2);
+		final String result  = sut.getBranches("2");
 		verifyHappyPath(result,"http://www.example.org/api/projects/2/branches");
 	}
 

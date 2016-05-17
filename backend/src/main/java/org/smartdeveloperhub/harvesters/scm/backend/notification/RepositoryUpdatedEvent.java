@@ -54,7 +54,7 @@ public class RepositoryUpdatedEvent extends Event {
 	static final String CONTRIBUTORS     = "contributors";
 
 	@JsonProperty(REPOSITORY)
-	private Integer repository;
+	private String repository;
 
 	@JsonProperty(NEW_BRANCHES)
 	private List<String> newBranches = new ArrayList<>();
@@ -77,7 +77,7 @@ public class RepositoryUpdatedEvent extends Event {
 	 * @return The repository identifier
 	 */
 	@JsonProperty(REPOSITORY)
-	public Integer getRepository() {
+	public String getRepository() {
 		return this.repository;
 	}
 
@@ -88,7 +88,7 @@ public class RepositoryUpdatedEvent extends Event {
 	 *            The identifier of the repository
 	 */
 	@JsonProperty(REPOSITORY)
-	public void setRepository(final Integer repository) {
+	public void setRepository(final String repository) {
 		this.repository = repository;
 	}
 

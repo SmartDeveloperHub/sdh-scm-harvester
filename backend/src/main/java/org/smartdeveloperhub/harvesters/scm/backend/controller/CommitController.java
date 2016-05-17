@@ -42,7 +42,7 @@ public class CommitController {
 		this.commitReader = new CommitReader();
 	}
 
-	public Commit getCommit(final Integer repoId, final String commitId) throws IOException {
+	public Commit getCommit(final String repoId, final String commitId) throws IOException {
 		final String commitIS = this.commitClient.getCommit(repoId, commitId);
 		return this.commitReader.readCommit(commitIS);
 	}
