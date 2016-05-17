@@ -117,6 +117,7 @@ final class PublisherHelper {
 		for(final String userId:users){
 			final Name<String> userName = IdentityUtil.userName(userId);
 			userContainer.addMember(userName);
+			LOGGER.debug("Published resource for user {}",userId);
 		}
 	}
 
