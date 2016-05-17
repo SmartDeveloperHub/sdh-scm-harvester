@@ -47,6 +47,7 @@ import org.smartdeveloperhub.harvesters.scm.frontend.core.user.UserHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.scm.frontend.core.util.IdentityUtil;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 
 
@@ -122,7 +123,7 @@ public final class RepositoryHandler extends AbstractEntityResourceHandler<Repos
 				property(RepositoryVocabulary.REPOSITORY_ID).
 					withLiteral(repositoryId.toString()).
 				property(RepositoryVocabulary.TAGS).
-					withLiteral(repository.getTags());
+					withLiteral(Joiner.on(", ").join(repository.getTags()));
 
 		for(final String userId:repository.getContributors()) {
 			final Name<String> userName = IdentityUtil.userName(userId);
