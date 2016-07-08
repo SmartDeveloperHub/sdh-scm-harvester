@@ -73,17 +73,6 @@
 			<timezone>+1</timezone>
 		</developer>
 		<developer>
-			<id>mestebangutierrez</id>
-			<name>Miguel Esteban Gutiérrez</name>
-			<email>m.esteban.gutierrez@gmail.com</email>
-			<roles>
-				<role>architect</role>
-				<role>developer</role>
-				<role>product owner</role>
-			</roles>
-			<timezone>+1</timezone>
-		</developer>
-		<developer>
 			<id>andresgs77</id>
 			<name>Andrés García Silva</name>
 			<email>andresgs77@gmail.com</email>
