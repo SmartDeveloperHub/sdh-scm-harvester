@@ -55,7 +55,7 @@
 
 	<description>
 		This harvester publishes GitLab data such as users, repositories, and
-		branches using LDP4j and the SDH GitLab Enhancer RET API.
+		branches using LDP4j and the SDH GitLab Enhancer REST API.
 	</description>
 
 	<!-- =================================================================== -->
@@ -63,7 +63,7 @@
 	<!-- =================================================================== -->
 
 	<properties>
-		<ldp4j.version>0.3.0-SNAPSHOT</ldp4j.version>
+		<ldp4j.version>0.2.1</ldp4j.version>
 		<jackson.version>2.4.4</jackson.version>
 	</properties>
 
