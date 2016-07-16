@@ -68,32 +68,88 @@ public final class TestingService {
 
 	public static class Builder {
 
-		private int port=8080;
-		private String exchangeName="git.collector.mock";
+		private int port;
+		private String exchangeName;
 		private ActivityListener listener;
 		private final Map<String,HttpHandler> endpoints;
-		private APIVersion version=APIVersion.v1;
+		private APIVersion version;
+		private String brokerHost;
+		private int brokerPort;
+		private String virtualHost;
+		private String host;
 
 		private Builder() {
 			this.endpoints=Maps.newLinkedHashMap();
+			this.host="localhost";
+			this.version=APIVersion.v1;
+			this.port=8080;
+			this.brokerHost="localhost";
+			this.brokerPort=5672;
+			this.exchangeName="git.collector.mock";
+			this.virtualHost="/";
+		}
+
+		private boolean isPort(final int port) {
+			return port>0 && port <65536;
+		}
+
+		private Collector createCollectorConfiguration() {
+			final Collector result = new Collector();
+			result.setBrokerHost(this.brokerHost);
+			result.setBrokerPort(this.brokerPort);
+			result.setExchangeName(this.exchangeName);
+			result.setVirtualHost(this.virtualHost);
+			return result;
 		}
 
 		public Builder port(final int port) {
-			checkArgument(port>0 && port <65536, "Port '%s' cannot be used",port);
+			checkArgument(isPort(port), "Port '%s' cannot be used",port);
 			this.port=port;
 			return this;
 		}
 
+		public Builder host(final String host) {
+			if(host!=null) {
+				checkArgument(!host.isEmpty(), "Git Collector broker host cannot be empty");
+				this.host=host;
+			}
+			return this;
+		}
+
+		public Builder brokerHost(final String brokerHost) {
+			if(brokerHost!=null) {
+				checkArgument(!brokerHost.isEmpty(), "Git Collector broker host cannot be empty");
+				this.brokerHost=brokerHost;
+			}
+			return this;
+		}
+
+		public Builder brokerPort(final int port) {
+			checkArgument(isPort(port), "Git Collector broker port '%s' cannot be used",port);
+			this.brokerPort=port;
+			return this;
+		}
+
+		public Builder virtualHost(final String virtualHost) {
+			if(virtualHost!=null) {
+				checkArgument(!virtualHost.isEmpty(), "Git Collector broker virtual host cannot be empty");
+				this.virtualHost=virtualHost;
+			}
+			return this;
+		}
+
 		public Builder exchangeName(final String exchangeName) {
-			checkNotNull(exchangeName, "Git Collector broker exchange name cannot be null");
-			checkArgument(!exchangeName.isEmpty(), "Git Collector broker exchange name cannot be empty");
-			this.exchangeName=exchangeName;
+			if(exchangeName!=null) {
+				checkArgument(!exchangeName.isEmpty(), "Git Collector broker exchange name cannot be empty");
+				this.exchangeName=exchangeName;
+			}
 			return this;
 		}
 
 		public Builder apiVersion(final APIVersion version) {
-			checkNotNull(version, "GitLab Enhancer API versio cannot be null");
-			this.version=version;
+			if(version!=null) {
+				this.version=version;
+			}
 			return this;
 		}
 
@@ -113,8 +169,9 @@ public final class TestingService {
 		public TestingService build() {
 			return
 				new TestingService(
+					this.host,
 					this.port,
-					this.exchangeName,
+					createCollectorConfiguration(),
 					this.version,
 					this.listener,
 					this.endpoints);
@@ -123,6 +180,10 @@ public final class TestingService {
 	}
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(TestingService.class);
+
+	private final String host;
+
+	private final int port;
 
 	private final Collector config;
 
@@ -136,16 +197,23 @@ public final class TestingService {
 
 	private boolean serverStarted;
 
-	private final int port;
-
 	private final APIVersion version;
 
-	private TestingService(final int port, final String exchangeName, final APIVersion version, final ActivityListener listener, final Map<String, HttpHandler> endpoints) {
-		this.port = port;
-		this.version = version;
-		this.config=createControllerConfiguration(port, exchangeName);
-		this.collector = GitCollector.newInstance(this.config);
-		this.enhancer = GitLabEnhancer.newInstance(this.collector,URI.create("http://localhost:"+port+"/enhancer/api"));
+
+	private TestingService(
+			final String host,
+			final int port,
+			final Collector config,
+			final APIVersion version,
+			final ActivityListener listener,
+			final Map<String, HttpHandler> endpoints) {
+		this.host = host;
+		this.port=port;
+		this.version=version;
+		this.config=config;
+		this.config.setInstance("http://"+host+":"+port+"/collector");
+		this.collector=GitCollector.newInstance(this.config);
+		this.enhancer=GitLabEnhancer.newInstance(this.collector,URI.create("http://"+host+":"+port+"/enhancer/api"));
 		if(listener!=null) {
 			this.enhancer.registerListener(listener);
 		}
@@ -272,7 +340,7 @@ public final class TestingService {
 		this.server =
 			Undertow.
 				builder().
-					addHttpListener(port, "localhost").
+					addHttpListener(port, host).
 					setHandler(handler).
 					build();
 		}
@@ -280,11 +348,19 @@ public final class TestingService {
 	public TestingService start() throws IOException {
 		LOGGER.info("Starting Git Collector Publisher Service...");
 		this.collector.start();
-		LOGGER.info("Git Collector Publisher Service started. Using exchange {}",this.config.getExchangeName());
+		LOGGER.info(
+			"Git Collector Publisher Service started. Using broker {}:{}, virtual host '{}' and exchange name '{}'.",
+			this.config.getBrokerHost(),
+			this.config.getBrokerPort(),
+			this.config.getVirtualHost(),
+			this.config.getExchangeName());
 		this.collectorStarted=true;
 		LOGGER.info("Starting GitLab Enhancer Service ({}) ...",this.version);
 		this.server.start();
-		LOGGER.info("GitLab Enhancer Service started. Service available locally at port {}",this.port);
+		LOGGER.info(
+			"GitLab Enhancer Service started. Service available at {}:{}.",
+			this.host,
+			this.port);
 		this.serverStarted=true;
 		return this;
 	}
@@ -312,14 +388,6 @@ public final class TestingService {
 
 	public static Builder builder() {
 		return new Builder();
-	}
-
-	private static Collector createControllerConfiguration(final int port, final String exchangeName) {
-		final Collector config = new Collector();
-		config.setInstance("http://localhost:"+port+"/collector");
-		config.setBrokerHost("localhost");
-		config.setExchangeName(exchangeName);
-		return config;
 	}
 
 	public Branch getBranch(final String repositoryId, final String branchId) {
