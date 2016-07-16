@@ -35,26 +35,22 @@ import io.undertow.server.handlers.sse.ServerSentEventHandler;
 import java.io.IOException;
 import java.util.Scanner;
 
-import org.smartdeveloperhub.harvesters.scm.testing.TestingService.Builder;
-import org.smartdeveloperhub.harvesters.scm.testing.handlers.MoreHandlers.APIVersion;
-
 public class StandaloneTestingService {
 
-
 	public static void main(final String... args) {
+		final Parameters parameters = Parameters.create(args);
 		System.out.printf("Testing GitLab Enhancer Service%s%n",serviceVersion());
-
 		final ServerSentEventHandler consoleHandler = serverSentEvents();
-		final Builder builder=TestingService.builder();
-		configurePort(builder);
-		configureBrokerPort(builder);
-		configureApiVersion(builder);
 		final TestingService service =
-			builder.
-					host(System.getProperty("service.host")).
-					brokerHost(System.getProperty("broker.host")).
-					virtualHost(System.getProperty("broker.virtualHost")).
-					exchangeName(System.getProperty("broker.exchangeName")).
+			TestingService.
+				builder().
+					host(parameters.host).
+					port(parameters.port).
+					apiVersion(parameters.apiVersion).
+					brokerHost(parameters.brokerHost).
+					brokerPort(parameters.brokerPort).
+					virtualHost(parameters.virtualHost).
+					exchangeName(parameters.exchangeName).
 					listener(new ServerSentEventConsumer(consoleHandler)).
 					addEndpoint("/frontend/",resourceHandler().addWelcomeFiles("index.html")).
 					addEndpoint("/frontend/assets/{asset}",resourceHandler()).
@@ -85,42 +81,6 @@ public class StandaloneTestingService {
 			build="-b"+build;
 		}
 		return build;
-	}
-
-	private static void configurePort(final Builder builder) {
-		final String preference=System.getProperty("service.port");
-		if(preference==null) {
-			return;
-		}
-		try {
-			builder.port(Integer.parseInt(preference));
-		} catch (final Exception e) {
-			System.err.printf("Ignored invalid port '%s'%n",preference);
-		}
-	}
-
-	private static void configureBrokerPort(final Builder builder) {
-		final String preference=System.getProperty("broker.port");
-		if(preference==null) {
-			return;
-		}
-		try {
-			builder.brokerPort(Integer.parseInt(preference));
-		} catch (final Exception e) {
-			System.err.printf("Ignored invalid broker port '%s'%n",preference);
-		}
-	}
-
-	private static void configureApiVersion(final Builder builder) {
-		final String preference=System.getProperty("service.gitlab.api");
-		if(preference==null) {
-			return;
-		}
-		try {
-			builder.apiVersion(APIVersion.valueOf(preference));
-		} catch (final Exception e) {
-			System.err.printf("Ignored invalid GitLab Enhancer API version '%s'%n",preference);
-		}
 	}
 
 	private static ResourceHandler resourceHandler() {
