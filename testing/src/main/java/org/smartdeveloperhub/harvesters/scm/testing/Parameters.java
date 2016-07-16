@@ -27,6 +27,8 @@
 package org.smartdeveloperhub.harvesters.scm.testing;
 
 import org.smartdeveloperhub.harvesters.scm.testing.handlers.MoreHandlers.APIVersion;
+import org.smartdeveloperhub.harvesters.scm.testing.util.AppAssembler;
+import org.smartdeveloperhub.harvesters.scm.testing.util.Application;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.IStringConverter;
@@ -120,7 +122,7 @@ public final class Parameters {
 		final Parameters parameters=new Parameters();
 		try {
 			final JCommander commander = new JCommander(parameters, args);
-			commander.setProgramName("StandaloneTestingService");
+			commander.setProgramName(AppAssembler.applicationName(StandaloneTestingService.class));
 			commander.setColumnSize(120);
 			commander.setAllowParameterOverwriting(false);
 			if(parameters.help) {
@@ -129,6 +131,7 @@ public final class Parameters {
 			}
 		} catch (final ParameterException e) {
 			System.err.println("ERROR: "+e.getMessage());
+			Application.logContext(args);
 			System.exit(-1);
 		}
 		return parameters;
