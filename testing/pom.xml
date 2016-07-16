@@ -123,6 +123,8 @@
 					</binFileExtensions>
 					<repositoryLayout>flat</repositoryLayout>
 					<repositoryName>lib</repositoryName>
+					<configurationDirectory>conf</configurationDirectory>
+					<includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
 					<programs>
 						<program>
 							<id>TestingGitLabEnhancer</id>
@@ -131,6 +133,7 @@
 								<extraArguments>
 									<extraArgument>-Dservice.version=${project.version}</extraArgument>
 									<extraArgument>-Dservice.build=${git.commitsCount} (${git.branch}@${git.buildnumber})</extraArgument>
+									<extraArgument>-Dlog4j.configuration=logging.cfg</extraArgument>
 								</extraArguments>
 							</jvmSettings>
 						</program>
@@ -140,6 +143,47 @@
 					<execution>
 						<goals>
 							<goal>assemble</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>${project.build.directory}${file.separator}client${file.separator}ext</outputDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<excludeTypes>pom</excludeTypes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>Create Testing GitLab Enhancer Distribution</id>
+						<configuration>
+							<appendAssemblyId>true</appendAssemblyId>
+							<attach>true</attach>
+							<descriptors>
+								<descriptor>src${file.separator}main${file.separator}assembly${file.separator}assembly.xml</descriptor>
+							</descriptors>
+							<delimiters>
+								<delimiter>@</delimiter>
+							</delimiters>
+						</configuration>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
