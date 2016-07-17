@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -104,9 +105,9 @@ abstract class AbstractClient {
 				throw new ServiceFailureException(resourcePath,statusLine);
 			}
 			return result;
-		} catch(final ConnectTimeoutException e) {
-			this.logger.info("Failed to connect to '{}. Full stacktrace follows",httpRequest.getURI(),e);
-			throw new ConnectionFailedException("Failed to connect to '"+httpRequest.getURI()+"'",e);
+		} catch(final ConnectTimeoutException | SocketTimeoutException e) {
+			this.logger.info("Connection to '{} failed. Full stacktrace follows",httpRequest.getURI(),e);
+			throw new ConnectionFailedException(httpRequest.getURI(),e);
 		} finally {
 			Closeables.closeQuietly(httpResponse);
 		}

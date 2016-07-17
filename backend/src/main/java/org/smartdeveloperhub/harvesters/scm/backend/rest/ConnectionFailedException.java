@@ -27,14 +27,32 @@
 package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
 import java.io.IOException;
+import java.net.URI;
+
+import org.apache.http.conn.ConnectTimeoutException;
 
 
 public class ConnectionFailedException extends IOException {
 
 	private static final long serialVersionUID = 8389961729807266231L;
+	private final URI target;
 
-	public ConnectionFailedException(final String message, final Throwable cause) {
-		super(message,cause);
+	public ConnectionFailedException(final URI target, final Throwable cause) {
+		super(reason(cause),cause);
+		this.target = target;
+	}
+
+	public URI getTarget() {
+		return this.target;
+	}
+
+	private static String reason(final Throwable cause) {
+		if(cause instanceof ConnectTimeoutException) {
+			return "Connection timed out";
+		} else {
+			return cause.getMessage();
+		}
+
 	}
 
 }
