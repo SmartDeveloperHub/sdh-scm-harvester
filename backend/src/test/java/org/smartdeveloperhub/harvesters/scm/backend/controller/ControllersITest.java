@@ -73,6 +73,7 @@ public class ControllersITest {
 			exploreRepositories(enhancer);
 			exploreUsers(enhancer);
 		} catch(final IOException e) {
+			LOGGER.error("Exploration failed without reason. Full stacktrace follows",e);
 			fail("Should not fail exploration");
 		}
 	}
@@ -106,27 +107,29 @@ public class ControllersITest {
 		final UserController uController=new UserController(GITLAB_ENHANCER);
 		for(final String userId:enhancer.getUsers()) {
 			final User user = uController.getUser(userId);
-			System.out.printf("Exploring user %s (%s)...%n",user.getId(),user.getName());
-			LOGGER.info("User[{}]: {}",userId,user);
+			System.out.printf(" - User %s (%s)...%n",user.getId(),user.getName());
+			LOGGER.debug("User[{}]: {}",userId,user);
 			serialize(user);
 		}
 	}
 
 	private void traverseRepository(final Repository repository) throws IOException {
-		System.out.printf("Exploring repository %s (%s)...%n",repository.getId(),repository.getName());
-		LOGGER.info("Repository[{}]: {}",repository.getId(),repository);
+		System.out.printf(" - Exploring repository %s (%s)...%n",repository.getId(),repository.getName());
+		LOGGER.debug("Repository[{}]: {}",repository.getId(),repository);
 		serialize(repository);
 		final BranchController bController=new BranchController(GITLAB_ENHANCER);
 		for(final String branchId:repository.getBranches().getBranchIds()) {
 			final Branch branch = bController.getBranch(repository.getId(),branchId);
-			LOGGER.info("Branch[{}:{}]: {}",repository.getId(),branchId,branch);
+			System.out.printf("   + Branch %s (%s)%n",branchId,branch.getName());
+			LOGGER.debug("Branch[{}:{}]: {}",repository.getId(),branchId,branch);
 			serialize(branch);
 		}
 		final CommitController cController=new CommitController(GITLAB_ENHANCER);
 		int i=3;
 		for(final String commitId:repository.getCommits().getCommitIds()) {
 			final Commit commit = cController.getCommit(repository.getId(),commitId);
-			LOGGER.info("Commit[{}:{}]: {}",repository.getId(),commitId,commit);
+			System.out.printf("   + Commit %s : %s%n",commitId,firstLine(commit.getTitle()));
+			LOGGER.debug("Commit[{}:{}]: {}",repository.getId(),commitId,commit);
 			serialize(commit);
 			if(--i==0) {
 				break;
@@ -148,6 +151,14 @@ public class ControllersITest {
 			LOGGER.warn("Could not connect to {}. Fullstack trace follow",failure);
 			return false;
 		}
+	}
+
+	private static String firstLine(final String description) {
+		if(description==null) {
+			return "<NO DESCRIPTION AVAILABLE>";
+		}
+		final String[] split = description.split("\\n(\\r)?|\\r(\\n)?");
+		return split[0];
 	}
 
 
