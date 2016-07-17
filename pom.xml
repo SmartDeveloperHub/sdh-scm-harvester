@@ -7,7 +7,7 @@
       Center for Open Middleware
         http://www.centeropenmiddleware.com/
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-      Copyright (C) 2015 Center for Open Middleware.
+      Copyright (C) 2015-2016 Center for Open Middleware.
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
       Licensed under the Apache License, Version 2.0 (the "License");
       you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@
       See the License for the specific language governing permissions and
       limitations under the License.
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-      Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-aggregator:0.2.0
-      Bundle      : scm-harvester-aggregator-0.2.0.pom
+      Artifact    : org.smartdeveloperhub.harvesters.scm:scm-harvester-aggregator:0.3.0
+      Bundle      : scm-harvester-aggregator-0.3.0.pom
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
 -->
@@ -39,12 +39,12 @@
 	<parent>
 		<groupId>org.smartdeveloperhub</groupId>
 		<artifactId>sdh-build</artifactId>
-		<version>0.2.0</version>
+		<version>0.3.0</version>
 	</parent>
 
 	<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
 	<artifactId>scm-harvester-aggregator</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 
 	<packaging>pom</packaging>
 
@@ -52,19 +52,69 @@
 	<!--   MODULE INFORMATION                                                -->
 	<!-- =================================================================== -->
 
-	<name>SDH :: SCMH :: SCM Harvester</name>
+	<name>SDH :: SCMH -- SCM Harvester</name>
 
 	<description>The Software Configuration Management Harvester of the Smart Developer Hub project </description>
+
+	<url>http://www.smartdeveloperhub.org/</url>
+
+	<!-- The development team -->
+
+	<developers>
+		<developer>
+			<id>mestebangutierrez</id>
+			<name>Miguel Esteban Gutiérrez</name>
+			<email>m.esteban.gutierrez@gmail.com</email>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+				<role>product owner</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>andresgs77</id>
+			<name>Andrés García Silva</name>
+			<email>andresgs77@gmail.com</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+	</developers>
 
 	<!-- =================================================================== -->
 	<!--   BUILD SETTINGS                                                    -->
 	<!-- =================================================================== -->
 
 	<modules>
-		<module>jersey</module>
-		<module>ldp4j</module>
-		<module>container/ldp4j</module>
-		<module>container/jersey</module>
+		<module>backend</module>
+		<module>testing</module>
+		<module>frontend</module>
+		<module>dist</module>
+		<module>container</module>
+		<module>relocation/frontend</module>
+		<module>relocation/container</module>
 	</modules>
+
+	<!-- =================================================================== -->
+	<!--   ENVIRONMENT SETTINGS                                              -->
+	<!-- =================================================================== -->
+
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/SmartDeveloperHub/sdh-scm-harvester/issues</url>
+	</issueManagement>
+
+	<ciManagement>
+		<system>Travis-CI</system>
+		<url>https://travis-ci.org/SmartDeveloperHub/sdh-scm-harvester</url>
+	</ciManagement>
+
+	<scm>
+		<connection>scm:git:git://git@github.com:SmartDeveloperHub/sdh-scm-harvester.git</connection>
+		<developerConnection>scm:git:ssh://github.com/SmartDeveloperHub/sdh-scm-harvester.git</developerConnection>
+		<url>git://github.com/SmartDeveloperHub/sdh-scm-harvester.git</url>
+	</scm>
 
 </project>
