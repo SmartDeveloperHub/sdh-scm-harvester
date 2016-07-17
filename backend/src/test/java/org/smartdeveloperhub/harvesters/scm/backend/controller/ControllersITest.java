@@ -47,6 +47,7 @@ import org.smartdeveloperhub.harvesters.scm.backend.pojos.Commit;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Enhancer;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.Repository;
 import org.smartdeveloperhub.harvesters.scm.backend.pojos.User;
+import org.smartdeveloperhub.harvesters.scm.backend.rest.ConnectionFailedException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -72,6 +73,8 @@ public class ControllersITest {
 			final Enhancer enhancer = discoverEnhancer();
 			exploreRepositories(enhancer);
 			exploreUsers(enhancer);
+		} catch(final ConnectionFailedException e) {
+			LOGGER.info("Suspending exploration due to connection failures. Full stacktrace follows",e);
 		} catch(final IOException e) {
 			LOGGER.error("Exploration failed without reason. Full stacktrace follows",e);
 			fail("Should not fail exploration");
@@ -88,7 +91,7 @@ public class ControllersITest {
 		System.out.printf("Discovering enhancer %s...%n",GITLAB_ENHANCER);
 		final EnhancerController eController=new EnhancerController(GITLAB_ENHANCER);
 		final Enhancer enhancer=eController.getEnhancer();
-		LOGGER.info("Enhancer[{}]: {}",GITLAB_ENHANCER,enhancer);
+		LOGGER.debug("Enhancer[{}]: {}",GITLAB_ENHANCER,enhancer);
 		serialize(enhancer);
 		return enhancer;
 	}

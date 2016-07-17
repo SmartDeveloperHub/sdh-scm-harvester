@@ -31,8 +31,10 @@ import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.StatusLine;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -46,6 +48,9 @@ abstract class AbstractClient {
 	private static final String API_MIME             = "application/json";
 	private static final int    MAX_ATTEMPTS         = 5;
 
+	private static final int SOCKET_TIMEOUT     = 5*1000;
+	private static final int CONNECTION_TIMEOUT = 15*1000;
+
 	private final Logger logger; // NOSONAR
 	private final String apiBase;
 
@@ -57,7 +62,7 @@ abstract class AbstractClient {
 	protected final String getResource(final String path, final Object... args) throws IOException {
 		CloseableHttpClient client=null;
 		try {
-			client=HttpClients.createDefault();
+			client = HttpClients.createDefault();
 			final String resource = this.apiBase+String.format(path,args);
 			int attempts=0;
 			while(attempts<MAX_ATTEMPTS) {
@@ -76,6 +81,12 @@ abstract class AbstractClient {
 	private String attemptRetrieval(final CloseableHttpClient client, final String resourcePath) throws IOException {
 		final HttpGet httpRequest = new HttpGet(resourcePath);
 		httpRequest.addHeader(HttpHeaders.ACCEPT,API_MIME);
+		httpRequest.setConfig(
+			RequestConfig.
+				custom().
+					setSocketTimeout(SOCKET_TIMEOUT).
+					setConnectTimeout(CONNECTION_TIMEOUT).
+					build());
 		this.logger.info("GET {}",httpRequest.getURI());
 		CloseableHttpResponse httpResponse=null;
 		try {
@@ -93,6 +104,9 @@ abstract class AbstractClient {
 				throw new ServiceFailureException(resourcePath,statusLine);
 			}
 			return result;
+		} catch(final ConnectTimeoutException e) {
+			this.logger.info("Failed to connect to '{}. Full stacktrace follows",httpRequest.getURI(),e);
+			throw new ConnectionFailedException("Failed to connect to '"+httpRequest.getURI()+"'",e);
 		} finally {
 			Closeables.closeQuietly(httpResponse);
 		}
