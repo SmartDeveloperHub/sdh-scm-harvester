@@ -31,6 +31,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.sameInstance;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import mockit.Expectations;
 import mockit.Mock;
@@ -45,6 +46,7 @@ import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -160,6 +162,40 @@ public class ClientTestHelper {
 		}};
 	}
 
+	protected void setUpReadTimeOut() throws IOException {
+		new MockUp<HttpClients>() {
+			@Mock
+			public final CloseableHttpClient createDefault() {
+				return ClientTestHelper.this.client;
+			}
+		};
+		new MockUp<EntityUtils>() {
+			@Mock
+			String toString(final HttpEntity entity) throws IOException {
+				assertThat(entity,sameInstance(entity));
+				throw new SocketTimeoutException("Read timed out");
+			}
+		};
+		new Expectations(){{
+			ClientTestHelper.this.client.execute((HttpGet)this.any);this.result=ClientTestHelper.this.response;
+			ClientTestHelper.this.response.getStatusLine();this.result=ClientTestHelper.this.statusLine;
+			ClientTestHelper.this.statusLine.getStatusCode();returns(200);
+			ClientTestHelper.this.response.getEntity();this.result=ClientTestHelper.this.entity;
+		}};
+	}
+
+	protected void setUpConnectionTimeOut() throws IOException {
+		new MockUp<HttpClients>() {
+			@Mock
+			public final CloseableHttpClient createDefault() {
+				return ClientTestHelper.this.client;
+			}
+		};
+		new Expectations(){{
+			ClientTestHelper.this.client.execute((HttpGet)this.any);this.result=new ConnectTimeoutException("Connect to infra3.dia.fi.upm.es:5000 [infra3.dia.fi.upm.es/138.100.15.157] failed: connect timed out");
+		}};
+	}
+
 	protected void verifyHappyPath(final String result, final String resourcePath) throws IOException {
 		assertThat(result,equalTo(this.responseBody));
 		new Verifications() {{
@@ -180,6 +216,18 @@ public class ClientTestHelper {
 	protected void verifyFailure(final ServiceFailureException e, final String resourcePath, final int statusCode) throws IOException {
 		assertThat(e.getStatus(),equalTo(statusCode));
 		assertThat(e.getResource(),equalTo(resourcePath));
+		new Verifications() {{
+			HttpGet method;
+			ClientTestHelper.this.client.execute(method=withCapture());
+			assertThat(method.getURI().toString(),equalTo(resourcePath));
+			final Header[] accept = method.getHeaders(HttpHeaders.ACCEPT);
+			assertThat(accept.length,equalTo(1));
+			assertThat(accept[0].getValue(),equalTo("application/json"));
+		}};
+	}
+
+	protected void verifyConnectionFailure(final ConnectionFailedException e, final String resourcePath) throws IOException {
+		assertThat(e.getTarget().toString(),equalTo(resourcePath));
 		new Verifications() {{
 			HttpGet method;
 			ClientTestHelper.this.client.execute(method=withCapture());

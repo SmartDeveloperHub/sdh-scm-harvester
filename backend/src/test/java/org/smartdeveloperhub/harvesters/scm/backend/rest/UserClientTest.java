@@ -26,12 +26,16 @@
  */
 package org.smartdeveloperhub.harvesters.scm.backend.rest;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import mockit.integration.junit4.JMockit;
 
+import org.apache.http.conn.ConnectTimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -125,4 +129,27 @@ public class UserClientTest extends ClientTestHelper {
 		}
 	}
 
+	@Test
+	public void testGetUser$failIfConnectionTimesOut() throws Exception {
+		setUpConnectionTimeOut();
+		try {
+			this.sut.getUser("id");
+			fail("Should fail on connection timeout");
+		} catch (final ConnectionFailedException e) {
+			verifyConnectionFailure(e,BASE+"/users/id");
+			assertThat(e.getCause(),instanceOf(ConnectTimeoutException.class));
+		}
+	}
+
+	@Test
+	public void testGetUser$failIfSocketTimesOut() throws Exception {
+		setUpReadTimeOut();
+		try {
+			this.sut.getUser("id");
+			fail("Should fail on socket read time out");
+		} catch (final ConnectionFailedException e) {
+			verifyConnectionFailure(e,BASE+"/users/id");
+			assertThat(e.getCause(),instanceOf(SocketTimeoutException.class));
+		}
+	}
 }
