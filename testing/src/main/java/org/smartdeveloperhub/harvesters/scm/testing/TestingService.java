@@ -211,7 +211,7 @@ public final class TestingService {
 		this.port=port;
 		this.version=version;
 		this.config=config;
-		this.config.setInstance("http://"+host+":"+port+"/collector");
+		this.config.setInstance("http://"+host+":"+port+"/enhancer/api");
 		this.collector=GitCollector.newInstance(this.config);
 		this.enhancer=GitLabEnhancer.newInstance(this.collector,URI.create("http://"+host+":"+port+"/enhancer/api"));
 		if(listener!=null) {
